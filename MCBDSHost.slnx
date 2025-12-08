@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MCBDS.API/MCBDS.API.csproj" />
+  <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
+  <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
+</Solution>
