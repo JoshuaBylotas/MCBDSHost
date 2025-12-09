@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Bedrock Server Binaries (too large for Git - download separately)
+MCBDS.API/bedrock-server/bedrock_server
+MCBDS.API/bedrock-server/bedrock_server.exe
+MCBDS.API/bedrock-server/*.so
+MCBDS.API/bedrock-server/*.dll
+MCBDS.API/bedrock-server/worlds/
