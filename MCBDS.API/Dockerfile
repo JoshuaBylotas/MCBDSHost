@@ -13,6 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["MCBDS.API/MCBDS.API.csproj", "MCBDS.API/"]
+COPY ["MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj", "MCBDSHost.ServiceDefaults/"]
 RUN dotnet restore "./MCBDS.API/MCBDS.API.csproj"
 COPY . .
 WORKDIR "/src/MCBDS.API"
@@ -26,5 +27,13 @@ RUN dotnet publish "./MCBDS.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+
+# Copy the Bedrock server files
+USER root
+COPY ["bedrock-server/", "/bedrock/"]
+RUN chmod +x /bedrock/bedrock_server
+USER $APP_UID
+
+# Copy the published app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MCBDS.API.dll"]

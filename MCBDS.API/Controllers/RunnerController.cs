@@ -21,5 +21,12 @@ namespace MCBDS.API.Controllers
             var log = _runnerService.GetLog();
             return Ok(log);
         }
+
+        [HttpPost("stop")]
+        public IActionResult Stop()
+        {
+            _runnerService.Dispose();
+            return Ok(new { message = "Server stop command sent" });
+        }
     }
 }
