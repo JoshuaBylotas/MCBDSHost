@@ -1,0 +1,444 @@
+@page "/backup-settings"
+@using MCBDS.ClientUI.Shared.Services
+@using Microsoft.JSInterop
+@inject BedrockApiService ApiService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Backup Settings</PageTitle>
+
+<h1>Backup Settings</h1>
+
+<p>Configure automatic backup settings for the Minecraft server.</p>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading backup settings...</p>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Backup Configuration</h5>
+                    
+                    <div class="mb-3">
+                        <label for="frequencyInput" class="form-label">Backup Frequency (minutes)</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="frequencyInput"
+                               @bind="frequencyMinutes" 
+                               @bind:event="oninput"
+                               min="1" 
+                               max="1440"
+                               disabled="@isSaving" />
+                        <div class="form-text">How often backups should run (1-1440 minutes)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="directoryInput" class="form-label">Output Directory</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="directoryInput"
+                               @bind="backupDirectory" 
+                               @bind:event="oninput"
+                               placeholder="e.g., C:\Backups\Minecraft"
+                               disabled="@isSaving" />
+                        <div class="form-text">Location where backup files will be stored</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="maxBackupsInput" class="form-label">Maximum Backups to Keep</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="maxBackupsInput"
+                               @bind="maxBackupsToKeep" 
+                               @bind:event="oninput"
+                               min="0" 
+                               max="100"
+                               disabled="@isSaving" />
+                        <div class="form-text">Number of backups to retain (0 = keep all)</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" 
+                                @onclick="SaveSettings" 
+                                disabled="@isSaving">
+                            @if (isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-floppy" aria-hidden="true"></span>
+                            }
+                            Save Settings
+                        </button>
+                        <button class="btn btn-success" 
+                                @onclick="TriggerManualBackup" 
+                                disabled="@isBackingUp">
+                            @if (isBackingUp)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-play-fill" aria-hidden="true"></span>
+                            }
+                            Backup Now
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(statusMessage))
+                    {
+                        <div class="alert @statusClass mt-3" role="alert">
+                            @((MarkupString)statusMessage.Replace("\n", "<br/>"))
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Current Settings</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Frequency:</dt>
+                        <dd class="col-sm-7">@frequencyMinutes minutes</dd>
+                        
+                        <dt class="col-sm-5">Output Directory:</dt>
+                        <dd class="col-sm-7">
+                            @if (string.IsNullOrWhiteSpace(backupDirectory))
+                            {
+                                <em class="text-muted">Not set</em>
+                            }
+                            else
+                            {
+                                <small>@backupDirectory</small>
+                            }
+                        </dd>
+                        
+                        <dt class="col-sm-5">Max Backups:</dt>
+                        <dd class="col-sm-7">
+                            @if (maxBackupsToKeep == 0)
+                            {
+                                <span>Unlimited (keep all)</span>
+                            }
+                            else
+                            {
+                                <span>@maxBackupsToKeep backups</span>
+                            }
+                        </dd>
+                    </dl>
+                    <div class="mt-2">
+                        <small class="text-muted">Last loaded: @lastLoadTime.ToString("HH:mm:ss")</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Existing Backups</h5>
+                        <button class="btn btn-sm btn-outline-primary" @onclick="LoadBackups" disabled="@isLoadingBackups">
+                            @if (isLoadingBackups)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-arrow-clockwise-dark" aria-hidden="true"></span>
+                            }
+                            Refresh
+                        </button>
+                    </div>
+
+                    @if (backups == null || !backups.Any())
+                    {
+                        <p class="text-muted">No backups found.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Created</th>
+                                        <th>Size</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var backup in backups)
+                                    {
+                                        <tr>
+                                            <td><small>@backup.Name</small></td>
+                                            <td><small>@backup.CreatedAt.ToString("g")</small></td>
+                                            <td><small>@backup.SizeMB.ToString("F2") MB</small></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" 
+                                                        @onclick="() => DeleteBackup(backup.Name)"
+                                                        disabled="@isDeletingBackup">
+                                                    <span class="bi bi-trash" aria-hidden="true"></span>
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted mb-0"><small>Total: @backups.Count backup(s)</small></p>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Information</h5>
+                    <ul class="mb-0">
+                        <li>Settings are stored on the API server and reload automatically</li>
+                        <li>Backup frequency can be set between 1 and 1440 minutes (24 hours)</li>
+                        <li>Make sure the output directory exists and has write permissions</li>
+                        <li><strong>No restart required!</strong> Changes take effect immediately</li>
+                        <li>Use "Backup Now" to trigger an immediate backup without waiting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private int frequencyMinutes = 30;
+    private string backupDirectory = string.Empty;
+    private int maxBackupsToKeep = 10;
+    private string statusMessage = string.Empty;
+    private string statusClass = "alert-info";
+    private bool isSaving = false;
+    private bool isLoading = true;
+    private bool isBackingUp = false;
+    private bool isLoadingBackups = false;
+    private bool isDeletingBackup = false;
+    private List<BackupInfo> backups = new();
+    private DateTime lastLoadTime = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"[BackupConfig] OnInitializedAsync at {DateTime.Now:HH:mm:ss}");
+        await LoadSettings();
+        await LoadBackups();
+    }
+
+    private async Task LoadSettings()
+    {
+        Console.WriteLine($"[BackupConfig] LoadSettings called");
+        isLoading = true;
+        statusMessage = string.Empty;
+        
+        try
+        {
+            var config = await ApiService.GetBackupConfigAsync();
+            
+            if (config != null)
+            {
+                frequencyMinutes = config.FrequencyMinutes;
+                backupDirectory = config.BackupDirectory;
+                maxBackupsToKeep = config.MaxBackupsToKeep;
+                lastLoadTime = DateTime.Now;
+                
+                Console.WriteLine($"[BackupConfig] Loaded: Freq={frequencyMinutes}, Dir={backupDirectory}, Max={maxBackupsToKeep}");
+            }
+            else
+            {
+                Console.WriteLine("[BackupConfig] API returned null");
+                SetStatus("Failed to load settings from API. Using defaults.", "alert-warning");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BackupConfig] Error: {ex.Message}");
+            SetStatus($"Error loading settings: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        if (frequencyMinutes < 1 || frequencyMinutes > 1440)
+        {
+            SetStatus("Frequency must be between 1 and 1440 minutes", "alert-warning");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(backupDirectory))
+        {
+            SetStatus("Please specify an output directory", "alert-warning");
+            return;
+        }
+
+        if (maxBackupsToKeep < 0)
+        {
+            SetStatus("Max backups must be 0 or greater", "alert-warning");
+            return;
+        }
+
+        // Store the values we're saving
+        var savedFrequency = frequencyMinutes;
+        var savedDirectory = backupDirectory;
+        var savedMaxBackups = maxBackupsToKeep;
+
+        Console.WriteLine($"[BackupConfig] Saving: Freq={savedFrequency}, Dir={savedDirectory}, Max={savedMaxBackups}");
+        
+        isSaving = true;
+        statusMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var (success, message, savedConfig) = await ApiService.UpdateBackupConfigAsync(savedFrequency, savedDirectory, savedMaxBackups);
+            
+            if (success)
+            {
+                Console.WriteLine($"[BackupConfig] Save successful");
+                
+                // Use the saved values (don't reload which might get stale data)
+                frequencyMinutes = savedFrequency;
+                backupDirectory = savedDirectory;
+                maxBackupsToKeep = savedMaxBackups;
+                lastLoadTime = DateTime.Now;
+                
+                SetStatus($"Success! {message}\n\nSettings saved successfully!", "alert-success");
+            }
+            else
+            {
+                Console.WriteLine($"[BackupConfig] Save failed: {message}");
+                SetStatus($"Failed to save settings: {message}", "alert-danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BackupConfig] Save error: {ex.Message}");
+            SetStatus($"Error saving settings: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TriggerManualBackup()
+    {
+        isBackingUp = true;
+        SetStatus("Triggering manual backup...", "alert-info");
+        StateHasChanged();
+
+        try
+        {
+            var (success, message) = await ApiService.TriggerManualBackupAsync();
+            
+            if (success)
+            {
+                SetStatus($"Success! {message}\n\nBackup is running in the background.", "alert-success");
+                await Task.Delay(3000);
+                await LoadBackups();
+            }
+            else
+            {
+                SetStatus($"Failed to trigger backup: {message}", "alert-danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Error triggering backup: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isBackingUp = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadBackups()
+    {
+        isLoadingBackups = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApiService.GetBackupListAsync();
+            
+            if (result != null && result.backups != null)
+            {
+                backups = result.backups;
+            }
+            else
+            {
+                backups = new List<BackupInfo>();
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Error loading backups: {ex.Message}", "alert-warning");
+            backups = new List<BackupInfo>();
+        }
+        finally
+        {
+            isLoadingBackups = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteBackup(string backupName)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete backup '{backupName}'?");
+        
+        if (!confirmed)
+        {
+            return;
+        }
+
+        isDeletingBackup = true;
+        StateHasChanged();
+
+        try
+        {
+            var (success, message) = await ApiService.DeleteBackupAsync(backupName);
+            
+            if (success)
+            {
+                SetStatus($"Backup '{backupName}' deleted successfully", "alert-success");
+                await LoadBackups();
+            }
+            else
+            {
+                SetStatus($"Failed to delete backup: {message}", "alert-danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Error deleting backup: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isDeletingBackup = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetStatus(string message, string cssClass)
+    {
+        statusMessage = message;
+        statusClass = cssClass;
+    }
+}

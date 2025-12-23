@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MCBDS.API\MCBDS.API.csproj" />
+    <ProjectReference Include="..\MCBDS.ClientUI\MCBDS.ClientUI.Web\MCBDS.ClientUI.Web.csproj" />
   </ItemGroup>
 
 </Project>
