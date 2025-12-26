@@ -176,6 +176,38 @@ docker run --rm \
 # Make sure to check the 'repo' checkbox when creating it
 ```
 
+### Permission Denied - Docker Socket Error
+```bash
+# After adding user to docker group, you MUST log out and back in
+exit
+
+# Then reconnect to your server
+ssh username@your-server-ip
+
+# Verify you're in the docker group
+groups
+
+# You should see 'docker' in the list
+# Now try again
+cd ~/MCBDSHost
+docker compose up --build -d
+```
+
+**Alternative quick fix (without logging out):**
+```bash
+# Use newgrp to activate the docker group in current session
+newgrp docker
+
+# Now run docker compose
+cd ~/MCBDSHost
+docker compose up --build -d
+```
+
+**If still having issues, run with sudo (temporary solution):**
+```bash
+sudo docker compose up --build -d
+```
+
 ### Container won't start
 ```bash
 docker compose ps            # Check status
@@ -202,3 +234,5 @@ See `DOCKER_DEPLOYMENT.md` for complete deployment options including:
 - Production configuration
 - Volume management
 - Security best practices
+
+---Token
