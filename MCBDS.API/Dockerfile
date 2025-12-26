@@ -30,12 +30,20 @@ RUN dotnet publish "./MCBDS.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 FROM base AS final
 WORKDIR /app
 
-# Copy the Bedrock server files
+# Create necessary directories
 USER root
+RUN mkdir -p /app/Binaries /app/logs /app/backups && \
+    chmod 755 /app/Binaries /app/logs /app/backups
+
+# Copy the Bedrock server files
 COPY ["MCBDS.API/bedrock-server/", "/app/Binaries/"]
 RUN chmod +x /app/Binaries/bedrock_server
-USER $APP_UID
 
 # Copy the published app
 COPY --from=publish /app/publish .
+
+# Set ownership to app user
+RUN chown -R $APP_UID:$APP_UID /app
+
+USER $APP_UID
 ENTRYPOINT ["dotnet", "MCBDS.API.dll"]

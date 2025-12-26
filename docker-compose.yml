@@ -21,6 +21,8 @@ services:
       # Persist world data and server configuration
       - mcbds-worlds:/app/Binaries/worlds
       - mcbds-config:/app/Binaries
+      - mcbds-logs:/app/logs
+      - mcbds-backups:/app/backups
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -51,4 +53,8 @@ volumes:
   mcbds-worlds:
     driver: local
   mcbds-config:
+    driver: local
+  mcbds-logs:
+    driver: local
+  mcbds-backups:
     driver: local
