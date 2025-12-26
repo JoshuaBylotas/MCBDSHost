@@ -1,7 +1,7 @@
 # See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-bookworm-slim-arm64v8 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -11,7 +11,7 @@ EXPOSE 19133/udp
 
 
 # This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-bookworm-slim-arm64v8 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["MCBDS.API/MCBDS.API.csproj", "MCBDS.API/"]
@@ -37,7 +37,7 @@ RUN mkdir -p /app/Binaries /app/logs /app/backups && \
 
 # Copy the Bedrock server files
 COPY ["MCBDS.API/bedrock-server/", "/app/Binaries/"]
-RUN chmod +x /app/Binaries/bedrock_server
+RUN chmod +x /app/Binaries/bedrock_server || true
 
 # Copy the published app
 COPY --from=publish /app/publish .
