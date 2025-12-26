@@ -32,8 +32,8 @@ WORKDIR /app
 
 # Copy the Bedrock server files
 USER root
-COPY ["bedrock-server/", "/bedrock/"]
-RUN chmod +x /bedrock/bedrock_server
+COPY ["MCBDS.API/bedrock-server/", "/app/Binaries/"]
+RUN chmod +x /app/Binaries/bedrock_server
 USER $APP_UID
 
 # Copy the published app

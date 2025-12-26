@@ -97,14 +97,18 @@ git clone git@github.com:JoshuaBylotas/MCBDSHost.git
 
 cd MCBDSHost
 
-# Download Minecraft Bedrock Server (REQUIRED)
+# ?? IMPORTANT: Download Minecraft Bedrock Server BEFORE building Docker images
 cd MCBDS.API/bedrock-server
+
+# Check latest version at: https://www.minecraft.net/en-us/download/server/bedrock
 wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
 unzip bedrock-server-*.zip
 chmod +x bedrock_server
+
+# Return to project root
 cd ../..
 
-# Build and start containers
+# Now build and start containers
 docker compose up --build -d
 ```
 
@@ -208,6 +212,26 @@ docker compose up --build -d
 sudo docker compose up --build -d
 ```
 
+### Bedrock Server Files Not Found (Docker Build Error)
+```bash
+# Error: "/bedrock-server": not found
+# This means you forgot to download the Bedrock server files
+
+# Fix: Download the files before building
+cd ~/MCBDSHost/MCBDS.API/bedrock-server
+wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
+unzip bedrock-server-*.zip
+chmod +x bedrock_server
+
+# Verify files are present
+ls -la
+# You should see: bedrock_server, server.properties, etc.
+
+# Return to project root and rebuild
+cd ../..
+docker compose up --build -d
+```
+
 ### Container won't start
 ```bash
 docker compose ps            # Check status
@@ -235,4 +259,4 @@ See `DOCKER_DEPLOYMENT.md` for complete deployment options including:
 - Volume management
 - Security best practices
 
----Token
+---
