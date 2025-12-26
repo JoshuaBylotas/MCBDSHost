@@ -1,0 +1,59 @@
+# Docker Compose for Windows Server Deployment
+version: '3.8'
+
+services:
+  # Minecraft Bedrock Dedicated Server API
+  mcbds-api:
+    build:
+      context: .
+      dockerfile: MCBDS.API/Dockerfile.windows
+    container_name: mcbds-api
+    ports:
+      - "8080:8080"       # HTTP API
+      - "8081:8081"       # HTTPS API (if configured)
+      - "19132:19132/udp" # Minecraft Bedrock IPv4
+      - "19133:19133/udp" # Minecraft Bedrock IPv6
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    volumes:
+      # Persist world data and server configuration
+      - mcbds-worlds:C:/app/Binaries/worlds
+      - mcbds-config:C:/app/Binaries
+      - mcbds-logs:C:/app/logs
+      - mcbds-backups:C:/app/backups
+    healthcheck:
+      test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing -ErrorAction Stop; exit 0 } catch { exit 1 }"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Client Web UI - Blazor Server application
+  mcbds-clientui-web:
+    build:
+      context: .
+      dockerfile: MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile.windows
+    container_name: mcbds-clientui-web
+    ports:
+      - "5000:8080"  # Web UI accessible on port 5000
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ApiSettings__BaseUrl=http://mcbds-api:8080
+    depends_on:
+      mcbds-api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mcbds-worlds:
+    driver: local
+  mcbds-config:
+    driver: local
+  mcbds-logs:
+    driver: local
+  mcbds-backups:
+    driver: local

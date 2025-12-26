@@ -120,115 +120,29 @@ Set-Location "C:\MCBDSHost\MCBDSHost"
 
 ### Update Docker Configuration
 
-Create or update `docker-compose.windows.yml`:
+The `docker-compose.windows.yml` file has been created in the repository root. It includes:
 
-```powershell
-# Create Windows-specific docker-compose file
-@"
-# Docker Compose for Windows Server Deployment
-version: '3.8'
+- Windows-specific volume paths (`C:/app/...`)
+- PowerShell-based healthchecks
+- Proper Windows container configuration
+- Separate Dockerfiles for Windows (`Dockerfile.windows`)
 
-services:
-  # Minecraft Bedrock Dedicated Server API
-  mcbds-api:
-    build:
-      context: .
-      dockerfile: MCBDS.API/Dockerfile.windows
-    container_name: mcbds-api
-    ports:
-      - "8080:8080"       # HTTP API
-      - "8081:8081"       # HTTPS API (if configured)
-      - "19132:19132/udp" # Minecraft Bedrock IPv4
-      - "19133:19133/udp" # Minecraft Bedrock IPv6
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    volumes:
-      # Persist world data and server configuration
-      - mcbds-worlds:C:/app/Binaries/worlds
-      - mcbds-config:C:/app/Binaries
-      - mcbds-logs:C:/app/logs
-      - mcbds-backups:C:/app/backups
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    restart: unless-stopped
-
-  # Client Web UI - Blazor Server application
-  mcbds-clientui-web:
-    build:
-      context: .
-      dockerfile: MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile
-    container_name: mcbds-clientui-web
-    ports:
-      - "5000:8080"  # Web UI accessible on port 5000
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ApiSettings__BaseUrl=http://mcbds-api:8080
-    depends_on:
-      mcbds-api:
-        condition: service_healthy
-    restart: unless-stopped
-
-volumes:
-  mcbds-worlds:
-    driver: local
-  mcbds-config:
-    driver: local
-  mcbds-logs:
-    driver: local
-  mcbds-backups:
-    driver: local
-"@ | Out-File -FilePath docker-compose.windows.yml -Encoding UTF8
-```
+**Note:** The file is already in the repository. You just need to pull the latest changes.
 
 ### Create Windows-Specific Dockerfile
 
-```powershell
-# Create Windows Dockerfile
-@"
-# Windows Server Docker deployment
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-nanoserver-ltsc2022 AS base
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-EXPOSE 19132/udp
-EXPOSE 19133/udp
+The Windows Dockerfile has been created at `MCBDS.API/Dockerfile.windows`. It uses Windows Server Core base images which have better compatibility than NanoServer for running external processes like the Minecraft server.
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0-nanoserver-ltsc2022 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["MCBDS.API/MCBDS.API.csproj", "MCBDS.API/"]
-COPY ["MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj", "MCBDSHost.ServiceDefaults/"]
-RUN dotnet restore "./MCBDS.API/MCBDS.API.csproj"
-COPY . .
-WORKDIR "/src/MCBDS.API"
-RUN dotnet build "./MCBDS.API.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+**Key differences from Linux:**
+- Uses `windowsservercore-ltsc2022` base images (not NanoServer)
+- Uses PowerShell to create directories
+- Uses Windows-style paths (`C:\app\...`)
+- Healthcheck uses PowerShell commands
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MCBDS.API.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+### Create Web UI Windows Dockerfile
 
-FROM base AS final
-WORKDIR /app
+The Web UI Dockerfile has been created at `MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile.windows`.
 
-# Create necessary directories
-RUN mkdir C:\\app\\Binaries && mkdir C:\\app\\logs && mkdir C:\\app\\backups
-
-# Copy the Bedrock server files
-COPY ["MCBDS.API/bedrock-server/", "C:/app/Binaries/"]
-
-# Copy the published app
-COPY --from=publish /app/publish .
-
-ENTRYPOINT ["dotnet", "MCBDS.API.dll"]
-"@ | Out-File -FilePath MCBDS.API/Dockerfile.windows -Encoding UTF8
-```
 
 ### Update appsettings for Windows Paths
 

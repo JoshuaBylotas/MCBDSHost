@@ -1,0 +1,35 @@
+# Windows Server Docker deployment
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-windowsservercore-ltsc2022 AS base
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+EXPOSE 19132/udp
+EXPOSE 19133/udp
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0-windowsservercore-ltsc2022 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["MCBDS.API/MCBDS.API.csproj", "MCBDS.API/"]
+COPY ["MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj", "MCBDSHost.ServiceDefaults/"]
+RUN dotnet restore "./MCBDS.API/MCBDS.API.csproj"
+COPY . .
+WORKDIR "/src/MCBDS.API"
+RUN dotnet build "./MCBDS.API.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./MCBDS.API.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+
+# Create necessary directories (using PowerShell for better compatibility)
+RUN powershell -Command "New-Item -Path 'C:\app\Binaries' -ItemType Directory -Force; New-Item -Path 'C:\app\logs' -ItemType Directory -Force; New-Item -Path 'C:\app\backups' -ItemType Directory -Force"
+
+# Copy the Bedrock server files
+COPY ["MCBDS.API/bedrock-server/", "C:/app/Binaries/"]
+
+# Copy the published app
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["dotnet", "MCBDS.API.dll"]
