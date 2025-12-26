@@ -1,0 +1,23 @@
+# Docker Compose Override for Development
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.override.yml up
+
+services:
+  mcbds-api:
+    build:
+      args:
+        BUILD_CONFIGURATION: Debug
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8080:8080"
+      - "19132:19132/udp"
+      - "19133:19133/udp"
+
+  mcbds-clientui-web:
+    build:
+      args:
+        BUILD_CONFIGURATION: Debug
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"

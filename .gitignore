@@ -10,6 +10,23 @@ MCBDS.API/bedrock-server/*
 !MCBDS.API/bedrock-server/DOWNLOAD_INSTRUCTIONS.md
 !MCBDS.API/bedrock-server/bedrock_server_how_to.html
 
+# Visual Studio IDE folder
+.vs/
+
+# Build artifacts
+obj/
+bin/
+
+# Logs
+*.log
+
+# Backup files
+*.Backup.tmp
+*.bak
+
+# Publish Profiles (may contain sensitive data)
+**/Properties/PublishProfiles/
+
 # User-specific files
 *.rsuser
 *.suo

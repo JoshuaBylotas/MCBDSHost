@@ -23,6 +23,21 @@
 **/values.dev.yaml
 LICENSE
 README.md
+
+# Exclude MAUI projects (cannot be containerized)
+**/MCBDS.PublicUI/**
+**/MCBDS.ClientUI/MCBDS.ClientUI/**
+
+# Exclude AppHost (Aspire orchestrator - not needed in containers)
+**/MCBDSHost.AppHost/**
+
+# Exclude test projects
+**/*.Tests/**
+**/TestResults/**
+
+# Exclude markdown documentation
+**/*.md
+
 !**/.gitignore
 !.git/HEAD
 !.git/config
