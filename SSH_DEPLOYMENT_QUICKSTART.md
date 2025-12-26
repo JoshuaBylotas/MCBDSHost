@@ -3,6 +3,64 @@
 ## ? Problem Solved
 The large bedrock-server binary files have been removed from Git history. Your repository is now ready to push to GitHub without errors.
 
+## ?? GitHub Authentication (Required First)
+
+GitHub no longer accepts passwords for Git operations. You need a **Personal Access Token**.
+
+### Option 1: Use Personal Access Token (Quick)
+
+1. **Create Token**: Go to https://github.com/settings/tokens
+2. Click **"Generate new token"** ? **"Generate new token (classic)"**
+3. Settings:
+   - Name: `Linux Server Deployment`
+   - Expiration: `90 days` (or custom)
+   - Scopes: ? **repo** (Full control of private repositories)
+4. Click **"Generate token"**
+5. **COPY THE TOKEN** - you won't see it again!
+
+6. **Clone with token**:
+```bash
+# When prompted for username: JoshuaBylotas
+# When prompted for password: paste your token
+git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+```
+
+### Option 2: Use SSH Keys (Most Secure - Recommended)
+
+```bash
+# Generate SSH key on your server
+ssh-keygen -t ed25519 -C "your-email@example.com"
+# Press Enter 3 times (default location, no passphrase)
+
+# Display public key
+cat ~/.ssh/id_ed25519.pub
+```
+
+1. Copy the entire output
+2. Go to https://github.com/settings/keys
+3. Click **"New SSH key"**
+4. Title: `Linux Server`
+5. Paste the key and click **"Add SSH key"**
+
+6. **Clone with SSH**:
+```bash
+git clone git@github.com:JoshuaBylotas/MCBDSHost.git
+```
+
+### Option 3: Make Repository Public (No Auth Required)
+
+If this is open-source:
+1. Go to https://github.com/JoshuaBylotas/MCBDSHost/settings
+2. Scroll to "Danger Zone" ? "Change visibility"
+3. Click "Make public"
+
+Then clone without authentication:
+```bash
+git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+```
+
+---
+
 ## ?? Deploy to Linux Server via SSH
 
 ### Step 1: Connect to Your Server
@@ -32,8 +90,11 @@ exit
 # Reconnect to server
 ssh username@your-server-ip
 
-# Clone your repository
+# Clone your repository (use ONE of the methods from GitHub Authentication section above)
 git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+# OR
+git clone git@github.com:JoshuaBylotas/MCBDSHost.git
+
 cd MCBDSHost
 
 # Download Minecraft Bedrock Server (REQUIRED)
@@ -104,8 +165,16 @@ docker run --rm \
 2. **Firewall**: Ensure ports 5000, 8080, 19132, and 19133 are open
 3. **SSH Access**: Always keep port 22 open to maintain SSH access
 4. **Docker Volumes**: World data persists in Docker volumes `mcbdshost-mcbds-worlds`
+5. **GitHub Token**: Store your Personal Access Token securely - it's like a password!
 
 ## ?? Troubleshooting
+
+### Authentication Failed (403 Error)
+```bash
+# Your Personal Access Token needs 'repo' scope
+# Create a new token at: https://github.com/settings/tokens
+# Make sure to check the 'repo' checkbox when creating it
+```
 
 ### Container won't start
 ```bash
