@@ -17,6 +17,7 @@ namespace MCBDS.API.Background
         private readonly ILogger<RunnerHostedService> _logger;
         private string? _logFilePath;
         private JobObject? _jobObject;
+        private DateTime _processStartTime;
 
         public RunnerHostedService(IConfiguration config, ILogger<RunnerHostedService> logger)
         {
@@ -50,6 +51,7 @@ namespace MCBDS.API.Background
             _bedrockProcess.OutputDataReceived += (s, e) => AppendLog(e.Data);
             _bedrockProcess.ErrorDataReceived += (s, e) => AppendLog(e.Data);
             _bedrockProcess.Start();
+            _processStartTime = DateTime.UtcNow;
             
             // Create job object to ensure child process terminates with parent
             if (OperatingSystem.IsWindows())
@@ -183,6 +185,123 @@ namespace MCBDS.API.Background
                 return false;
             }
         }
+
+        /// <summary>
+        /// Gets the current status of the Bedrock server process
+        /// </summary>
+        public ServerStatus GetServerStatus()
+        {
+            var status = new ServerStatus
+            {
+                IsRunning = _bedrockProcess != null && !_bedrockProcess.HasExited,
+                StartTimeUtc = _processStartTime
+            };
+
+            if (status.IsRunning && _bedrockProcess != null)
+            {
+                try
+                {
+                    _bedrockProcess.Refresh();
+                    status.Uptime = DateTime.UtcNow - _processStartTime;
+                    status.ProcessId = _bedrockProcess.Id;
+                    status.ProcessName = _bedrockProcess.ProcessName;
+                    
+                    // Memory stats
+                    status.WorkingSetMB = _bedrockProcess.WorkingSet64 / (1024.0 * 1024.0);
+                    status.PrivateMemoryMB = _bedrockProcess.PrivateMemorySize64 / (1024.0 * 1024.0);
+                    status.VirtualMemoryMB = _bedrockProcess.VirtualMemorySize64 / (1024.0 * 1024.0);
+                    status.PeakWorkingSetMB = _bedrockProcess.PeakWorkingSet64 / (1024.0 * 1024.0);
+                    
+                    // CPU time
+                    status.TotalProcessorTime = _bedrockProcess.TotalProcessorTime;
+                    status.UserProcessorTime = _bedrockProcess.UserProcessorTime;
+                    
+                    // Thread count
+                    status.ThreadCount = _bedrockProcess.Threads.Count;
+                    
+                    // Handle count (Windows only)
+                    if (OperatingSystem.IsWindows())
+                    {
+                        status.HandleCount = _bedrockProcess.HandleCount;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error getting process stats");
+                }
+            }
+
+            return status;
+        }
+
+        /// <summary>
+        /// Gets the API container/host process statistics
+        /// </summary>
+        public static ApiHostStatus GetApiHostStatus()
+        {
+            var currentProcess = Process.GetCurrentProcess();
+            var status = new ApiHostStatus
+            {
+                ProcessId = currentProcess.Id,
+                ProcessName = currentProcess.ProcessName,
+                StartTimeUtc = currentProcess.StartTime.ToUniversalTime(),
+                Uptime = DateTime.UtcNow - currentProcess.StartTime.ToUniversalTime(),
+                WorkingSetMB = currentProcess.WorkingSet64 / (1024.0 * 1024.0),
+                PrivateMemoryMB = currentProcess.PrivateMemorySize64 / (1024.0 * 1024.0),
+                VirtualMemoryMB = currentProcess.VirtualMemorySize64 / (1024.0 * 1024.0),
+                TotalProcessorTime = currentProcess.TotalProcessorTime,
+                ThreadCount = currentProcess.Threads.Count
+            };
+
+            if (OperatingSystem.IsWindows())
+            {
+                status.HandleCount = currentProcess.HandleCount;
+            }
+
+            // Get GC memory info
+            var gcInfo = GC.GetGCMemoryInfo();
+            status.GCHeapSizeMB = GC.GetTotalMemory(false) / (1024.0 * 1024.0);
+            status.GCGen0Collections = GC.CollectionCount(0);
+            status.GCGen1Collections = GC.CollectionCount(1);
+            status.GCGen2Collections = GC.CollectionCount(2);
+
+            return status;
+        }
+    }
+
+    public class ServerStatus
+    {
+        public bool IsRunning { get; set; }
+        public int ProcessId { get; set; }
+        public string ProcessName { get; set; } = string.Empty;
+        public DateTime StartTimeUtc { get; set; }
+        public TimeSpan Uptime { get; set; }
+        public double WorkingSetMB { get; set; }
+        public double PrivateMemoryMB { get; set; }
+        public double VirtualMemoryMB { get; set; }
+        public double PeakWorkingSetMB { get; set; }
+        public TimeSpan TotalProcessorTime { get; set; }
+        public TimeSpan UserProcessorTime { get; set; }
+        public int ThreadCount { get; set; }
+        public int HandleCount { get; set; }
+    }
+
+    public class ApiHostStatus
+    {
+        public int ProcessId { get; set; }
+        public string ProcessName { get; set; } = string.Empty;
+        public DateTime StartTimeUtc { get; set; }
+        public TimeSpan Uptime { get; set; }
+        public double WorkingSetMB { get; set; }
+        public double PrivateMemoryMB { get; set; }
+        public double VirtualMemoryMB { get; set; }
+        public TimeSpan TotalProcessorTime { get; set; }
+        public int ThreadCount { get; set; }
+        public int HandleCount { get; set; }
+        public double GCHeapSizeMB { get; set; }
+        public int GCGen0Collections { get; set; }
+        public int GCGen1Collections { get; set; }
+        public int GCGen2Collections { get; set; }
     }
 
     [SupportedOSPlatform("windows")]

@@ -22,6 +22,20 @@ namespace MCBDS.API.Controllers
             return Ok(log);
         }
 
+        [HttpGet("status")]
+        public IActionResult GetStatus()
+        {
+            var serverStatus = _runnerService.GetServerStatus();
+            var apiStatus = RunnerHostedService.GetApiHostStatus();
+
+            return Ok(new
+            {
+                server = serverStatus,
+                api = apiStatus,
+                timestamp = DateTime.UtcNow
+            });
+        }
+
         [HttpPost("send")]
         public async Task<IActionResult> SendLine([FromBody] SendLineRequest request)
         {

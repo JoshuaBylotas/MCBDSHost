@@ -144,6 +144,19 @@ public class BedrockApiService
             return null;
         }
     }
+
+    // Server Status API methods
+    public async Task<SystemStatusResponse?> GetSystemStatusAsync()
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<SystemStatusResponse>("/api/runner/status");
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
 
 public class BackupConfigResponse
@@ -206,4 +219,47 @@ public class ServerPropertyItem
     public string Value { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
+}
+
+// System Status response classes
+public class SystemStatusResponse
+{
+    public ServerStatusInfo? Server { get; set; }
+    public ApiHostStatusInfo? Api { get; set; }
+    public DateTime Timestamp { get; set; }
+}
+
+public class ServerStatusInfo
+{
+    public bool IsRunning { get; set; }
+    public int ProcessId { get; set; }
+    public string ProcessName { get; set; } = string.Empty;
+    public DateTime StartTimeUtc { get; set; }
+    public TimeSpan Uptime { get; set; }
+    public double WorkingSetMB { get; set; }
+    public double PrivateMemoryMB { get; set; }
+    public double VirtualMemoryMB { get; set; }
+    public double PeakWorkingSetMB { get; set; }
+    public TimeSpan TotalProcessorTime { get; set; }
+    public TimeSpan UserProcessorTime { get; set; }
+    public int ThreadCount { get; set; }
+    public int HandleCount { get; set; }
+}
+
+public class ApiHostStatusInfo
+{
+    public int ProcessId { get; set; }
+    public string ProcessName { get; set; } = string.Empty;
+    public DateTime StartTimeUtc { get; set; }
+    public TimeSpan Uptime { get; set; }
+    public double WorkingSetMB { get; set; }
+    public double PrivateMemoryMB { get; set; }
+    public double VirtualMemoryMB { get; set; }
+    public TimeSpan TotalProcessorTime { get; set; }
+    public int ThreadCount { get; set; }
+    public int HandleCount { get; set; }
+    public double GCHeapSizeMB { get; set; }
+    public int GCGen0Collections { get; set; }
+    public int GCGen1Collections { get; set; }
+    public int GCGen2Collections { get; set; }
 }
