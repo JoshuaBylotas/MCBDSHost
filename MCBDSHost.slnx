@@ -1,5 +1,15 @@
 <Solution>
-  <Project Path="MCBDS.API/MCBDS.API.csproj" />
+  <Project Path="MCBDS.API/MCBDS.API.csproj">
+    <BuildDependency Project="MCBDS.ClientUI/MCBDS.ClientUI.Shared/MCBDS.ClientUI.Shared.csproj" />
+    <BuildDependency Project="MCBDS.ClientUI/MCBDS.ClientUI.Web/MCBDS.ClientUI.Web.csproj" />
+    <BuildDependency Project="MCBDS.ClientUI/MCBDS.ClientUI/MCBDS.ClientUI.csproj" />
+  </Project>
+  <Project Path="MCBDS.ClientUI/MCBDS.ClientUI.Shared/MCBDS.ClientUI.Shared.csproj" />
+  <Project Path="MCBDS.ClientUI/MCBDS.ClientUI.Web/MCBDS.ClientUI.Web.csproj" />
+  <Project Path="MCBDS.ClientUI/MCBDS.ClientUI/MCBDS.ClientUI.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj" />
   <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
   <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
 </Solution>

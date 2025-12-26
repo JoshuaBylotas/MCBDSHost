@@ -1,0 +1,208 @@
+@page "/commands"
+@inject MCBDS.ClientUI.Shared.Services.BedrockApiService ApiService
+
+<PageTitle>Commands</PageTitle>
+
+<h1>Server Commands</h1>
+
+<p>Send commands to the Minecraft Bedrock Dedicated Server.</p>
+
+<div class="row mb-3">
+    <div class="col-md-8">
+        <div class="input-group">
+            <input @bind="commandInput" 
+                   @bind:event="oninput"
+                   @onkeypress="HandleKeyPress"
+                   type="text" 
+                   class="form-control" 
+                   placeholder="Enter server command (e.g., 'list', 'say Hello')"
+                   disabled="@isProcessing" />
+            <button class="btn btn-primary" @onclick="SendCommand" disabled="@isProcessing">
+                @if (isProcessing)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
+                else
+                {
+                    <span class="bi bi-send-fill" aria-hidden="true"></span>
+                }
+                Send
+            </button>
+        </div>
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="alert @statusClass mt-2" role="alert">
+                @statusMessage
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <h3>Server Log</h3>
+        <button class="btn btn-secondary btn-sm mb-2" @onclick="RefreshLog" disabled="@isLoadingLog">
+            @if (isLoadingLog)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span class="bi bi-arrow-clockwise-dark" aria-hidden="true"></span>
+            }
+            Refresh Log
+        </button>
+        <button class="btn btn-warning btn-sm mb-2 ms-2" @onclick="RestartServer" disabled="@isProcessing">
+            @if (isRestarting)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span class="bi bi-arrow-counterclockwise" aria-hidden="true"></span>
+            }
+            Restart Server
+        </button>
+        <pre class="border p-3 bg-dark text-light" style="height: 400px; overflow-y: auto;">@serverLog</pre>
+    </div>
+</div>
+
+@code {
+    private string commandInput = string.Empty;
+    private string serverLog = "Loading...";
+    private string statusMessage = string.Empty;
+    private string statusClass = "alert-info";
+    private bool isProcessing = false;
+    private bool isLoadingLog = false;
+    private bool isRestarting = false;
+    private System.Threading.Timer? autoRefreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshLog();
+        
+        // Auto-refresh log every 3 seconds
+        autoRefreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                if (!isProcessing && !isLoadingLog)
+                {
+                    await RefreshLog();
+                }
+            });
+        }, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
+    }
+
+    private async Task SendCommand()
+    {
+        if (string.IsNullOrWhiteSpace(commandInput))
+        {
+            SetStatus("Please enter a command", "alert-warning");
+            return;
+        }
+
+        isProcessing = true;
+        statusMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.SendLineAsync(commandInput);
+            
+            if (response != null)
+            {
+                SetStatus($"Command sent: {commandInput}", "alert-success");
+                commandInput = string.Empty;
+                await Task.Delay(500);
+                await RefreshLog();
+            }
+            else
+            {
+                SetStatus("Failed to send command. Server may not be running.", "alert-danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Error: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshLog()
+    {
+        isLoadingLog = true;
+        
+        try
+        {
+            var log = await ApiService.GetLogAsync();
+            serverLog = log ?? "No log data available.";
+        }
+        catch (Exception ex)
+        {
+            serverLog = $"Error loading log: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingLog = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RestartServer()
+    {
+        isRestarting = true;
+        isProcessing = true;
+        SetStatus("Restarting server...", "alert-info");
+        StateHasChanged();
+
+        try
+        {
+            var response = await ApiService.RestartAsync();
+            
+            if (response != null)
+            {
+                SetStatus("Server restarted successfully", "alert-success");
+                await Task.Delay(2000);
+                await RefreshLog();
+            }
+            else
+            {
+                SetStatus("Failed to restart server", "alert-danger");
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Error: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isRestarting = false;
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetStatus(string message, string cssClass)
+    {
+        statusMessage = message;
+        statusClass = cssClass;
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !isProcessing)
+        {
+            await SendCommand();
+        }
+    }
+
+    public void Dispose()
+    {
+        autoRefreshTimer?.Dispose();
+    }
+}

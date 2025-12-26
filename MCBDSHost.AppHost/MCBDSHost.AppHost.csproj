@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0" />
 
@@ -11,11 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MCBDS.API\MCBDS.API.csproj" />
+    <ProjectReference Include="..\MCBDS.ClientUI\MCBDS.ClientUI.Web\MCBDS.ClientUI.Web.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bedrock Server Console</title>
+    <style>
+        body { font-family: monospace; background: #181818; color: #e0e0e0; margin: 0; padding: 0; }
+        #log { width: 100%; height: 60vh; background: #222; color: #e0e0e0; overflow-y: scroll; padding: 1em; border: none; }
+        #command { width: 60%; padding: 0.5em; font-size: 1em; }
+        #send, #restart { padding: 0.5em 1em; font-size: 1em; margin-left: 0.5em; }
+        #status { color: #ff8080; margin-left: 1em; }
+        .controls { margin: 1em; }
+    </style>
+</head>
+<body>
+    <h2 style="margin:1em;">Bedrock Server Console</h2>
+    <div class="controls">
+        <input id="command" type="text" placeholder="Enter command..." autofocus />
+        <button id="send">Send</button>
+        <button id="restart">Restart</button>
+        <span id="status"></span>
+    </div>
+    <pre id="log"></pre>
+    <script>
+        const logEl = document.getElementById('log');
+        const commandEl = document.getElementById('command');
+        const sendBtn = document.getElementById('send');
+        const restartBtn = document.getElementById('restart');
+        const statusEl = document.getElementById('status');
+
+        async function fetchLog() {
+            try {
+                const res = await fetch('/api/runner/log');
+                if (res.ok) {
+                    const text = await res.text();
+                    logEl.textContent = text;
+                    logEl.scrollTop = logEl.scrollHeight;
+                }
+            } catch {}
+        }
+
+        async function sendCommand() {
+            const line = commandEl.value.trim();
+            if (!line) return;
+            statusEl.textContent = '';
+            sendBtn.disabled = true;
+            try {
+                const res = await fetch('/api/runner/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ line })
+                });
+                if (res.ok) {
+                    const response = await res.text();
+                    statusEl.textContent = 'Response: ' + response;
+                    statusEl.style.color = '#80ff80';
+                    commandEl.value = '';
+                    fetchLog();
+                } else {
+                    statusEl.textContent = 'Error: ' + await res.text();
+                    statusEl.style.color = '#ff8080';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Network error';
+                statusEl.style.color = '#ff8080';
+            }
+            sendBtn.disabled = false;
+        }
+
+        async function restartProcess() {
+            statusEl.textContent = '';
+            restartBtn.disabled = true;
+            try {
+                const res = await fetch('/api/runner/restart', { method: 'POST' });
+                if (res.ok) {
+                    const response = await res.text();
+                    statusEl.textContent = response;
+                    statusEl.style.color = '#80ff80';
+                    fetchLog();
+                } else {
+                    statusEl.textContent = 'Error: ' + await res.text();
+                    statusEl.style.color = '#ff8080';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Network error';
+                statusEl.style.color = '#ff8080';
+            }
+            restartBtn.disabled = false;
+        }
+
+        sendBtn.onclick = sendCommand;
+        restartBtn.onclick = restartProcess;
+        commandEl.onkeydown = e => { if (e.key === 'Enter') sendCommand(); };
+        setInterval(fetchLog, 2000);
+        fetchLog();
+    </script>
+</body>
+</html>

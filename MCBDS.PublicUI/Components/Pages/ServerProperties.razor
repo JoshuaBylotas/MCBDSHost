@@ -1,0 +1,241 @@
+@page "/server-properties"
+@using MCBDS.ClientUI.Shared.Services
+@inject BedrockApiService ApiService
+
+<PageTitle>Server Properties</PageTitle>
+
+<h1>Server Properties</h1>
+
+<p>View the current Minecraft Bedrock server configuration.</p>
+
+@if (isLoading)
+{
+    <div class="text-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">Loading server properties...</p>
+    </div>
+}
+else if (errorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">
+        <h5>Error Loading Properties</h5>
+        <p>@errorMessage</p>
+        <button class="btn btn-outline-danger btn-sm" @onclick="LoadProperties">
+            Try Again
+        </button>
+    </div>
+}
+else if (serverProperties != null)
+{
+    <div class="row mb-3">
+        <div class="col">
+            <div class="card bg-light">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <strong>@serverProperties.TotalProperties</strong> properties loaded from
+                                <code>@serverProperties.Path</code>
+                            </small>
+                            <br />
+                            <small class="text-muted">
+                                Last modified: @serverProperties.LastModified.ToString("g")
+                            </small>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" @onclick="LoadProperties" disabled="@isLoading">
+                            @if (isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-arrow-clockwise-dark" aria-hidden="true"></span>
+                            }
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info" role="alert">
+        <strong>Read-Only View</strong> - These settings are loaded from the server's <code>server.properties</code> file. 
+        To modify settings, edit the file directly on the server and restart the Bedrock server.
+    </div>
+
+    @if (serverProperties.Categories != null)
+    {
+        <div class="accordion" id="propertiesAccordion">
+            @foreach (var category in serverProperties.Categories)
+            {
+                var categoryId = category.Category.Replace(" ", "").Replace("&", "And");
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button @(IsExpanded(categoryId) ? "" : "collapsed")" 
+                                type="button" 
+                                @onclick="() => ToggleCategory(categoryId)">
+                            <span class="me-2">@GetCategoryIcon(category.Category)</span>
+                            <strong>@category.Category</strong>
+                            <span class="badge bg-secondary ms-2">@(category.Properties?.Count ?? 0)</span>
+                        </button>
+                    </h2>
+                    <div class="accordion-collapse collapse @(IsExpanded(categoryId) ? "show" : "")">
+                        <div class="accordion-body p-0">
+                            <table class="table table-striped table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 30%">Property</th>
+                                        <th style="width: 25%">Value</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (category.Properties != null)
+                                    {
+                                        @foreach (var prop in category.Properties)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <code>@prop.Key</code>
+                                                </td>
+                                                <td>
+                                                    @if (IsBooleanValue(prop.Value))
+                                                    {
+                                                        @if (prop.Value.ToLower() == "true")
+                                                        {
+                                                            <span class="badge bg-success">true</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">false</span>
+                                                        }
+                                                    }
+                                                    else if (IsNumericValue(prop.Value))
+                                                    {
+                                                        <span class="badge bg-primary">@prop.Value</span>
+                                                    }
+                                                    else if (string.IsNullOrEmpty(prop.Value))
+                                                    {
+                                                        <em class="text-muted">(empty)</em>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>@prop.Value</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(prop.Description))
+                                                    {
+                                                        <small class="text-muted">@prop.Description</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <small class="text-muted fst-italic">No description available</small>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Information</h5>
+            <ul class="mb-0">
+                <li>Server properties are loaded from the Bedrock server's <code>server.properties</code> file</li>
+                <li>Some properties are only applied when the world is first created</li>
+                <li>Changes to server.properties require a server restart to take effect</li>
+                <li>Use the Commands page to change some settings at runtime (like difficulty)</li>
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private ServerPropertiesResponse? serverProperties;
+    private bool isLoading = true;
+    private string? errorMessage;
+    private HashSet<string> expandedCategories = new() { "Server", "Gameplay", "World" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProperties();
+    }
+
+    private async Task LoadProperties()
+    {
+        isLoading = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            serverProperties = await ApiService.GetServerPropertiesAsync();
+            
+            if (serverProperties == null)
+            {
+                errorMessage = "Could not load server properties. Make sure the API is running and the server.properties file exists.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading properties: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsExpanded(string categoryId) => expandedCategories.Contains(categoryId);
+
+    private void ToggleCategory(string categoryId)
+    {
+        if (expandedCategories.Contains(categoryId))
+        {
+            expandedCategories.Remove(categoryId);
+        }
+        else
+        {
+            expandedCategories.Add(categoryId);
+        }
+    }
+
+    private static bool IsBooleanValue(string value)
+    {
+        return value.ToLower() == "true" || value.ToLower() == "false";
+    }
+
+    private static bool IsNumericValue(string value)
+    {
+        return int.TryParse(value, out _) || double.TryParse(value, out _);
+    }
+
+    private static string GetCategoryIcon(string category)
+    {
+        return category switch
+        {
+            "Server" => "[S]",
+            "Gameplay" => "[G]",
+            "World" => "[W]",
+            "Players & Permissions" => "[P]",
+            "Performance" => "[!]",
+            "Network" => "[N]",
+            "Anti-Cheat" => "[A]",
+            "Client" => "[C]",
+            "Miscellaneous" => "[M]",
+            _ => "[?]"
+        };
+    }
+}
