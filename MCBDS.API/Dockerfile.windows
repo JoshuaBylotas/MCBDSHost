@@ -23,11 +23,8 @@ RUN dotnet publish "./MCBDS.API.csproj" -c %BUILD_CONFIGURATION% -o /app/publish
 FROM base AS final
 WORKDIR /app
 
-# Create necessary directories (using PowerShell for better compatibility)
-RUN powershell -Command "New-Item -Path 'C:\app\Binaries' -ItemType Directory -Force; New-Item -Path 'C:\app\logs' -ItemType Directory -Force; New-Item -Path 'C:\app\backups' -ItemType Directory -Force"
-
-# Copy the Bedrock server files
-COPY ["MCBDS.API/bedrock-server/", "C:/app/Binaries/"]
+# Create necessary directories (Binaries will be mounted from host)
+RUN powershell -Command "New-Item -Path 'C:\app\logs' -ItemType Directory -Force; New-Item -Path 'C:\app\backups' -ItemType Directory -Force"
 
 # Copy the published app
 COPY --from=publish /app/publish .

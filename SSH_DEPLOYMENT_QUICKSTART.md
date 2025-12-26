@@ -97,16 +97,20 @@ git clone git@github.com:JoshuaBylotas/MCBDSHost.git
 
 cd MCBDSHost
 
-# ?? IMPORTANT: Download Minecraft Bedrock Server BEFORE building Docker images
-cd MCBDS.API/bedrock-server
+# ?? IMPORTANT: Download Minecraft Bedrock Server to HOST (not in project)
+sudo mkdir -p /opt/mcbdshost/bedrock-server
+cd /opt/mcbdshost/bedrock-server
 
 # Check latest version at: https://www.minecraft.net/en-us/download/server/bedrock
-wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
-unzip bedrock-server-*.zip
-chmod +x bedrock_server
+sudo wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
+sudo unzip bedrock-server-*.zip
+sudo chmod +x bedrock_server
+
+# Verify
+ls -la bedrock_server
 
 # Return to project root
-cd ../..
+cd ~/MCBDSHost
 
 # Now build and start containers
 docker compose up --build -d
@@ -184,22 +188,23 @@ docker run --rm \
 
 ### Bedrock Server Files Not Found (Docker Build Error)
 ```bash
-# Error: "/bedrock-server": not found
-# This means you forgot to download the Bedrock server files
+# Error: Application can't find bedrock_server
+# This means the bedrock server files aren't at /opt/mcbdshost/bedrock-server
 
-# Fix: Download the files before building
-cd ~/MCBDSHost/MCBDS.API/bedrock-server
-wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
-unzip bedrock-server-*.zip
-chmod +x bedrock_server
+# Fix: Download the files to the HOST
+sudo mkdir -p /opt/mcbdshost/bedrock-server
+cd /opt/mcbdshost/bedrock-server
+sudo wget https://minecraft.azureedge.net/bin-linux/bedrock-server-1.21.44.01.zip
+sudo unzip bedrock-server-*.zip
+sudo chmod +x bedrock_server
 
 # Verify files are present
-ls -la
-# You should see: bedrock_server, server.properties, etc.
+ls -la bedrock_server
+# You should see: -rwxr-xr-x ... bedrock_server
 
-# Return to project root and rebuild
-cd ../..
-docker compose up --build -d
+# Return to project and restart
+cd ~/MCBDSHost
+docker compose restart mcbds-api
 ```
 
 ### Wrong Executable Path (Windows Path on Linux)

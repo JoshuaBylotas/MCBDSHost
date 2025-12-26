@@ -18,9 +18,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
     volumes:
-      # Persist world data and server configuration
+      # Mount bedrock-server from host (MUST be created before starting)
+      - /opt/mcbdshost/bedrock-server:/app/Binaries
+      # Persist world data separately for easy backup
       - mcbds-worlds:/app/Binaries/worlds
-      - mcbds-config:/app/Binaries
       - mcbds-logs:/app/logs
       - mcbds-backups:/app/backups
     healthcheck:

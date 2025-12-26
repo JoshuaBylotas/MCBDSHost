@@ -30,14 +30,10 @@ RUN dotnet publish "./MCBDS.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish 
 FROM base AS final
 WORKDIR /app
 
-# Create necessary directories
+# Create necessary directories (Binaries will be mounted from host)
 USER root
-RUN mkdir -p /app/Binaries /app/logs /app/backups && \
-    chmod 755 /app/Binaries /app/logs /app/backups
-
-# Copy the Bedrock server files
-COPY ["MCBDS.API/bedrock-server/", "/app/Binaries/"]
-RUN chmod +x /app/Binaries/bedrock_server || true
+RUN mkdir -p /app/logs /app/backups && \
+    chmod 755 /app/logs /app/backups
 
 # Copy the published app
 COPY --from=publish /app/publish .

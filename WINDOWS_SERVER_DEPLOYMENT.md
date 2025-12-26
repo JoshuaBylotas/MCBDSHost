@@ -95,8 +95,9 @@ If you have a private repository:
 ## Step 4: Download Minecraft Bedrock Server
 
 ```powershell
-# Navigate to bedrock-server directory
-Set-Location "C:\MCBDSHost\MCBDSHost\MCBDS.API\bedrock-server"
+# Create bedrock-server directory on host (NOT in the project)
+New-Item -Path "C:\MCBDSHost\bedrock-server" -ItemType Directory -Force
+Set-Location "C:\MCBDSHost\bedrock-server"
 
 # Download the latest Bedrock Server for Windows
 # Get the latest version from: https://www.minecraft.net/en-us/download/server/bedrock
@@ -112,9 +113,15 @@ Expand-Archive -Path bedrock-server.zip -DestinationPath . -Force
 # Clean up zip file
 Remove-Item bedrock-server.zip
 
+# Verify bedrock_server.exe exists
+Test-Path "bedrock_server.exe"
+# Should return: True
+
 # Return to project root
 Set-Location "C:\MCBDSHost\MCBDSHost"
 ```
+
+**Important:** The bedrock server files are now stored at `C:\MCBDSHost\bedrock-server\` on your host machine. This directory will be mounted into the Docker container, so you can update the Minecraft server without rebuilding Docker images!
 
 ## Step 5: Configure for Windows Docker
 
@@ -146,30 +153,9 @@ The Web UI Dockerfile has been created at `MCBDS.ClientUI/MCBDS.ClientUI.Web/Doc
 
 ### Update appsettings for Windows Paths
 
-The existing `appsettings.Production.json` needs Windows-compatible paths:
+The application is already configured for Windows paths in Production mode. The bedrock server files will be mounted from `C:\MCBDSHost\bedrock-server\` into the container at `C:\app\Binaries\`.
 
-```powershell
-@"
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "Runner": {
-    "ExePath": "C:\\app\\Binaries\\bedrock_server.exe",
-    "LogFilePath": "C:\\app\\logs\\runner.log"
-  },
-  "Backup": {
-    "FrequencyMinutes": 30,
-    "BackupDirectory": "C:\\app\\backups",
-    "MaxBackupsToKeep": 30
-  }
-}
-"@ | Out-File -FilePath MCBDS.API/appsettings.Production.json -Encoding UTF8 -Force
-```
+**No configuration changes needed** - the Production settings already point to the correct paths.
 
 ## Step 6: Configure Windows Firewall
 
@@ -358,11 +344,22 @@ Stop-Process -Id <ProcessId> -Force
 ### Bedrock Server Won't Start
 
 ```powershell
-# Check if bedrock_server.exe exists
-Test-Path "C:\MCBDSHost\MCBDSHost\MCBDS.API\bedrock-server\bedrock_server.exe"
+# Check if bedrock_server.exe exists ON THE HOST (not in container)
+Test-Path "C:\MCBDSHost\bedrock-server\bedrock_server.exe"
 
 # Verify it's the Windows version (not Linux)
-(Get-Item "C:\MCBDSHost\MCBDSHost\MCBDS.API\bedrock-server\bedrock_server.exe").VersionInfo
+(Get-Item "C:\MCBDSHost\bedrock-server\bedrock_server.exe").VersionInfo
+
+# If missing, download it:
+cd C:\MCBDSHost\bedrock-server
+$url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.44.01.zip"
+Invoke-WebRequest -Uri $url -OutFile "bedrock-server.zip"
+Expand-Archive -Path bedrock-server.zip -DestinationPath . -Force
+Remove-Item bedrock-server.zip
+cd C:\MCBDSHost\MCBDSHost
+
+# Restart the container
+docker compose -f docker-compose.windows.yml restart mcbds-api
 ```
 
 ### Reset Everything
@@ -507,34 +504,29 @@ Register-ScheduledTask -TaskName "MCBDSHost Daily Backup" `
 ## Updating Minecraft Server
 
 ```powershell
-# Download new version
-Set-Location "C:\MCBDSHost\MCBDSHost\MCBDS.API\bedrock-server"
+# Navigate to bedrock-server directory ON THE HOST
+Set-Location "C:\MCBDSHost\bedrock-server"
 
 # Backup current version
 Copy-Item "bedrock_server.exe" "bedrock_server.exe.backup"
+Copy-Item "server.properties" "server.properties.backup"
 
 # Download new version
 $url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.50.01.zip"
 Invoke-WebRequest -Uri $url -OutFile "bedrock-server-new.zip"
 
-# Extract
+# Extract (this will overwrite executables but preserve worlds)
 Expand-Archive -Path "bedrock-server-new.zip" -DestinationPath "." -Force
 
-# Restart services
+# Clean up
+Remove-Item "bedrock-server-new.zip"
+
+# Restart the API container (NO REBUILD NEEDED!)
 Set-Location "C:\MCBDSHost\MCBDSHost"
 docker compose -f docker-compose.windows.yml restart mcbds-api
+
+# Watch logs to verify new version started
+docker compose -f docker-compose.windows.yml logs -f mcbds-api
 ```
 
-## Additional Resources
-
-- **Docker Desktop Documentation**: https://docs.docker.com/desktop/windows/
-- **Windows Server Container Documentation**: https://docs.microsoft.com/en-us/virtualization/windowscontainers/
-- **Minecraft Bedrock Server**: https://www.minecraft.net/en-us/download/server/bedrock
-- **Project Repository**: https://github.com/JoshuaBylotas/MCBDSHost
-
-## Support
-
-For issues specific to:
-- **Windows Server deployment**: Check Event Viewer (Application and Container logs)
-- **Docker issues**: Check Docker Desktop logs in `%LOCALAPPDATA%\Docker\log`
-- **Application issues**: Check container logs with `docker compose logs`
+**Advantage:** Since bedrock-server is mounted from the host, you can update it without rebuilding Docker images! Just restart the container.
