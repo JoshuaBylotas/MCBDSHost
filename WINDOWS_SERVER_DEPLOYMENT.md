@@ -1,46 +1,57 @@
-# Windows Server Docker Deployment Guide
+# Windows Server 2025 Docker Deployment Guide
 
 ## Overview
 
-Deploy MCBDSHost to Windows Server using Docker Desktop for Windows. This guide covers complete setup from a fresh Windows Server installation.
+Deploy MCBDSHost to Windows Server 2025 using Docker Desktop for Windows. This guide covers complete setup from a fresh Windows Server installation using an external bedrock-server directory at `C:\MCBDSHost\bedrock-server`.
 
 ## Prerequisites
 
-- **Windows Server 2019** or newer (or Windows 10/11 Pro)
+- **Windows Server 2025** (also works with Windows Server 2019/2022 or Windows 10/11 Pro)
 - **4GB RAM minimum** (8GB+ recommended)
 - **Administrator access**
 - **Internet connection**
 
-## Step 1: Install Docker Desktop for Windows
+---
 
-### Option A: Using PowerShell (Recommended)
+## Complete Installation Steps
+
+### Step 1: Enable Windows Features
+
+Open **PowerShell as Administrator** and run:
 
 ```powershell
-# Run PowerShell as Administrator
-
 # Enable Hyper-V and Containers features
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All -NoRestart
 Enable-WindowsOptionalFeature -Online -FeatureName Containers -All -NoRestart
 
-# Restart the server
+# Restart the server (REQUIRED)
 Restart-Computer
-
-# After restart, download and install Docker Desktop
-# Download URL: https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe
-
-# Or use winget (Windows Package Manager)
-winget install -e --id Docker.DockerDesktop
 ```
 
-### Option B: Manual Installation
+**Wait for the server to restart before continuing.**
 
-1. Download Docker Desktop from: https://www.docker.com/products/docker-desktop/
-2. Run the installer
-3. Follow the installation wizard
-4. Restart your computer when prompted
-5. Launch Docker Desktop and wait for it to start
+---
 
-### Verify Docker Installation
+### Step 2: Install Docker Desktop
+
+After restart, open **PowerShell as Administrator**:
+
+```powershell
+# Option A: Using winget (Recommended for Windows Server 2025)
+winget install -e --id Docker.DockerDesktop
+
+# Option B: Manual download if winget is not available
+# Download from: https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe
+# Run the installer and follow the wizard
+```
+
+**After installation:**
+1. Restart your computer if prompted
+2. Launch Docker Desktop from the Start menu
+3. Wait for Docker Desktop to fully start (icon in system tray shows "Docker Desktop is running")
+4. Accept the Docker Desktop license agreement
+
+**Verify Docker installation:**
 
 ```powershell
 # Check Docker version
@@ -53,161 +64,191 @@ docker compose version
 docker run hello-world
 ```
 
-## Step 2: Install Git for Windows
+Expected output should show Docker version and a "Hello from Docker!" message.
+
+---
+
+### Step 3: Install Git for Windows
 
 ```powershell
 # Using winget
 winget install -e --id Git.Git
 
-# Or download from: https://git-scm.com/download/win
+# Close and reopen PowerShell after installation to refresh PATH
 ```
 
-Verify Git installation:
+**Verify Git installation:**
+
 ```powershell
 git --version
 ```
 
-## Step 3: Clone the Repository
+---
+
+### Step 4: Create Directory Structure and Clone Repository
 
 ```powershell
-# Create a deployment directory
+# Create the main deployment directory
 New-Item -Path "C:\MCBDSHost" -ItemType Directory -Force
+
+# Navigate to the directory
 Set-Location "C:\MCBDSHost"
 
 # Clone the repository
 git clone https://github.com/JoshuaBylotas/MCBDSHost.git
-Set-Location MCBDSHost
+
+# Navigate into the project
+Set-Location "C:\MCBDSHost\MCBDSHost"
+
+# Verify you're in the correct directory
+Get-Location
+# Should show: C:\MCBDSHost\MCBDSHost
 ```
 
-### GitHub Authentication
-
-If you have a private repository:
+**If you already have the repository cloned, pull latest changes:**
 
 ```powershell
-# You'll be prompted for credentials
-# Username: YourGitHubUsername
-# Password: Use a Personal Access Token (not your GitHub password)
+# Navigate to the project directory
+Set-Location "C:\MCBDSHost\MCBDSHost"
 
-# Create token at: https://github.com/settings/tokens
-# Required scope: repo
+# Pull latest changes from the repository
+git pull origin master
 ```
 
-## Step 4: Download Minecraft Bedrock Server
+### GitHub Authentication (If Private Repository)
+
+If prompted for credentials:
+- **Username**: Your GitHub username
+- **Password**: Use a Personal Access Token (NOT your GitHub password)
+- Create token at: https://github.com/settings/tokens
+- Required scope: `repo`
+
+---
+
+### Step 5: Download Minecraft Bedrock Server
+
+The bedrock server files are stored **externally** at `C:\MCBDSHost\bedrock-server\` on your host machine. This allows you to update the Minecraft server without rebuilding Docker images.
 
 ```powershell
-# Create bedrock-server directory on host (NOT in the project)
+# Create the external bedrock-server directory
 New-Item -Path "C:\MCBDSHost\bedrock-server" -ItemType Directory -Force
+
+# Navigate to the bedrock-server directory
 Set-Location "C:\MCBDSHost\bedrock-server"
 
 # Download the latest Bedrock Server for Windows
-# Get the latest version from: https://www.minecraft.net/en-us/download/server/bedrock
-
-# Using PowerShell to download (replace URL with latest version)
+# Check https://www.minecraft.net/en-us/download/server/bedrock for the latest version URL
 $url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.44.01.zip"
 $output = "bedrock-server.zip"
+
+Write-Host "Downloading Minecraft Bedrock Server..." -ForegroundColor Cyan
 Invoke-WebRequest -Uri $url -OutFile $output
 
 # Extract the zip file
+Write-Host "Extracting files..." -ForegroundColor Cyan
 Expand-Archive -Path bedrock-server.zip -DestinationPath . -Force
 
-# Clean up zip file
+# Clean up the zip file
 Remove-Item bedrock-server.zip
 
 # Verify bedrock_server.exe exists
-Test-Path "bedrock_server.exe"
-# Should return: True
+if (Test-Path "bedrock_server.exe") {
+    Write-Host "SUCCESS: bedrock_server.exe found!" -ForegroundColor Green
+} else {
+    Write-Host "ERROR: bedrock_server.exe not found!" -ForegroundColor Red
+}
 
-# Return to project root
+# Return to project directory
 Set-Location "C:\MCBDSHost\MCBDSHost"
 ```
 
-**Important:** The bedrock server files are now stored at `C:\MCBDSHost\bedrock-server\` on your host machine. This directory will be mounted into the Docker container, so you can update the Minecraft server without rebuilding Docker images!
+---
 
-## Step 5: Configure for Windows Docker
-
-### Update Docker Configuration
-
-The `docker-compose.windows.yml` file has been created in the repository root. It includes:
-
-- Windows-specific volume paths (`C:/app/...`)
-- PowerShell-based healthchecks
-- Proper Windows container configuration
-- Separate Dockerfiles for Windows (`Dockerfile.windows`)
-
-**Note:** The file is already in the repository. You just need to pull the latest changes.
-
-### Create Windows-Specific Dockerfile
-
-The Windows Dockerfile has been created at `MCBDS.API/Dockerfile.windows`. It uses Windows Server Core base images which have better compatibility than NanoServer for running external processes like the Minecraft server.
-
-**Key differences from Linux:**
-- Uses `windowsservercore-ltsc2022` base images (not NanoServer)
-- Uses PowerShell to create directories
-- Uses Windows-style paths (`C:\app\...`)
-- Healthcheck uses PowerShell commands
-
-### Create Web UI Windows Dockerfile
-
-The Web UI Dockerfile has been created at `MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile.windows`.
-
-
-### Update appsettings for Windows Paths
-
-The application is already configured for Windows paths in Production mode. The bedrock server files will be mounted from `C:\MCBDSHost\bedrock-server\` into the container at `C:\app\Binaries\`.
-
-**No configuration changes needed** - the Production settings already point to the correct paths.
-
-## Step 6: Configure Windows Firewall
+### Step 6: Configure Windows Firewall
 
 ```powershell
-# Run as Administrator
+# Run as Administrator - Create firewall rules for MCBDSHost
 
-# Allow Docker traffic
+Write-Host "Creating firewall rules..." -ForegroundColor Cyan
+
+# Web UI port
 New-NetFirewallRule -DisplayName "MCBDSHost - Web UI" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
+
+# API port
 New-NetFirewallRule -DisplayName "MCBDSHost - API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+
+# Minecraft IPv4 port
 New-NetFirewallRule -DisplayName "MCBDSHost - Minecraft IPv4" -Direction Inbound -LocalPort 19132 -Protocol UDP -Action Allow
+
+# Minecraft IPv6 port
 New-NetFirewallRule -DisplayName "MCBDSHost - Minecraft IPv6" -Direction Inbound -LocalPort 19133 -Protocol UDP -Action Allow
 
 # Verify rules were created
-Get-NetFirewallRule -DisplayName "MCBDSHost*"
+Write-Host "Firewall rules created:" -ForegroundColor Green
+Get-NetFirewallRule -DisplayName "MCBDSHost*" | Format-Table DisplayName, Enabled, Direction
 ```
 
-## Step 7: Build and Start Services
+---
+
+### Step 7: Build and Start Docker Services
 
 ```powershell
-# Navigate to project directory
+# Ensure you're in the project directory
 Set-Location "C:\MCBDSHost\MCBDSHost"
 
 # Build the Docker images (first time will take several minutes)
+Write-Host "Building Docker images... This may take 5-10 minutes on first run." -ForegroundColor Cyan
 docker compose -f docker-compose.windows.yml build --no-cache
 
-# Start the services
+# Start the services in detached mode
+Write-Host "Starting services..." -ForegroundColor Cyan
 docker compose -f docker-compose.windows.yml up -d
 
-# View logs
+# View the logs to monitor startup
+Write-Host "Services started! Showing logs (Ctrl+C to exit logs):" -ForegroundColor Green
 docker compose -f docker-compose.windows.yml logs -f
 ```
 
-## Step 8: Verify Deployment
+---
+
+### Step 8: Verify Deployment
+
+Open a **new PowerShell window** and run:
 
 ```powershell
 # Check container status
 docker compose -f docker-compose.windows.yml ps
 
-# Test API endpoint
-Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing
+# Test API health endpoint
+try {
+    $response = Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing
+    Write-Host "API Health Check: $($response.StatusCode) - OK" -ForegroundColor Green
+} catch {
+    Write-Host "API Health Check: Failed - $($_.Exception.Message)" -ForegroundColor Red
+}
 
-# Check if Minecraft port is listening
-Get-NetUDPEndpoint | Where-Object LocalPort -eq 19132
+# Test Web UI
+try {
+    $response = Invoke-WebRequest -Uri http://localhost:5000 -UseBasicParsing
+    Write-Host "Web UI Check: $($response.StatusCode) - OK" -ForegroundColor Green
+} catch {
+    Write-Host "Web UI Check: Failed - $($_.Exception.Message)" -ForegroundColor Red
+}
 ```
 
-### Access Your Services
+---
 
-- **Web UI**: http://localhost:5000 or http://server-ip:5000
-- **API**: http://localhost:8080 or http://server-ip:8080
-- **Minecraft Server**: server-ip:19132
+## Access Your Services
 
-## Management Commands
+| Service | Local URL | Remote URL |
+|---------|-----------|------------|
+| **Web UI** | http://localhost:5000 | http://YOUR-SERVER-IP:5000 |
+| **API** | http://localhost:8080 | http://YOUR-SERVER-IP:8080 |
+| **Minecraft Server** | localhost:19132 | YOUR-SERVER-IP:19132 |
+
+---
+
+## Quick Reference Commands
 
 ### View Logs
 
@@ -215,8 +256,10 @@ Get-NetUDPEndpoint | Where-Object LocalPort -eq 19132
 # All services
 docker compose -f docker-compose.windows.yml logs -f
 
-# Specific service
+# API only
 docker compose -f docker-compose.windows.yml logs -f mcbds-api
+
+# Web UI only
 docker compose -f docker-compose.windows.yml logs -f mcbds-clientui-web
 ```
 
@@ -232,89 +275,66 @@ docker compose -f docker-compose.windows.yml restart
 docker compose -f docker-compose.windows.yml down
 ```
 
-### Update Deployment
+### Update Deployment (Pull Latest Code)
 
 ```powershell
 Set-Location "C:\MCBDSHost\MCBDSHost"
+
+# Pull latest changes
 git pull origin master
+
+# Stop services
 docker compose -f docker-compose.windows.yml down
+
+# Rebuild and restart
 docker compose -f docker-compose.windows.yml build --no-cache
 docker compose -f docker-compose.windows.yml up -d
 ```
 
-### Backup World Data
+---
+
+## Updating Minecraft Bedrock Server
+
+Since the bedrock-server is mounted from the host, you can update it **without rebuilding Docker images**:
 
 ```powershell
-# Create backup directory
-New-Item -Path "C:\MCBDSHost\Backups" -ItemType Directory -Force
+# Navigate to bedrock-server directory
+Set-Location "C:\MCBDSHost\bedrock-server"
 
-# Backup using Docker
-docker run --rm -v mcbdshost-mcbds-worlds:C:/data -v C:/MCBDSHost/Backups:C:/backup mcr.microsoft.com/windows/nanoserver:ltsc2022 cmd /c "xcopy C:\data C:\backup\worlds-$((Get-Date).ToString('yyyyMMdd-HHmmss'))\ /E /I /H /Y"
+# Backup current version
+Copy-Item "bedrock_server.exe" "bedrock_server.exe.backup"
+Copy-Item "server.properties" "server.properties.backup"
+
+# Download new version (update URL to latest version)
+$url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.50.01.zip"
+Invoke-WebRequest -Uri $url -OutFile "bedrock-server-new.zip"
+
+# Extract (overwrites executables but preserves worlds folder)
+Expand-Archive -Path "bedrock-server-new.zip" -DestinationPath "." -Force
+
+# Clean up
+Remove-Item "bedrock-server-new.zip"
+
+# Restart the API container only (NO rebuild needed!)
+Set-Location "C:\MCBDSHost\MCBDSHost"
+docker compose -f docker-compose.windows.yml restart mcbds-api
+
+# Watch logs to verify new version started
+docker compose -f docker-compose.windows.yml logs -f mcbds-api
 ```
 
-## Configure as Windows Service (Optional)
-
-To run Docker Compose as a Windows Service:
-
-### Install NSSM (Non-Sucking Service Manager)
-
-```powershell
-# Using Chocolatey
-choco install nssm -y
-
-# Or download from: https://nssm.cc/download
-```
-
-### Create Service
-
-```powershell
-# Create service
-nssm install MCBDSHost "C:\Program Files\Docker\Docker\resources\bin\docker-compose.exe"
-
-# Set service parameters
-nssm set MCBDSHost AppDirectory "C:\MCBDSHost\MCBDSHost"
-nssm set MCBDSHost AppParameters "-f docker-compose.windows.yml up"
-nssm set MCBDSHost DisplayName "MCBDSHost Minecraft Server"
-nssm set MCBDSHost Description "Minecraft Bedrock Dedicated Server with Web UI"
-nssm set MCBDSHost Start SERVICE_AUTO_START
-
-# Set service to restart on failure
-nssm set MCBDSHost AppExit Default Restart
-nssm set MCBDSHost AppRestartDelay 5000
-
-# Start the service
-nssm start MCBDSHost
-
-# Check service status
-nssm status MCBDSHost
-```
-
-### Manage Service
-
-```powershell
-# Start service
-Start-Service MCBDSHost
-
-# Stop service
-Stop-Service MCBDSHost
-
-# Restart service
-Restart-Service MCBDSHost
-
-# Check status
-Get-Service MCBDSHost
-```
+---
 
 ## Troubleshooting
 
 ### Docker Desktop Not Starting
 
 ```powershell
-# Check Windows features
+# Check Windows features are enabled
 Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All
 Get-WindowsOptionalFeature -Online -FeatureName Containers
 
-# Enable if needed
+# If State is not "Enabled", enable them:
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
 Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
 Restart-Computer
@@ -323,210 +343,115 @@ Restart-Computer
 ### Container Won't Start
 
 ```powershell
-# Check container logs
+# Check container logs for errors
 docker compose -f docker-compose.windows.yml logs mcbds-api
 
-# Check Docker logs
-Get-EventLog -LogName Application -Source Docker -Newest 50
-```
-
-### Port Already in Use
-
-```powershell
-# Find process using port
-Get-NetTCPConnection -LocalPort 8080 | Select-Object OwningProcess
-Get-Process -Id <ProcessId>
-
-# Kill process if needed
-Stop-Process -Id <ProcessId> -Force
+# Check Docker events
+docker events --since 10m
 ```
 
 ### Bedrock Server Won't Start
 
 ```powershell
-# Check if bedrock_server.exe exists ON THE HOST (not in container)
-Test-Path "C:\MCBDSHost\bedrock-server\bedrock_server.exe"
-
-# Verify it's the Windows version (not Linux)
-(Get-Item "C:\MCBDSHost\bedrock-server\bedrock_server.exe").VersionInfo
-
-# If missing, download it:
-cd C:\MCBDSHost\bedrock-server
-$url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.44.01.zip"
-Invoke-WebRequest -Uri $url -OutFile "bedrock-server.zip"
-Expand-Archive -Path bedrock-server.zip -DestinationPath . -Force
-Remove-Item bedrock-server.zip
-cd C:\MCBDSHost\MCBDSHost
-
-# Restart the container
-docker compose -f docker-compose.windows.yml restart mcbds-api
+# Verify bedrock_server.exe exists on the HOST
+if (Test-Path "C:\MCBDSHost\bedrock-server\bedrock_server.exe") {
+    Write-Host "bedrock_server.exe found" -ForegroundColor Green
+    (Get-Item "C:\MCBDSHost\bedrock-server\bedrock_server.exe").VersionInfo
+} else {
+    Write-Host "bedrock_server.exe NOT FOUND - Please download it" -ForegroundColor Red
+}
 ```
 
-### Reset Everything
+### Port Already in Use
 
 ```powershell
+# Find what's using port 8080
+$process = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($process) {
+    $proc = Get-Process -Id $process.OwningProcess
+    Write-Host "Port 8080 in use by: $($proc.ProcessName) (PID: $($proc.Id))"
+}
+```
+
+### Reset Everything and Start Fresh
+
+```powershell
+Set-Location "C:\MCBDSHost\MCBDSHost"
+
 # Stop and remove all containers and volumes
 docker compose -f docker-compose.windows.yml down -v
 
 # Remove images
-docker rmi mcbdshost-mcbds-api:latest
-docker rmi mcbdshost-mcbds-clientui-web:latest
+docker rmi mcbdshost-mcbds-api:latest -f
+docker rmi mcbdshost-mcbds-clientui-web:latest -f
 
-# Rebuild
+# Rebuild from scratch
 docker compose -f docker-compose.windows.yml build --no-cache
 docker compose -f docker-compose.windows.yml up -d
 ```
 
-## Performance Optimization
+---
 
-### Increase Docker Resources
+## Optional: Configure as Windows Service
 
-1. Open Docker Desktop
-2. Go to Settings ? Resources
-3. Increase CPU and Memory allocation:
-   - **CPUs**: 4+ cores recommended
-   - **Memory**: 4GB minimum, 8GB+ recommended
-4. Click "Apply & Restart"
+To run MCBDSHost automatically on system startup:
 
-### Windows Server Optimization
+### Install NSSM (Non-Sucking Service Manager)
 
 ```powershell
-# Disable unnecessary services
-Set-Service -Name "Themes" -StartupType Disabled
-Set-Service -Name "Windows Search" -StartupType Disabled
+# Using Chocolatey (install Chocolatey first if not installed)
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-# Optimize power plan
-powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-
-# Disable Windows Defender real-time scanning (if security policy allows)
-Set-MpPreference -DisableRealtimeMonitoring $true
+# Install NSSM
+choco install nssm -y
 ```
 
-## Security Best Practices
-
-### Enable HTTPS
+### Create the Service
 
 ```powershell
-# Generate self-signed certificate
-$cert = New-SelfSignedCertificate -DnsName "yourdomain.com" -CertStoreLocation "Cert:\LocalMachine\My"
+# Create service
+nssm install MCBDSHost "C:\Program Files\Docker\Docker\resources\bin\docker-compose.exe"
 
-# Export certificate
-$certPath = "C:\MCBDSHost\certificate.pfx"
-$certPassword = ConvertTo-SecureString -String "YourSecurePassword" -Force -AsPlainText
-Export-PfxCertificate -Cert $cert -FilePath $certPath -Password $certPassword
+# Configure service
+nssm set MCBDSHost AppDirectory "C:\MCBDSHost\MCBDSHost"
+nssm set MCBDSHost AppParameters "-f docker-compose.windows.yml up"
+nssm set MCBDSHost DisplayName "MCBDSHost Minecraft Server"
+nssm set MCBDSHost Description "Minecraft Bedrock Dedicated Server with Web UI"
+nssm set MCBDSHost Start SERVICE_AUTO_START
+nssm set MCBDSHost AppExit Default Restart
+nssm set MCBDSHost AppRestartDelay 5000
 
-# Update docker-compose to use certificate
-# Add to mcbds-api environment:
-# - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certificate.pfx
-# - ASPNETCORE_Kestrel__Certificates__Default__Password=YourSecurePassword
+# Start the service
+nssm start MCBDSHost
+
+# Verify service status
+Get-Service MCBDSHost
 ```
 
-### Restrict Network Access
+---
 
-```powershell
-# Allow only specific IP ranges
-New-NetFirewallRule -DisplayName "MCBDSHost - Restricted Access" `
-  -Direction Inbound -LocalPort 5000,8080 -Protocol TCP -Action Allow `
-  -RemoteAddress "192.168.1.0/24"
+## Directory Structure Summary
+
+After completing installation, your directory structure should be:
+
+```
+C:\MCBDSHost\
+??? MCBDSHost\                    # Git repository (project files)
+?   ??? docker-compose.windows.yml
+?   ??? MCBDS.API\
+?   ??? MCBDS.ClientUI\
+?   ??? ...
+?
+??? bedrock-server\               # External Minecraft server files
+    ??? bedrock_server.exe
+    ??? server.properties
+    ??? worlds\
+    ??? ...
 ```
 
-## Monitoring
-
-### View Resource Usage
-
-```powershell
-# Container stats
-docker stats
-
-# Detailed container info
-docker compose -f docker-compose.windows.yml ps -a
-docker inspect mcbds-api
-```
-
-### Setup Logging
-
-```powershell
-# Configure Docker logging driver
-# Edit C:\ProgramData\Docker\config\daemon.json
-@"
-{
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "3"
-  }
-}
-"@ | Out-File -FilePath "C:\ProgramData\Docker\config\daemon.json" -Encoding UTF8
-
-# Restart Docker
-Restart-Service docker
-```
-
-## Backup and Restore
-
-### Automated Backup Script
-
-```powershell
-# Save as C:\MCBDSHost\backup-script.ps1
-$backupDir = "C:\MCBDSHost\Backups"
-$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
-
-# Create backup directory
-New-Item -Path "$backupDir\$timestamp" -ItemType Directory -Force
-
-# Backup volumes
-docker run --rm `
-  -v mcbdshost-mcbds-worlds:C:/source/worlds `
-  -v mcbdshost-mcbds-config:C:/source/config `
-  -v "$backupDir\${timestamp}:C:/backup" `
-  mcr.microsoft.com/windows/nanoserver:ltsc2022 `
-  cmd /c "xcopy C:\source C:\backup\ /E /I /H /Y"
-
-Write-Host "Backup completed: $backupDir\$timestamp"
-```
-
-### Schedule Automated Backups
-
-```powershell
-# Create scheduled task for daily backups
-$action = New-ScheduledTaskAction -Execute "PowerShell.exe" `
-  -Argument "-File C:\MCBDSHost\backup-script.ps1"
-
-$trigger = New-ScheduledTaskTrigger -Daily -At 3:00AM
-
-$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -RunLevel Highest
-
-Register-ScheduledTask -TaskName "MCBDSHost Daily Backup" `
-  -Action $action -Trigger $trigger -Principal $principal `
-  -Description "Daily backup of MCBDSHost worlds and configuration"
-```
-
-## Updating Minecraft Server
-
-```powershell
-# Navigate to bedrock-server directory ON THE HOST
-Set-Location "C:\MCBDSHost\bedrock-server"
-
-# Backup current version
-Copy-Item "bedrock_server.exe" "bedrock_server.exe.backup"
-Copy-Item "server.properties" "server.properties.backup"
-
-# Download new version
-$url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.21.50.01.zip"
-Invoke-WebRequest -Uri $url -OutFile "bedrock-server-new.zip"
-
-# Extract (this will overwrite executables but preserve worlds)
-Expand-Archive -Path "bedrock-server-new.zip" -DestinationPath "." -Force
-
-# Clean up
-Remove-Item "bedrock-server-new.zip"
-
-# Restart the API container (NO REBUILD NEEDED!)
-Set-Location "C:\MCBDSHost\MCBDSHost"
-docker compose -f docker-compose.windows.yml restart mcbds-api
-
-# Watch logs to verify new version started
-docker compose -f docker-compose.windows.yml logs -f mcbds-api
-```
-
-**Advantage:** Since bedrock-server is mounted from the host, you can update it without rebuilding Docker images! Just restart the container.
+**Key Points:**
+- `C:\MCBDSHost\MCBDSHost\` - The Git repository with application code
+- `C:\MCBDSHost\bedrock-server\` - External Minecraft server files (mounted into container)
+- World data is stored in `C:\MCBDSHost\bedrock-server\worlds\`
