@@ -12,7 +12,6 @@ public class BackupHostedService : BackgroundService
     private readonly ILogger<BackupHostedService> _logger;
     private readonly IOptionsMonitor<BackupConfiguration> _configMonitor;
     private readonly IConfiguration _configuration;
-    private Timer? _backupTimer;
     private readonly SemaphoreSlim _backupSemaphore = new(1, 1);
     private CancellationTokenSource? _loopCts;
     private string? _cachedLevelName;
@@ -186,7 +185,7 @@ public class BackupHostedService : BackgroundService
         {
             try
             {
-                await PerformBackupAsync(cancellationToken);
+                await PerformBackupWithSemaphoreAsync(cancellationToken);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -213,7 +212,7 @@ public class BackupHostedService : BackgroundService
 
             try
             {
-                await PerformBackupAsync(CancellationToken.None);
+                await PerformBackupCoreAsync(CancellationToken.None);
                 return true;
             }
             finally
@@ -228,10 +227,28 @@ public class BackupHostedService : BackgroundService
         }
     }
 
-    private async Task PerformBackupAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Wrapper that acquires the semaphore before performing backup
+    /// </summary>
+    private async Task PerformBackupWithSemaphoreAsync(CancellationToken cancellationToken)
     {
         await _backupSemaphore.WaitAsync(cancellationToken);
         
+        try
+        {
+            await PerformBackupCoreAsync(cancellationToken);
+        }
+        finally
+        {
+            _backupSemaphore.Release();
+        }
+    }
+
+    /// <summary>
+    /// Core backup logic - assumes semaphore is already held by caller
+    /// </summary>
+    private async Task PerformBackupCoreAsync(CancellationToken cancellationToken)
+    {
         var config = CurrentConfig;
         var levelName = GetLevelName();
         
@@ -365,10 +382,6 @@ public class BackupHostedService : BackgroundService
             _logger.LogError(ex, "Backup process failed");
             await ResumeWorldSaving();
         }
-        finally
-        {
-            _backupSemaphore.Release();
-        }
     }
 
     private async Task ResumeWorldSaving()
@@ -391,17 +404,57 @@ public class BackupHostedService : BackgroundService
         var log = _runnerService.GetLog();
         var worldPrefix = $"{levelName}/";
 
+        _logger.LogInformation("Parsing file list for level: {LevelName}", levelName);
+
         var lines = log.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         
+        // Search from the end of the log backwards to find the most recent file list
         for (int i = lines.Length - 1; i >= 0; i--)
         {
-            var line = lines[i];
-            // Look for the level name in the log output
-            if (line.Contains($"{levelName}/", StringComparison.OrdinalIgnoreCase))
+            var line = lines[i].Trim();
+            
+            // Skip empty lines and log metadata lines (those with timestamps like [2025-12-27...])
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+            
+            // Look for a line that starts with the level name (the file list line)
+            // The file list line looks like: "POPP-BYLOTAS/db/007758.ldb:121346, POPP-BYLOTAS/db/..."
+            if (line.StartsWith(levelName, StringComparison.OrdinalIgnoreCase) && line.Contains(':'))
+            {
+                _logger.LogInformation("Found file list line starting with level name");
+                
+                // This is the file list line - parse all entries
+                var entries = line.Split(',', StringSplitOptions.TrimEntries);
+
+                foreach (var entry in entries)
+                {
+                    // Each entry is like "POPP-BYLOTAS/db/007758.ldb:121346"
+                    var colonIndex = entry.IndexOf(':');
+                    string fullPath = colonIndex > 0 ? entry.Substring(0, colonIndex).Trim() : entry.Trim();
+                    
+                    if (fullPath.StartsWith(worldPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var relativePath = fullPath.Substring(worldPrefix.Length);
+                        if (!string.IsNullOrWhiteSpace(relativePath))
+                        {
+                            files.Add(relativePath);
+                        }
+                    }
+                }
+                
+                _logger.LogInformation("Parsed {Count} files from file list", files.Count);
+                break;
+            }
+            
+            // Also check if the level name appears mid-line (in case of log prefix)
+            // This handles lines like: "[INFO] POPP-BYLOTAS/db/..."
+            if (line.Contains($"{levelName}/", StringComparison.OrdinalIgnoreCase) && line.Contains(':'))
             {
                 var firstLevelIndex = line.IndexOf($"{levelName}/", StringComparison.OrdinalIgnoreCase);
                 if (firstLevelIndex >= 0)
                 {
+                    _logger.LogInformation("Found file list with level name at position {Position}", firstLevelIndex);
+                    
                     var fileListPortion = line.Substring(firstLevelIndex);
                     var entries = fileListPortion.Split(',', StringSplitOptions.TrimEntries);
 
@@ -413,27 +466,31 @@ public class BackupHostedService : BackgroundService
                         if (fullPath.StartsWith(worldPrefix, StringComparison.OrdinalIgnoreCase))
                         {
                             var relativePath = fullPath.Substring(worldPrefix.Length);
-                            files.Add(relativePath);
-                            _logger.LogDebug("Parsed file: {File} from entry: {Entry}", relativePath, entry.Trim());
-                        }
-                        else
-                        {
-                            _logger.LogWarning("Could not parse file entry: {Entry}", entry.Trim());
+                            if (!string.IsNullOrWhiteSpace(relativePath))
+                            {
+                                files.Add(relativePath);
+                            }
                         }
                     }
+                    
+                    if (files.Count > 0)
+                    {
+                        _logger.LogInformation("Parsed {Count} files from file list", files.Count);
+                        break;
+                    }
                 }
-                
-                break;
             }
         }
 
         if (files.Count > 0)
         {
-            _logger.LogInformation("Parsed {Count} files from save query response", files.Count);
+            _logger.LogInformation("Total files to backup: {Count}", files.Count);
         }
         else
         {
-            _logger.LogWarning("No files parsed from save query response. Log may not contain expected format.");
+            // Log the last few lines to help debug
+            var lastLines = lines.Length > 10 ? string.Join("\n", lines.Skip(lines.Length - 10)) : string.Join("\n", lines);
+            _logger.LogWarning("No files parsed from save query response. Last 10 lines of log:\n{Log}", lastLines);
         }
 
         return files;
@@ -514,7 +571,6 @@ public class BackupHostedService : BackgroundService
     {
         _logger.LogInformation("BackupHostedService stopping...");
         _loopCts?.Cancel();
-        _backupTimer?.Dispose();
         await base.StopAsync(cancellationToken);
     }
 }
