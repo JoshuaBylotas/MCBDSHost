@@ -15,6 +15,7 @@ public class BackupHostedService : BackgroundService
     private Timer? _backupTimer;
     private readonly SemaphoreSlim _backupSemaphore = new(1, 1);
     private CancellationTokenSource? _loopCts;
+    private string? _cachedLevelName;
 
     public BackupHostedService(
         RunnerHostedService runnerService,
@@ -41,6 +42,74 @@ public class BackupHostedService : BackgroundService
     {
         // Cancel the current loop and let ExecuteAsync restart with new settings
         _loopCts?.Cancel();
+    }
+
+    /// <summary>
+    /// Reads the level-name from server.properties file
+    /// </summary>
+    private string GetLevelName()
+    {
+        // Return cached value if available
+        if (!string.IsNullOrEmpty(_cachedLevelName))
+        {
+            return _cachedLevelName;
+        }
+
+        var exePath = _configuration["Runner:ExePath"];
+        if (string.IsNullOrWhiteSpace(exePath))
+        {
+            _logger.LogWarning("Runner:ExePath not configured, using default level name");
+            return "Bedrock level";
+        }
+
+        var bedrockServerDir = Path.GetDirectoryName(exePath);
+        if (string.IsNullOrEmpty(bedrockServerDir))
+        {
+            _logger.LogWarning("Could not determine bedrock server directory, using default level name");
+            return "Bedrock level";
+        }
+
+        var serverPropertiesPath = Path.Combine(bedrockServerDir, "server.properties");
+        
+        if (!File.Exists(serverPropertiesPath))
+        {
+            _logger.LogWarning("server.properties not found at {Path}, using default level name", serverPropertiesPath);
+            return "Bedrock level";
+        }
+
+        try
+        {
+            var lines = File.ReadAllLines(serverPropertiesPath);
+            foreach (var line in lines)
+            {
+                var trimmedLine = line.Trim();
+                if (trimmedLine.StartsWith("level-name=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var levelName = trimmedLine.Substring("level-name=".Length).Trim();
+                    if (!string.IsNullOrEmpty(levelName))
+                    {
+                        _cachedLevelName = levelName;
+                        _logger.LogInformation("Level name from server.properties: {LevelName}", levelName);
+                        return levelName;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reading server.properties at {Path}", serverPropertiesPath);
+        }
+
+        _logger.LogWarning("level-name not found in server.properties, using default");
+        return "Bedrock level";
+    }
+
+    /// <summary>
+    /// Clears the cached level name, forcing a re-read from server.properties
+    /// </summary>
+    public void ClearLevelNameCache()
+    {
+        _cachedLevelName = null;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -164,10 +233,11 @@ public class BackupHostedService : BackgroundService
         await _backupSemaphore.WaitAsync(cancellationToken);
         
         var config = CurrentConfig;
+        var levelName = GetLevelName();
         
         try
         {
-            _logger.LogInformation("Starting backup process...");
+            _logger.LogInformation("Starting backup process for world: {LevelName}", levelName);
 
             _logger.LogInformation("Sending 'save hold' command...");
             if (!_runnerService.SendLineToProcess("save hold"))
@@ -218,7 +288,7 @@ public class BackupHostedService : BackgroundService
 
             await Task.Delay(500, cancellationToken);
 
-            var filesToBackup = ParseFileList();
+            var filesToBackup = ParseFileList(levelName);
 
             if (filesToBackup.Count == 0)
             {
@@ -315,22 +385,24 @@ public class BackupHostedService : BackgroundService
         }
     }
 
-    private List<string> ParseFileList()
+    private List<string> ParseFileList(string levelName)
     {
         var files = new List<string>();
         var log = _runnerService.GetLog();
+        var worldPrefix = $"{levelName}/";
 
         var lines = log.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         
         for (int i = lines.Length - 1; i >= 0; i--)
         {
             var line = lines[i];
-            if (line.Contains("Bedrock level/", StringComparison.OrdinalIgnoreCase))
+            // Look for the level name in the log output
+            if (line.Contains($"{levelName}/", StringComparison.OrdinalIgnoreCase))
             {
-                var firstBedrockIndex = line.IndexOf("Bedrock level/", StringComparison.OrdinalIgnoreCase);
-                if (firstBedrockIndex >= 0)
+                var firstLevelIndex = line.IndexOf($"{levelName}/", StringComparison.OrdinalIgnoreCase);
+                if (firstLevelIndex >= 0)
                 {
-                    var fileListPortion = line.Substring(firstBedrockIndex);
+                    var fileListPortion = line.Substring(firstLevelIndex);
                     var entries = fileListPortion.Split(',', StringSplitOptions.TrimEntries);
 
                     foreach (var entry in entries)
@@ -338,7 +410,6 @@ public class BackupHostedService : BackgroundService
                         var colonIndex = entry.IndexOf(':');
                         string fullPath = colonIndex > 0 ? entry.Substring(0, colonIndex).Trim() : entry.Trim();
                         
-                        const string worldPrefix = "Bedrock level/";
                         if (fullPath.StartsWith(worldPrefix, StringComparison.OrdinalIgnoreCase))
                         {
                             var relativePath = fullPath.Substring(worldPrefix.Length);
@@ -372,10 +443,14 @@ public class BackupHostedService : BackgroundService
     {
         var config = CurrentConfig;
         
+        // If explicit world path is configured, use it
         if (!string.IsNullOrWhiteSpace(config.WorldPath))
         {
             return config.WorldPath;
         }
+
+        // Get level name from server.properties
+        var levelName = GetLevelName();
 
         var exePath = _configuration["Runner:ExePath"];
         if (!string.IsNullOrWhiteSpace(exePath))
@@ -383,12 +458,12 @@ public class BackupHostedService : BackgroundService
             var bedrockServerDir = Path.GetDirectoryName(exePath);
             if (!string.IsNullOrEmpty(bedrockServerDir))
             {
-                return Path.Combine(bedrockServerDir, "worlds", "Bedrock level");
+                return Path.Combine(bedrockServerDir, "worlds", levelName);
             }
         }
 
         var assemblyLocation = Path.GetDirectoryName(typeof(BackupHostedService).Assembly.Location) ?? string.Empty;
-        return Path.Combine(assemblyLocation, "worlds", "Bedrock level");
+        return Path.Combine(assemblyLocation, "worlds", levelName);
     }
 
     private async Task CleanupOldBackupsAsync()
