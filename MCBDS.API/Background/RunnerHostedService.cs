@@ -31,6 +31,27 @@ namespace MCBDS.API.Background
             string exePath = _config["Runner:ExePath"] ?? throw new Exception("Runner:ExePath not set");
             _logFilePath = _config["Runner:LogFilePath"] ?? "runner.log";
 
+            _logger.LogInformation("Bedrock server executable path: {ExePath}", exePath);
+
+            // Verify the executable exists
+            if (!File.Exists(exePath))
+            {
+                _logger.LogError("Bedrock server executable not found at: {ExePath}", exePath);
+                AppendLog($"ERROR: Bedrock server executable not found at: {exePath}");
+                return Task.CompletedTask;
+            }
+
+            _logger.LogInformation("Bedrock server executable found at: {ExePath}", exePath);
+
+            // Get the directory containing the executable - bedrock server must run from its directory
+            string? workingDirectory = Path.GetDirectoryName(exePath);
+            if (string.IsNullOrEmpty(workingDirectory))
+            {
+                workingDirectory = Environment.CurrentDirectory;
+            }
+
+            _logger.LogInformation("Working directory set to: {WorkingDirectory}", workingDirectory);
+
             // Clean up the log file before starting
             if (!string.IsNullOrEmpty(_logFilePath) && File.Exists(_logFilePath))
             {
@@ -40,18 +61,37 @@ namespace MCBDS.API.Background
             var startInfo = new ProcessStartInfo
             {
                 FileName = exePath,
+                WorkingDirectory = workingDirectory,  // Critical: bedrock server needs to run from its own directory
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+
             _bedrockProcess = new Process { StartInfo = startInfo };
             _bedrockProcess.EnableRaisingEvents = true;
             _bedrockProcess.OutputDataReceived += (s, e) => AppendLog(e.Data);
             _bedrockProcess.ErrorDataReceived += (s, e) => AppendLog(e.Data);
-            _bedrockProcess.Start();
-            _processStartTime = DateTime.UtcNow;
+            _bedrockProcess.Exited += (s, e) =>
+            {
+                _logger.LogWarning("Bedrock server process exited with code: {ExitCode}", _bedrockProcess?.ExitCode);
+                AppendLog($"Process exited with code: {_bedrockProcess?.ExitCode}");
+            };
+
+            try
+            {
+                _bedrockProcess.Start();
+                _processStartTime = DateTime.UtcNow;
+                _logger.LogInformation("Bedrock server process started with PID: {ProcessId}", _bedrockProcess.Id);
+                AppendLog($"Bedrock server started with PID: {_bedrockProcess.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to start Bedrock server process");
+                AppendLog($"ERROR: Failed to start Bedrock server: {ex.Message}");
+                return Task.CompletedTask;
+            }
             
             // Create job object to ensure child process terminates with parent
             if (OperatingSystem.IsWindows())

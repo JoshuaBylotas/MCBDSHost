@@ -23,7 +23,7 @@ public static class MauiProgram
 #if DEBUG
 			// For local development, update this URL from the Aspire Dashboard
 			// The Aspire dashboard shows the actual port assigned to "mcbds-api"
-			BaseAddress = new Uri("https://localhost:7060") // Update port as needed
+			BaseAddress = new Uri("http://WINSERVER03:8080") // Update port as needed
 #else
 			// For production, use your deployed API URL
 			BaseAddress = new Uri("https://your-production-api-url.com")
