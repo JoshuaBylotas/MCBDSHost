@@ -11,13 +11,12 @@ services:
     container_name: mcbds-api
     ports:
       - "8080:8080"       # HTTP API
-      - "8081:8081"       # HTTPS API (if configured)
       - "19132:19132/udp" # Minecraft Bedrock IPv4
       - "19133:19133/udp" # Minecraft Bedrock IPv6
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_RUNNING_IN_CONTAINER=true
     volumes:
       # Mount bedrock-server from host (MUST be created before starting)
       - C:/MCBDSHost/bedrock-server:C:/app/Binaries
@@ -46,7 +45,8 @@ services:
       - "5000:8080"  # Web UI accessible on port 5000
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_RUNNING_IN_CONTAINER=true
       - ApiSettings__BaseUrl=http://mcbds-api:8080
     depends_on:
       mcbds-api:

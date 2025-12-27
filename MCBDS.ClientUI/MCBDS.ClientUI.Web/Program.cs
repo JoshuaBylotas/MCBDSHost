@@ -17,7 +17,9 @@ builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddHttpClient<MCBDS.ClientUI.Shared.Services.BedrockApiService>(client =>
 {
     // Aspire will automatically resolve "mcbds-api" to the correct URL
-    client.BaseAddress = new Uri("https+http://mcbds-api");
+    // Use http in container environments, https+http for local development with Aspire
+    var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"] ?? "https+http://mcbds-api";
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 var app = builder.Build();
@@ -28,11 +30,21 @@ app.MapDefaultEndpoints();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    
+    // Only use HSTS and HTTPS redirection when not running in a container
+    var runningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    if (!runningInContainer)
+    {
+        app.UseHsts();
+        app.UseHttpsRedirection();
+    }
 }
+else
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
