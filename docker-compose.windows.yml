@@ -1,5 +1,4 @@
 # Docker Compose for Windows Server Deployment
-version: '3.8'
 
 services:
   # Minecraft Bedrock Dedicated Server API
@@ -7,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: MCBDS.API/Dockerfile.windows
+      args:
+        - WINDOWS_VERSION=ltsc2022
     container_name: mcbds-api
     ports:
       - "8080:8080"       # HTTP API
@@ -31,12 +32,15 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
+    isolation: process
 
   # Client Web UI - Blazor Server application
   mcbds-clientui-web:
     build:
       context: .
       dockerfile: MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile.windows
+      args:
+        - WINDOWS_VERSION=ltsc2022
     container_name: mcbds-clientui-web
     ports:
       - "5000:8080"  # Web UI accessible on port 5000
@@ -48,6 +52,7 @@ services:
       mcbds-api:
         condition: service_healthy
     restart: unless-stopped
+    isolation: process
 
 volumes:
   mcbds-worlds:
