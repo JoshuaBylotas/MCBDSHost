@@ -1,4 +1,5 @@
 # Docker Compose for Windows Server Deployment
+# Data is stored in C:\MCBDSHost\ on the host for easy access
 
 services:
   # Minecraft Bedrock Dedicated Server API
@@ -18,12 +19,12 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_RUNNING_IN_CONTAINER=true
     volumes:
-      # Mount bedrock-server from host (MUST be created before starting)
+      # Mount bedrock-server from host (contains server executable, worlds, config)
       - C:/MCBDSHost/bedrock-server:C:/app/Binaries
-      # Persist world data separately for easy backup
-      - mcbds-worlds:C:/app/Binaries/worlds
-      - mcbds-logs:C:/app/logs
-      - mcbds-backups:C:/app/backups
+      # Logs accessible directly on host at C:\MCBDSHost\logs
+      - C:/MCBDSHost/logs:C:/app/logs
+      # Backups accessible directly on host at C:\MCBDSHost\backups
+      - C:/MCBDSHost/backups:C:/app/backups
     healthcheck:
       test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing -ErrorAction Stop; exit 0 } catch { exit 1 }"]
       interval: 30s
@@ -53,11 +54,3 @@ services:
         condition: service_healthy
     restart: unless-stopped
     isolation: process
-
-volumes:
-  mcbds-worlds:
-    driver: local
-  mcbds-logs:
-    driver: local
-  mcbds-backups:
-    driver: local
