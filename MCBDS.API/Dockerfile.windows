@@ -3,7 +3,6 @@ ARG WINDOWS_VERSION=ltsc2022
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-windowsservercore-${WINDOWS_VERSION} AS base
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
 EXPOSE 19132/udp
 EXPOSE 19133/udp
 
@@ -26,6 +25,17 @@ WORKDIR /app
 
 # Create necessary directories (Binaries will be mounted from host)
 RUN powershell -Command "New-Item -Path 'C:\app\logs' -ItemType Directory -Force; New-Item -Path 'C:\app\backups' -ItemType Directory -Force"
+
+# Download and install Visual C++ Redistributable (required for Bedrock Server)
+# Bedrock server requires VC++ 2015-2022 Redistributable
+RUN powershell -Command "\
+    Write-Host 'Downloading Visual C++ Redistributable...'; \
+    Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vc_redist.x64.exe' -OutFile 'C:\vc_redist.x64.exe'; \
+    Write-Host 'Installing Visual C++ Redistributable...'; \
+    Start-Process -FilePath 'C:\vc_redist.x64.exe' -ArgumentList '/install', '/quiet', '/norestart' -Wait; \
+    Write-Host 'Cleaning up...'; \
+    Remove-Item 'C:\vc_redist.x64.exe' -Force; \
+    Write-Host 'Visual C++ Redistributable installed successfully.'"
 
 # Copy the published app
 COPY --from=publish /app/publish .
