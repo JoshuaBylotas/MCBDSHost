@@ -1,0 +1,167 @@
+@inject ServerConfigService ServerConfig
+@inject NavigationManager Navigation
+
+<div class="server-switcher">
+    <div class="server-selector">
+        <label class="server-label">
+            <i class="bi bi-hdd-network me-1"></i>
+            Server:
+        </label>
+        
+        @if (!isEditing)
+        {
+            <select class="form-select form-select-sm server-select" @onchange="OnServerSelected" value="@currentServerUrl">
+                @foreach (var server in savedServers)
+                {
+                    <option value="@server.Url" selected="@(server.Url == currentServerUrl)">@server.Name</option>
+                }
+                <option value="__add_new__">+ Add New Server...</option>
+            </select>
+            
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <span class="status-indicator @statusClass">@statusMessage</span>
+            }
+        }
+        else
+        {
+            <div class="add-server-form">
+                <input type="text" class="form-control form-control-sm" 
+                       placeholder="Server Name" 
+                       @bind="newServerName" />
+                <input type="text" class="form-control form-control-sm" 
+                       placeholder="URL (e.g., http://192.168.1.100:8080)" 
+                       @bind="newServerUrl" />
+                <button class="btn btn-sm btn-success" @onclick="AddNewServer" title="Add Server">
+                    <i class="bi bi-check-lg"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" @onclick="CancelAdd" title="Cancel">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private string currentServerUrl = "";
+    private List<SavedServer> savedServers = new();
+    private bool isEditing = false;
+    private string newServerName = "";
+    private string newServerUrl = "";
+    private string statusMessage = "";
+    private string statusClass = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadServers();
+        ServerConfig.OnServerChanged += HandleServerChanged;
+    }
+
+    private async Task LoadServers()
+    {
+        var config = await ServerConfig.LoadConfigAsync();
+        currentServerUrl = config.CurrentServerUrl;
+        savedServers = config.SavedServers ?? new List<SavedServer>();
+        StateHasChanged();
+    }
+
+    private void HandleServerChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadServers();
+            StateHasChanged();
+        });
+    }
+
+    private async Task OnServerSelected(ChangeEventArgs e)
+    {
+        var selectedValue = e.Value?.ToString();
+        
+        if (selectedValue == "__add_new__")
+        {
+            isEditing = true;
+            newServerName = "";
+            newServerUrl = "";
+            return;
+        }
+        
+        if (!string.IsNullOrEmpty(selectedValue) && selectedValue != currentServerUrl)
+        {
+            statusMessage = "Switching...";
+            statusClass = "status-switching";
+            StateHasChanged();
+            
+            var success = await ServerConfig.SwitchServerAsync(selectedValue);
+            
+            if (success)
+            {
+                currentServerUrl = selectedValue;
+                statusMessage = "Connected";
+                statusClass = "status-success";
+                StateHasChanged();
+                
+                // Force a page refresh to reload data from new server
+                await Task.Delay(500);
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                statusMessage = "Failed";
+                statusClass = "status-error";
+                StateHasChanged();
+                
+                // Clear status after 3 seconds
+                await Task.Delay(3000);
+                statusMessage = "";
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task AddNewServer()
+    {
+        if (string.IsNullOrWhiteSpace(newServerName) || string.IsNullOrWhiteSpace(newServerUrl))
+        {
+            return;
+        }
+        
+        var success = await ServerConfig.AddServerAsync(newServerName, newServerUrl);
+        
+        if (success)
+        {
+            // Switch to the new server
+            var normalizedUrl = newServerUrl;
+            if (!normalizedUrl.StartsWith("http://") && !normalizedUrl.StartsWith("https://"))
+            {
+                normalizedUrl = "http://" + normalizedUrl;
+            }
+            normalizedUrl = normalizedUrl.TrimEnd('/');
+            
+            await ServerConfig.SwitchServerAsync(normalizedUrl);
+            await LoadServers();
+            
+            // Force a page refresh to reload data from new server
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+        
+        isEditing = false;
+        newServerName = "";
+        newServerUrl = "";
+    }
+
+    private void CancelAdd()
+    {
+        isEditing = false;
+        newServerName = "";
+        newServerUrl = "";
+        // Reset to previous selection
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ServerConfig.OnServerChanged -= HandleServerChanged;
+    }
+}

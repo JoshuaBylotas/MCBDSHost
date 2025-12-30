@@ -1,0 +1,417 @@
+@page "/get-started"
+
+<PageTitle>Get Started - MCBDSHost</PageTitle>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Get Started with MCBDSHost</h1>
+        <p class="lead text-muted">Download and deploy in minutes</p>
+    </div>
+
+    <!-- Quick Start Options -->
+    <section class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-primary">
+                    <div class="card-body">
+                        <i class="bi bi-hdd-rack display-3 text-primary mb-3"></i>
+                        <h3 class="h4">Windows Server</h3>
+                        <p class="text-muted">
+                            Recommended for dedicated servers and production environments
+                        </p>
+                        <a href="#windows" class="btn btn-primary">View Guide</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-danger">
+                    <div class="card-body">
+                        <i class="bi bi-ubuntu display-3 text-danger mb-3"></i>
+                        <h3 class="h4">Linux</h3>
+                        <p class="text-muted">
+                            For Ubuntu, Debian, and other Linux distributions
+                        </p>
+                        <a href="#linux" class="btn btn-outline-danger">View Guide</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-success">
+                    <div class="card-body">
+                        <i class="bi bi-house display-3 text-success mb-3"></i>
+                        <h3 class="h4">Home Server</h3>
+                        <p class="text-muted">
+                            Perfect for Windows 10/11 Pro home setups
+                        </p>
+                        <a href="#home" class="btn btn-outline-success">View Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="mb-5" id="download">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0"><i class="bi bi-download me-2"></i>Download MCBDSHost</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Get the deployment packages for your platform</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-success">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-file-earmark-zip text-success me-2"></i>Windows Package</h5>
+                                <p class="text-muted">Docker Compose configuration and deployment files for Windows Server</p>
+                                <a href="/downloads/mcbdshost-windows.zip" class="btn btn-success" download>
+                                    <i class="bi bi-download me-2"></i>Download for Windows
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-danger">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-file-earmark-zip text-danger me-2"></i>Linux Package</h5>
+                                <p class="text-muted">Docker Compose configuration and deployment files for Linux</p>
+                                <a href="/downloads/mcbdshost-linux.zip" class="btn btn-danger" download>
+                                    <i class="bi bi-download me-2"></i>Download for Linux
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>What's included:</strong> Docker Compose files, configuration templates, and deployment scripts. No compilation required!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Requirements -->
+    <section class="mb-5" id="requirements">
+        <h2 class="h3 mb-4"><i class="bi bi-pc-display text-primary me-2"></i>System Requirements</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold">Minimum Requirements</h4>
+                        <ul>
+                            <li>4GB RAM</li>
+                            <li>2 CPU cores</li>
+                            <li>10GB free disk space</li>
+                            <li>Docker or Docker Desktop</li>
+                            <li>Internet connection</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold">Recommended Requirements</h4>
+                        <ul>
+                            <li>8GB+ RAM</li>
+                            <li>4+ CPU cores</li>
+                            <li>20GB+ free disk space</li>
+                            <li>SSD for better performance</li>
+                            <li>Stable internet connection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Windows Server Guide -->
+    <section class="mb-5" id="windows">
+        <h2 class="h3 mb-4"><i class="bi bi-windows text-primary me-2"></i>Windows Server Deployment</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="lead">Complete deployment guide for Windows Server 2019/2022/2025</p>
+                
+                <h4 class="h5 mt-4">Step 1: Install Prerequisites</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code># Run PowerShell as Administrator
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
+Restart-Computer</code></pre>
+
+                <h4 class="h5 mt-4">Step 2: Install Docker Desktop</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>winget install -e --id Docker.DockerDesktop
+# Restart after installation</code></pre>
+
+                <h4 class="h5 mt-4">Step 3: Download MCBDSHost</h4>
+                <div class="alert alert-primary">
+                    <i class="bi bi-download me-2"></i>
+                    <strong>Download the Windows package from this website</strong> (see download section above)
+                </div>
+                <pre class="bg-dark text-light p-3 rounded"><code># Create directory and extract
+New-Item -Path "C:\MCBDSHost" -ItemType Directory -Force
+# Extract the downloaded mcbdshost-windows.zip to C:\MCBDSHost
+Expand-Archive -Path "Downloads\mcbdshost-windows.zip" -DestinationPath "C:\MCBDSHost"
+Set-Location "C:\MCBDSHost"</code></pre>
+
+                <h4 class="h5 mt-4">Step 4: Download Minecraft Bedrock Server</h4>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> You must download the Minecraft Bedrock Dedicated Server separately from the official Minecraft website.
+                </div>
+                <ol>
+                    <li>Visit <a href="https://www.minecraft.net/en-us/download/server/bedrock" target="_blank" rel="noopener">https://www.minecraft.net/en-us/download/server/bedrock</a></li>
+                    <li>Scroll down to "Minecraft Dedicated Server Software"</li>
+                    <li>Click "Download" for your platform (Windows or Ubuntu)</li>
+                    <li>Accept the EULA and download the ZIP file</li>
+                </ol>
+                
+                <pre class="bg-dark text-light p-3 rounded"><code># Create bedrock-server directory
+New-Item -Path "C:\MCBDSHost\bedrock-server" -ItemType Directory -Force
+Set-Location "C:\MCBDSHost\bedrock-server"
+
+# Extract the downloaded Minecraft Bedrock Server ZIP
+# (bedrock-server-X.XX.XX.XX.zip from Minecraft website)
+Expand-Archive -Path "Downloads\bedrock-server-*.zip" -DestinationPath . -Force
+
+# Verify bedrock_server.exe exists
+if (Test-Path "bedrock_server.exe") {
+    Write-Host "? Bedrock Server installed successfully!" -ForegroundColor Green
+}</code></pre>
+
+                <h4 class="h5 mt-4">Step 5: Configure Firewall</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code># Create firewall rules
+New-NetFirewallRule -DisplayName "MCBDSHost Web UI" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "MCBDSHost API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Minecraft IPv4" -Direction Inbound -LocalPort 19132 -Protocol UDP -Action Allow
+New-NetFirewallRule -DisplayName "Minecraft IPv6" -Direction Inbound -LocalPort 19133 -Protocol UDP -Action Allow</code></pre>
+
+                <h4 class="h5 mt-4">Step 6: Start Services</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>Set-Location "C:\MCBDSHost"
+docker compose -f docker-compose.windows.yml build
+docker compose -f docker-compose.windows.yml up -d
+
+# View logs
+docker compose -f docker-compose.windows.yml logs -f</code></pre>
+
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Success!</strong> Access your server at <code>http://localhost:5000</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linux Guide -->
+    <section class="mb-5" id="linux">
+        <h2 class="h3 mb-4"><i class="bi bi-ubuntu text-danger me-2"></i>Linux Deployment</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="lead">Deploy on Ubuntu, Debian, or compatible distributions</p>
+                
+                <h4 class="h5 mt-4">Step 1: Install Docker</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+# Log out and back in for group changes to take effect</code></pre>
+
+                <h4 class="h5 mt-4">Step 2: Download MCBDSHost</h4>
+                <div class="alert alert-primary">
+                    <i class="bi bi-download me-2"></i>
+                    <strong>Download the Linux package from this website</strong> (see download section above)
+                </div>
+                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbdshost
+cd /opt/mcbdshost
+# Extract the downloaded mcbdshost-linux.zip
+unzip ~/Downloads/mcbdshost-linux.zip -d .</code></pre>
+
+                <h4 class="h5 mt-4">Step 3: Download Minecraft Bedrock Server</h4>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> Download from the official Minecraft website.
+                </div>
+                <ol>
+                    <li>Visit <a href="https://www.minecraft.net/en-us/download/server/bedrock" target="_blank" rel="noopener">https://www.minecraft.net/en-us/download/server/bedrock</a></li>
+                    <li>Download the Ubuntu (Linux) version</li>
+                    <li>Accept the EULA</li>
+                </ol>
+                
+                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbdshost/bedrock-server
+cd /opt/mcbdshost/bedrock-server
+
+# Extract the downloaded Minecraft Bedrock Server
+unzip ~/Downloads/bedrock-server-*.zip
+
+# Make server executable
+chmod +x bedrock_server
+
+# Verify installation
+ls -la bedrock_server</code></pre>
+
+                <h4 class="h5 mt-4">Step 4: Configure Firewall</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>sudo ufw allow 5000/tcp comment 'MCBDSHost Web UI'
+sudo ufw allow 8080/tcp comment 'MCBDSHost API'
+sudo ufw allow 19132/udp comment 'Minecraft IPv4'
+sudo ufw allow 19133/udp comment 'Minecraft IPv6'</code></pre>
+
+                <h4 class="h5 mt-4">Step 5: Start Services</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>cd /opt/mcbdshost
+docker-compose -f docker-compose.linux.yml build
+docker-compose -f docker-compose.linux.yml up -d
+
+# View logs
+docker-compose -f docker-compose.linux.yml logs -f</code></pre>
+
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Success!</strong> Access your server at <code>http://localhost:5000</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Server Guide -->
+    <section class="mb-5" id="home">
+        <h2 class="h3 mb-4"><i class="bi bi-house text-success me-2"></i>Home Server Setup</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <p class="lead">Run on Windows 10/11 Pro or Home with WSL2</p>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Same as Windows Server:</strong> Follow the Windows Server guide above. 
+                    The steps are identical for Windows 10/11 Pro with Docker Desktop.
+                </div>
+
+                <h4 class="h5 mt-4">Additional Tips for Home Servers</h4>
+                <ul>
+                    <li><strong>Port Forwarding:</strong> Configure your router to forward ports 19132 (UDP) for external access</li>
+                    <li><strong>Dynamic DNS:</strong> Use a service like No-IP or DuckDNS if you don't have a static IP</li>
+                    <li><strong>Firewall:</strong> Ensure Windows Firewall allows the required ports</li>
+                    <li><strong>Backups:</strong> Schedule automated backups during off-peak hours</li>
+                    <li><strong>Resources:</strong> Monitor CPU/RAM usage to avoid impacting other applications</li>
+                </ul>
+
+                <h4 class="h5 mt-4">Port Forwarding Guide</h4>
+                <ol>
+                    <li>Access your router's admin panel (usually 192.168.1.1 or 192.168.0.1)</li>
+                    <li>Find "Port Forwarding" or "Virtual Server" settings</li>
+                    <li>Create rules for:
+                        <ul>
+                            <li>Web UI: TCP port 5000 (optional, for remote management)</li>
+                            <li>Minecraft: UDP port 19132 (required for players)</li>
+                        </ul>
+                    </li>
+                    <li>Point to your server's local IP address</li>
+                    <li>Save and restart router if needed</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access Information -->
+    <section class="mb-5">
+        <h2 class="h3 mb-4"><i class="bi bi-link-45deg text-info me-2"></i>Accessing Your Server</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Local URL</th>
+                                <th>Remote URL</th>
+                                <th>Port</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Web UI</strong></td>
+                                <td><code>http://localhost:5000</code></td>
+                                <td><code>http://YOUR-IP:5000</code></td>
+                                <td>5000</td>
+                            </tr>
+                            <tr>
+                                <td><strong>API</strong></td>
+                                <td><code>http://localhost:8080</code></td>
+                                <td><code>http://YOUR-IP:8080</code></td>
+                                <td>8080</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Minecraft (IPv4)</strong></td>
+                                <td><code>localhost:19132</code></td>
+                                <td><code>YOUR-IP:19132</code></td>
+                                <td>19132 (UDP)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Minecraft (IPv6)</strong></td>
+                                <td><code>localhost:19133</code></td>
+                                <td><code>YOUR-IP:19133</code></td>
+                                <td>19133 (UDP)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Important Notes -->
+    <section class="mb-5">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h3 class="h5 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Important Notes</h3>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>EULA:</strong> By downloading and using Minecraft Bedrock Server, you agree to the <a href="https://www.minecraft.net/en-us/eula" target="_blank">Minecraft EULA</a></li>
+                    <li><strong>Updates:</strong> Check the Minecraft website regularly for Bedrock Server updates</li>
+                    <li><strong>Licensing:</strong> MCBDSHost is open source (MIT), but Minecraft Bedrock Server has its own license</li>
+                    <li><strong>Support:</strong> For Minecraft server issues, refer to official Minecraft documentation</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Next Steps -->
+    <section class="mb-5 bg-light rounded p-4">
+        <h2 class="h3 mb-4"><i class="bi bi-signpost text-primary me-2"></i>Next Steps</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="h6 fw-bold">After Installation</h4>
+                <ol>
+                    <li>Access the Web UI at <code>http://localhost:5000</code></li>
+                    <li>Configure your server properties</li>
+                    <li>Set up automated backups</li>
+                    <li>Add server to favorites in Minecraft</li>
+                    <li>Invite friends to join!</li>
+                </ol>
+            </div>
+            <div class="col-md-6">
+                <h4 class="h6 fw-bold">Useful Commands</h4>
+                <ul>
+                    <li><code>docker compose logs -f</code> - View logs</li>
+                    <li><code>docker compose restart</code> - Restart services</li>
+                    <li><code>docker compose down</code> - Stop services</li>
+                    <li><code>docker compose ps</code> - Check status</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support -->
+    <section class="text-center py-5">
+        <h2 class="h3 mb-4">Need Help?</h2>
+        <p class="lead mb-4">Check the documentation for assistance</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/get-started#requirements" class="btn btn-outline-primary">
+                <i class="bi bi-pc-display me-2"></i>System Requirements
+            </a>
+            <a href="/features" class="btn btn-outline-success">
+                <i class="bi bi-star me-2"></i>View Features
+            </a>
+            <a href="https://www.minecraft.net/en-us/eula" class="btn btn-outline-secondary" target="_blank">
+                <i class="bi bi-book me-2"></i>Minecraft EULA
+            </a>
+        </div>
+    </section>
+</div>

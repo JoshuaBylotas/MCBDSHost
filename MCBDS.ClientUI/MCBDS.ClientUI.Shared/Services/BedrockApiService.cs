@@ -4,42 +4,166 @@ using System.Threading.Tasks;
 
 namespace MCBDS.ClientUI.Shared.Services;
 
+/// <summary>
+/// Result wrapper for API calls with error handling
+/// </summary>
+public class ApiResult<T>
+{
+    public bool Success { get; set; }
+    public T? Data { get; set; }
+    public string? ErrorMessage { get; set; }
+    public ApiErrorType ErrorType { get; set; } = ApiErrorType.None;
+    
+    public static ApiResult<T> Ok(T data) => new() { Success = true, Data = data };
+    public static ApiResult<T> Fail(string message, ApiErrorType errorType = ApiErrorType.Unknown) 
+        => new() { Success = false, ErrorMessage = message, ErrorType = errorType };
+}
+
+public enum ApiErrorType
+{
+    None,
+    ConnectionFailed,
+    Timeout,
+    NotFound,
+    ServerError,
+    Unknown
+}
+
 public class BedrockApiService
 {
     private readonly HttpClient _httpClient;
+    private readonly ServerConfigService? _serverConfig;
 
-    public BedrockApiService(HttpClient httpClient)
+    public BedrockApiService(HttpClient httpClient, ServerConfigService? serverConfig = null)
     {
         _httpClient = httpClient;
+        _serverConfig = serverConfig;
+        // Set a reasonable timeout
+        _httpClient.Timeout = TimeSpan.FromSeconds(30);
     }
 
-    public async Task<string?> GetLogAsync()
+    /// <summary>
+    /// Gets the base URL for API requests
+    /// </summary>
+    private string GetBaseUrl()
     {
-        return await _httpClient.GetStringAsync("/api/runner/log");
+        if (_serverConfig != null)
+        {
+            var url = _serverConfig.GetCurrentServerUrl();
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                return url.TrimEnd('/');
+            }
+        }
+        
+        // Fallback to HttpClient's BaseAddress if set
+        if (_httpClient.BaseAddress != null)
+        {
+            return _httpClient.BaseAddress.ToString().TrimEnd('/');
+        }
+        
+        // Default fallback
+        return "http://localhost:8080";
     }
 
-    public async Task<string?> SendLineAsync(string line)
+    /// <summary>
+    /// Builds a full URL for the given endpoint
+    /// </summary>
+    private string BuildUrl(string endpoint)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/runner/send", new { line });
-        return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : null;
+        var baseUrl = GetBaseUrl();
+        var path = endpoint.StartsWith("/") ? endpoint : "/" + endpoint;
+        return baseUrl + path;
     }
 
-    public async Task<string?> RestartAsync()
+    private static ApiErrorType GetErrorType(Exception ex)
     {
-        var response = await _httpClient.PostAsync("/api/runner/restart", null);
-        return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : null;
+        return ex switch
+        {
+            HttpRequestException => ApiErrorType.ConnectionFailed,
+            TaskCanceledException => ApiErrorType.Timeout,
+            InvalidOperationException when ex.Message.Contains("BaseAddress") => ApiErrorType.ConnectionFailed,
+            _ => ApiErrorType.Unknown
+        };
     }
 
-    // Backup API methods
-    public async Task<BackupConfigResponse?> GetBackupConfigAsync()
+    private static string GetFriendlyErrorMessage(Exception ex, string operation)
+    {
+        return ex switch
+        {
+            HttpRequestException => $"Unable to connect to server. Please check if the server is running and the URL is correct.",
+            TaskCanceledException => $"Request timed out while trying to {operation}. The server may be slow or unreachable.",
+            InvalidOperationException when ex.Message.Contains("BaseAddress") => "No server configured. Please select or add a server.",
+            _ => $"An error occurred while trying to {operation}: {ex.Message}"
+        };
+    }
+
+    public async Task<ApiResult<string>> GetLogAsync()
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<BackupConfigResponse>("/api/backup/config");
+            var url = BuildUrl("/api/runner/log");
+            var result = await _httpClient.GetStringAsync(url);
+            return ApiResult<string>.Ok(result);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "get server log"), GetErrorType(ex));
+        }
+    }
+
+    public async Task<ApiResult<string>> SendLineAsync(string line)
+    {
+        try
+        {
+            var url = BuildUrl("/api/runner/send");
+            var response = await _httpClient.PostAsJsonAsync(url, new { line });
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+            return ApiResult<string>.Fail($"Server returned error: {response.StatusCode}", ApiErrorType.ServerError);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "send command"), GetErrorType(ex));
+        }
+    }
+
+    public async Task<ApiResult<string>> RestartAsync()
+    {
+        try
+        {
+            var url = BuildUrl("/api/runner/restart");
+            var response = await _httpClient.PostAsync(url, null);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+            return ApiResult<string>.Fail($"Server returned error: {response.StatusCode}", ApiErrorType.ServerError);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "restart server"), GetErrorType(ex));
+        }
+    }
+
+    // Backup API methods
+    public async Task<ApiResult<BackupConfigResponse>> GetBackupConfigAsync()
+    {
+        try
+        {
+            var url = BuildUrl("/api/backup/config");
+            var result = await _httpClient.GetFromJsonAsync<BackupConfigResponse>(url);
+            return result != null 
+                ? ApiResult<BackupConfigResponse>.Ok(result) 
+                : ApiResult<BackupConfigResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<BackupConfigResponse>.Fail(GetFriendlyErrorMessage(ex, "get backup configuration"), GetErrorType(ex));
         }
     }
 
@@ -47,7 +171,8 @@ public class BedrockApiService
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync("/api/backup/config", new
+            var url = BuildUrl("/api/backup/config");
+            var response = await _httpClient.PutAsJsonAsync(url, new
             {
                 FrequencyMinutes = frequencyMinutes,
                 BackupDirectory = backupDirectory,
@@ -58,7 +183,6 @@ public class BedrockApiService
             {
                 var result = await response.Content.ReadFromJsonAsync<UpdateConfigResponse>();
                 
-                // Return the saved config values
                 var savedConfig = new BackupConfigResponse
                 {
                     FrequencyMinutes = frequencyMinutes,
@@ -74,7 +198,7 @@ public class BedrockApiService
         }
         catch (Exception ex)
         {
-            return (false, ex.Message, null);
+            return (false, GetFriendlyErrorMessage(ex, "update backup configuration"), null);
         }
     }
 
@@ -82,7 +206,8 @@ public class BedrockApiService
     {
         try
         {
-            var response = await _httpClient.PostAsync("/api/backup/trigger", null);
+            var url = BuildUrl("/api/backup/trigger");
+            var response = await _httpClient.PostAsync(url, null);
             
             if (response.IsSuccessStatusCode)
             {
@@ -95,19 +220,23 @@ public class BedrockApiService
         }
         catch (Exception ex)
         {
-            return (false, ex.Message);
+            return (false, GetFriendlyErrorMessage(ex, "trigger backup"));
         }
     }
 
-    public async Task<BackupListResponse?> GetBackupListAsync()
+    public async Task<ApiResult<BackupListResponse>> GetBackupListAsync()
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<BackupListResponse>("/api/backup/list");
+            var url = BuildUrl("/api/backup/list");
+            var result = await _httpClient.GetFromJsonAsync<BackupListResponse>(url);
+            return result != null 
+                ? ApiResult<BackupListResponse>.Ok(result) 
+                : ApiResult<BackupListResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return ApiResult<BackupListResponse>.Fail(GetFriendlyErrorMessage(ex, "get backup list"), GetErrorType(ex));
         }
     }
 
@@ -115,7 +244,8 @@ public class BedrockApiService
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"/api/backup/{backupName}");
+            var url = BuildUrl($"/api/backup/{backupName}");
+            var response = await _httpClient.DeleteAsync(url);
             
             if (response.IsSuccessStatusCode)
             {
@@ -128,33 +258,60 @@ public class BedrockApiService
         }
         catch (Exception ex)
         {
-            return (false, ex.Message);
+            return (false, GetFriendlyErrorMessage(ex, "delete backup"));
         }
     }
 
     // Server Properties API methods
-    public async Task<ServerPropertiesResponse?> GetServerPropertiesAsync()
+    public async Task<ApiResult<ServerPropertiesResponse>> GetServerPropertiesAsync()
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<ServerPropertiesResponse>("/api/serverproperties");
+            var url = BuildUrl("/api/serverproperties");
+            var result = await _httpClient.GetFromJsonAsync<ServerPropertiesResponse>(url);
+            return result != null 
+                ? ApiResult<ServerPropertiesResponse>.Ok(result) 
+                : ApiResult<ServerPropertiesResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return ApiResult<ServerPropertiesResponse>.Fail(GetFriendlyErrorMessage(ex, "get server properties"), GetErrorType(ex));
         }
     }
 
     // Server Status API methods
-    public async Task<SystemStatusResponse?> GetSystemStatusAsync()
+    public async Task<ApiResult<SystemStatusResponse>> GetSystemStatusAsync()
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<SystemStatusResponse>("/api/runner/status");
+            var url = BuildUrl("/api/runner/status");
+            var result = await _httpClient.GetFromJsonAsync<SystemStatusResponse>(url);
+            return result != null 
+                ? ApiResult<SystemStatusResponse>.Ok(result) 
+                : ApiResult<SystemStatusResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return ApiResult<SystemStatusResponse>.Fail(GetFriendlyErrorMessage(ex, "get system status"), GetErrorType(ex));
+        }
+    }
+    
+    /// <summary>
+    /// Test connection to the server
+    /// </summary>
+    public async Task<ApiResult<bool>> TestConnectionAsync()
+    {
+        try
+        {
+            var url = BuildUrl("/api/runner/status");
+            var response = await _httpClient.GetAsync(url);
+            return response.IsSuccessStatusCode 
+                ? ApiResult<bool>.Ok(true) 
+                : ApiResult<bool>.Fail($"Server returned status {response.StatusCode}", ApiErrorType.ServerError);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<bool>.Fail(GetFriendlyErrorMessage(ex, "connect to server"), GetErrorType(ex));
         }
     }
 }
@@ -198,7 +355,6 @@ public class DeleteBackupResponse
     public string? message { get; set; }
 }
 
-// Server Properties response classes
 public class ServerPropertiesResponse
 {
     public string Path { get; set; } = string.Empty;
@@ -221,7 +377,6 @@ public class ServerPropertyItem
     public string Category { get; set; } = string.Empty;
 }
 
-// System Status response classes
 public class SystemStatusResponse
 {
     public ServerStatusInfo? Server { get; set; }

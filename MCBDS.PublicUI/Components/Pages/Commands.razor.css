@@ -1,0 +1,294 @@
+.commands-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.command-input-section {
+    background-color: var(--bs-light);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.position-relative {
+    position: relative;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1050;
+    margin-top: 0.25rem;
+}
+
+.autocomplete-dropdown.player-dropdown {
+    border-left: 3px solid #28a745;
+}
+
+.autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.15s ease;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+    background-color: #e7f3ff;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.cmd-name {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.cmd-name strong {
+    color: #0066cc;
+    font-size: 1rem;
+}
+
+.cmd-syntax {
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-family: 'Courier New', monospace;
+}
+
+.cmd-description {
+    color: #888;
+}
+
+.command-help {
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.command-help code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.clickable-example {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #e9ecef;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.clickable-example:hover {
+    background-color: #dee2e6;
+}
+
+.command-reference {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.category-section {
+    border-left: 3px solid var(--bs-primary);
+    padding-left: 1rem;
+}
+
+.btn-xs {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.server-log-section {
+    background-color: #1e1e1e;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #333;
+}
+
+.log-header h3 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.log-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.server-log-content {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    min-height: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.server-log-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.server-log-content::-webkit-scrollbar-track {
+    background: #161b22;
+}
+
+.server-log-content::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 5px;
+}
+
+.server-log-content::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+@media (max-width: 768px) {
+    .commands-container {
+        padding: 0.5rem;
+    }
+
+    .command-input-section {
+        padding: 1rem;
+    }
+
+    .log-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+
+    .log-buttons {
+        width: 100%;
+    }
+
+    .log-buttons button {
+        flex: 1;
+    }
+
+    .autocomplete-dropdown {
+        max-height: 250px;
+    }
+
+    .command-reference {
+        max-height: 50vh;
+    }
+}
+
+/* Input focus styling */
+.command-input-section input:focus {
+    border-color: #0066cc;
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Badge styling for command categories */
+.badge {
+    font-weight: 500;
+}
+
+/* Card hover effect in command reference */
+.command-reference .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.command-reference .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Status message styling */
+.alert {
+    border-left: 4px solid;
+    animation: slideIn 0.3s ease;
+}
+
+.alert-success {
+    border-left-color: #28a745;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.dropdown-header {
+    padding: 0.5rem 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+}
+
+.player-name {
+    display: flex;
+    align-items: center;
+}
+
+.player-name strong {
+    color: #28a745;
+    font-size: 1rem;
+}
+
+.badge.bg-success {
+    font-size: 0.7rem;
+}

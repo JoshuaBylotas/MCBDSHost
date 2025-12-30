@@ -1,0 +1,678 @@
+/* Marketing Site Custom Styles - Minecraft Theme */
+
+:root {
+    --mc-grass-green: #7cbd56;
+    --mc-dark-green: #5a8a3d;
+    --mc-dirt-brown: #8b6f47;
+    --mc-stone-gray: #7f7f7f;
+    --mc-coal-black: #262626;
+    --mc-diamond-cyan: #5bcefa;
+    --mc-gold: #faa819;
+    --mc-redstone: #cc0000;
+    --mc-emerald: #17dd62;
+    --mc-lapis: #1e3a8a;
+    --mc-creeper: #00a000;
+    
+    /* Gradients */
+    --primary-gradient: linear-gradient(135deg, var(--mc-grass-green) 0%, var(--mc-dark-green) 100%);
+    --success-gradient: linear-gradient(135deg, var(--mc-emerald) 0%, var(--mc-grass-green) 100%);
+    --info-gradient: linear-gradient(135deg, var(--mc-diamond-cyan) 0%, var(--mc-lapis) 100%);
+    
+    /* Minecraft font stack */
+    --mc-font: 'Segoe UI', 'Minecraft', 'Press Start 2P', monospace, system-ui;
+}
+
+/* Base styles */
+body {
+    font-family: var(--mc-font);
+    background-color: #f5f3ed;
+}
+
+/* Pixelated borders for Minecraft feel */
+.pixelated-border {
+    box-shadow: 
+        0 0 0 2px #000,
+        0 0 0 4px #fff,
+        0 0 0 6px #000;
+    image-rendering: pixelated;
+}
+
+/* Hero Section - Grass Block Theme */
+.hero-section {
+    padding: 100px 0;
+    background: linear-gradient(180deg, var(--mc-grass-green) 0%, var(--mc-grass-green) 70%, var(--mc-dirt-brown) 70%, var(--mc-dirt-brown) 100%);
+    color: white;
+    margin-bottom: 3rem;
+    position: relative;
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.3);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section .text-primary {
+    color: var(--mc-gold) !important;
+    text-shadow: 3px 3px 0 rgba(139, 111, 71, 0.8);
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-buttons .btn {
+    border: 3px solid #000;
+    box-shadow: 0 4px 0 #000, 0 6px 10px rgba(0,0,0,0.3);
+    transition: all 0.1s;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-buttons .btn:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #000, 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.hero-buttons .btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #000;
+}
+
+.dashboard-preview-placeholder {
+    background: linear-gradient(135deg, var(--mc-stone-gray) 0%, var(--mc-coal-black) 100%);
+    border-radius: 0.5rem;
+    padding: 4rem 2rem;
+    text-align: center;
+    border: 4px solid rgba(0,0,0,0.3);
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.4);
+}
+
+/* Feature Cards - Block Style */
+.feature-card {
+    background: white;
+    border-radius: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 3px solid #e9ecef;
+    box-shadow: 0 4px 0 #d0d0d0, 0 6px 12px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    border-radius: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 0 #b0b0b0, 0 10px 20px rgba(0,0,0,0.15);
+    border-color: var(--mc-grass-green);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 3px solid rgba(0,0,0,0.2);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+}
+
+.feature-icon i {
+    font-size: 1.75rem;
+    color: white;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+}
+
+/* Minecraft-themed colors for icons */
+.bg-primary {
+    background: var(--mc-grass-green) !important;
+}
+
+.bg-success {
+    background: var(--mc-emerald) !important;
+}
+
+.bg-info {
+    background: var(--mc-diamond-cyan) !important;
+}
+
+.bg-warning {
+    background: var(--mc-gold) !important;
+}
+
+.bg-danger {
+    background: var(--mc-redstone) !important;
+}
+
+.bg-secondary {
+    background: var(--mc-stone-gray) !important;
+}
+
+/* Tech Stack - Minecraft Blocks */
+.tech-badge {
+    transition: transform 0.2s;
+    cursor: pointer;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 3px solid #e0e0e0;
+    box-shadow: 0 4px 0 #c0c0c0;
+}
+
+.tech-badge:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 0 #a0a0a0, 0 10px 20px rgba(0,0,0,0.2);
+    border-color: var(--mc-grass-green);
+}
+
+.tech-badge i {
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Deployment Cards - Crafting Table Style */
+.deployment-card {
+    background: white;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    border: 3px solid #e9ecef;
+    box-shadow: 0 4px 0 #d0d0d0;
+    position: relative;
+    overflow: hidden;
+}
+
+.deployment-card:hover {
+    border-color: var(--mc-grass-green);
+    box-shadow: 0 8px 0 var(--mc-dark-green), 0 10px 25px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+}
+
+/* CTA Section - Diamond Block Theme */
+.cta-section {
+    background: linear-gradient(135deg, var(--mc-diamond-cyan) 0%, var(--mc-lapis) 100%);
+    position: relative;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+
+/* Buttons - Minecraft Style */
+.btn {
+    transition: all 0.1s;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-width: 3px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+}
+
+.btn:hover {
+    transform: translateY(1px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+}
+
+.btn:active {
+    transform: translateY(3px);
+    box-shadow: none;
+}
+
+.btn-primary {
+    background: var(--mc-grass-green);
+    border-color: var(--mc-dark-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--mc-dark-green);
+    border-color: var(--mc-creeper);
+}
+
+.btn-success {
+    background: var(--mc-emerald);
+    border-color: #12b350;
+}
+
+.btn-danger {
+    background: var(--mc-redstone);
+    border-color: #990000;
+}
+
+.btn-warning {
+    background: var(--mc-gold);
+    border-color: #c88515;
+}
+
+.btn-info {
+    background: var(--mc-diamond-cyan);
+    border-color: var(--mc-lapis);
+}
+
+/* Cards - Block Style */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-width: 3px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 0 #d0d0d0, 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #b0b0b0, 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    border-bottom-width: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Code Blocks - Command Block Style */
+pre {
+    position: relative;
+    border: 3px solid #4a4a4a;
+    border-radius: 0.5rem;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 4px 0 #2a2a2a;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+}
+
+pre code {
+    display: block;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Donation Banner - Gold Block Style */
+.donation-banner {
+    border-width: 3px;
+    box-shadow: 0 4px 0 rgba(250, 168, 25, 0.3);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.donation-banner h4 {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.donation-banner .btn-warning {
+    box-shadow: 0 4px 0 #c88515, 0 6px 12px rgba(0,0,0,0.2);
+    font-weight: 800;
+}
+
+.donation-banner .btn-warning:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #c88515, 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* GoFundMe Widget Container */
+.gofundme-widget {
+    border-top: 3px solid #e0e0e0;
+}
+
+.gofundme-widget .gfm-embed {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Pulse Animation for Donation Banner */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 4px 0 rgba(250, 168, 25, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 0 rgba(250, 168, 25, 0.6), 0 0 20px rgba(250, 168, 25, 0.4);
+    }
+}
+
+/* Navigation - Donate Link */
+.nav-link.text-warning {
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.nav-link.text-warning:hover {
+    color: var(--mc-gold) !important;
+    transform: translateY(-2px) scale(1.05);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 60px 0;
+    }
+    
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-buttons {
+        justify-content: center;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .donation-banner .btn-warning {
+        width: 100%;
+        margin-top: 1rem;
+    }
+}
+
+/* Animations - Minecraft Block Pop */
+@keyframes blockPop {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.feature-card,
+.deployment-card,
+.tech-badge {
+    animation: blockPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Smooth Scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Link Styles */
+a {
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+a:hover {
+    color: var(--mc-grass-green) !important;
+}
+
+/* Text Colors - Minecraft Theme */
+.text-primary {
+    color: var(--mc-grass-green) !important;
+}
+
+.text-success {
+    color: var(--mc-emerald) !important;
+}
+
+.text-info {
+    color: var(--mc-diamond-cyan) !important;
+}
+
+.text-warning {
+    color: var(--mc-gold) !important;
+}
+
+.text-danger {
+    color: var(--mc-redstone) !important;
+}
+
+/* Badge Styles - Minecraft Name Tags */
+.badge {
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Table Styles - Crafting Grid */
+.table {
+    border: 3px solid #e0e0e0;
+}
+
+.table code {
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+    border: 2px solid #e0e0e0;
+    font-family: 'Consolas', monospace;
+}
+
+.table thead {
+    background: var(--mc-stone-gray);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Alert Enhancements - Sign Style */
+.alert {
+    border-width: 3px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+    font-weight: 500;
+}
+
+.alert-info {
+    background: #e6f7ff;
+    border-color: var(--mc-diamond-cyan);
+}
+
+.alert-warning {
+    background: #fff7e6;
+    border-color: var(--mc-gold);
+}
+
+.alert-success {
+    background: #e6ffe6;
+    border-color: var(--mc-emerald);
+}
+
+.alert-danger {
+    background: #ffe6e6;
+    border-color: var(--mc-redstone);
+}
+
+/* Section Spacing */
+section {
+    scroll-margin-top: 2rem;
+}
+
+/* Icon Sizes */
+.display-3 {
+    font-size: 3rem;
+}
+
+.display-4 {
+    font-size: 2.5rem;
+}
+
+/* Navbar Enhancement - Hotbar Style */
+.navbar {
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.1);
+    border-bottom: 3px solid var(--mc-grass-green);
+    background: white !important;
+}
+
+.navbar-brand {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--mc-grass-green) !important;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+}
+
+.nav-link {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--mc-grass-green) !important;
+    transform: translateY(-2px);
+}
+
+/* Footer Styles - Bedrock Layer */
+footer {
+    background: linear-gradient(180deg, var(--mc-stone-gray) 0%, var(--mc-coal-black) 100%);
+    color: #e0e0e0;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    border-top: 4px solid var(--mc-dark-green);
+    box-shadow: inset 0 10px 20px rgba(0,0,0,0.3);
+}
+
+footer a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: var(--mc-grass-green) !important;
+}
+
+footer a.text-warning:hover {
+    color: var(--mc-gold) !important;
+}
+
+/* Download Cards - Chest Style */
+.card.border-success,
+.card.border-danger,
+.card.border-primary {
+    border-width: 4px;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.card.border-success:hover {
+    box-shadow: 0 10px 0 var(--mc-dark-green), 0 12px 24px rgba(0,0,0,0.2);
+    transform: translateY(-4px);
+}
+
+.card.border-danger:hover {
+    box-shadow: 0 10px 0 #990000, 0 12px 24px rgba(0,0,0,0.2);
+    transform: translateY(-4px);
+}
+
+/* Special Effects - Enchantment Glint */
+@keyframes enchantmentGlint {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100px 100px;
+    }
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+    background-image: linear-gradient(
+        45deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.2) 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        transparent 50%,
+        transparent 75%,
+        rgba(255, 255, 255, 0.2) 75%
+    );
+    background-size: 50px 50px;
+    animation: enchantmentGlint 2s linear infinite;
+}
+
+/* Dashboard Preview Styles */
+.dashboard-preview {
+    position: relative;
+    animation: floatIn 0.8s ease-out;
+}
+
+.dashboard-preview img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.dashboard-preview:hover img {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.3) !important;
+}
+
+.dashboard-badge {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--mc-grass-green);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 0 var(--mc-dark-green), 0 6px 12px rgba(0,0,0,0.3);
+    border: 3px solid #000;
+    white-space: nowrap;
+}
+
+@keyframes floatIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Dashboard Preview */
+@media (max-width: 768px) {
+    .dashboard-preview {
+        margin-top: 2rem;
+    }
+    
+    .dashboard-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 1rem;
+    }
+}

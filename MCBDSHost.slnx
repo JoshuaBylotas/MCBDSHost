@@ -9,7 +9,13 @@
   <Project Path="MCBDS.ClientUI/MCBDS.ClientUI/MCBDS.ClientUI.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
-  <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj" />
+  <Project Path="MCBDS.Marketing/MCBDS.Marketing.csproj" />
+  <Project Path="MCBDS.PublicUI.Android/MCBDS.PublicUI.Android.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
   <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
   <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
 </Solution>

@@ -15,22 +15,25 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
-		// Register BedrockApiService with HttpClient
-		// When running locally, connect to the Aspire-orchestrated API
-		// You can find the actual URL in the Aspire Dashboard after starting the AppHost
-		var httpClient = new HttpClient
-		{
-#if DEBUG
-			// For local development, update this URL from the Aspire Dashboard
-			// The Aspire dashboard shows the actual port assigned to "mcbds-api"
-			BaseAddress = new Uri("http://WINSERVER03:8080") // Update port as needed
-#else
-			// For production, use your deployed API URL
-			BaseAddress = new Uri("https://your-production-api-url.com")
-#endif
-		};
+		// Create HttpClient - the base address will be set by ServerConfigService
+		var httpClient = new HttpClient();
 		builder.Services.AddSingleton(httpClient);
-		builder.Services.AddSingleton<BedrockApiService>();
+		
+		// Register ServerConfigService with MAUI AppDataDirectory for persistence
+		// This will load the saved server configuration synchronously in the constructor
+		builder.Services.AddSingleton<ServerConfigService>(sp => 
+		{
+			var client = sp.GetRequiredService<HttpClient>();
+			return new ServerConfigService(client, FileSystem.Current.AppDataDirectory);
+		});
+		
+		// Register BedrockApiService with ServerConfigService for dynamic URL resolution
+		builder.Services.AddSingleton<BedrockApiService>(sp =>
+		{
+			var client = sp.GetRequiredService<HttpClient>();
+			var serverConfig = sp.GetRequiredService<ServerConfigService>();
+			return new BedrockApiService(client, serverConfig);
+		});
 
 		// Register BackupSettingsService with MAUI AppDataDirectory
 		builder.Services.AddSingleton<BackupSettingsService>(sp => 

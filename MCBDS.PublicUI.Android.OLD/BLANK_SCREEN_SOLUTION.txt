@@ -1,0 +1,68 @@
+BLANK SCREEN? HERE'S HOW TO DEBUG IT RIGHT NOW:
+
+=============================================================
+METHOD 1: USE CHROME DEVTOOLS (EASIEST - NO ADB NEEDED!)
+=============================================================
+
+1. Make sure your Android app is running (even with blank screen)
+
+2. Open Chrome browser on your PC
+
+3. Type in address bar: chrome://inspect/#devices
+
+4. Look for: "MCBDS Manager" or "com.mcbds.publicui.android"
+
+5. Click the "inspect" button
+
+6. Check the CONSOLE tab:
+   - Look for red error messages
+   - Look for "Blazor started successfully" (good)
+   - Look for "Failed to fetch" errors (bad - missing files)
+
+7. Check the NETWORK tab:
+   - Look for 404 errors (files not found)
+   - Check if _framework/blazor.webview.js loaded
+   - Check if lib/bootstrap files loaded
+
+THAT'S IT! The Console will show you EXACTLY what's wrong.
+
+=============================================================
+METHOD 2: FIX ADB COMMAND (IF YOU WANT TO USE LOGCAT)
+=============================================================
+
+Your error: "adb is not recognized"
+
+Quick Fix:
+1. Open PowerShell
+2. Run: .\MCBDS.PublicUI.Android\setup-adb.ps1
+3. Follow the prompts
+4. Restart PowerShell
+5. Then use: adb logcat | findstr "MCBDS"
+
+=============================================================
+MOST COMMON CAUSES OF BLANK SCREEN:
+=============================================================
+
+1. Missing Components files
+   Fix: python MCBDS.PublicUI.Android/setup-links.py
+
+2. Missing wwwroot/lib folder (Bootstrap, icons)
+   Fix: python MCBDS.PublicUI.Android/setup-links.py
+
+3. Routes.razor not found
+   Fix: python MCBDS.PublicUI.Android/setup-links.py
+
+4. JavaScript error in Blazor initialization
+   Fix: Check Chrome DevTools Console
+
+=============================================================
+NEXT STEPS:
+=============================================================
+
+1. Use chrome://inspect RIGHT NOW to see the error
+2. Copy the error message from Console
+3. Most likely it's missing files - run setup-links.py
+4. Rebuild: dotnet build MCBDS.PublicUI.Android -f net10.0-android
+5. Run again and check Chrome Console
+
+Chrome DevTools will show you EXACTLY what's wrong!
