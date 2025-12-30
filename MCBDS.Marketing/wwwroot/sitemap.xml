@@ -32,14 +32,6 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- GoFundMe Campaign Page -->
-  <url>
-    <loc>https://www.gofundme.com/f/support-minecraft-server-utilities-development</loc>
-    <lastmod>2024-12-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
   <!-- Error/Not Found Page -->
   <url>
     <loc>https://www.mc-bds.com/not-found</loc>
