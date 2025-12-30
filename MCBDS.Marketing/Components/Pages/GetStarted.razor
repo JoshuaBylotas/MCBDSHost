@@ -56,39 +56,31 @@
     <section class="mb-5" id="download">
         <div class="card shadow-sm border-primary">
             <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0"><i class="bi bi-download me-2"></i>Download MCBDSHost</h2>
+                <h2 class="h4 mb-0"><i class="bi bi-github me-2"></i>Get MCBDSHost</h2>
             </div>
             <div class="card-body">
-                <p class="lead">Get the deployment packages for your platform</p>
+                <p class="lead">Clone the repository and build from source</p>
                 
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <div class="card h-100 border-success">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="bi bi-file-earmark-zip text-success me-2"></i>Windows Package</h5>
-                                <p class="text-muted">Docker Compose configuration and deployment files for Windows Server</p>
-                                <a href="/downloads/mcbdshost-windows.zip" class="btn btn-success" download>
-                                    <i class="bi bi-download me-2"></i>Download for Windows
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card h-100 border-danger">
-                            <div class="card-body">
-                                <h5 class="card-title"><i class="bi bi-file-earmark-zip text-danger me-2"></i>Linux Package</h5>
-                                <p class="text-muted">Docker Compose configuration and deployment files for Linux</p>
-                                <a href="/downloads/mcbdshost-linux.zip" class="btn btn-danger" download>
-                                    <i class="bi bi-download me-2"></i>Download for Linux
-                                </a>
-                            </div>
-                        </div>
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-github me-2"></i>
+                    <strong>GitHub Repository:</strong> MCBDSHost is open source and available on GitHub. Clone the repository to get started.
+                </div>
+
+                <div class="card border-primary mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-git text-primary me-2"></i>Clone Repository</h5>
+                        <p class="text-muted">Get the complete source code and deployment files</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+cd MCBDSHost</code></pre>
+                        <a href="https://github.com/JoshuaBylotas/MCBDSHost" class="btn btn-primary" target="_blank" rel="noopener">
+                            <i class="bi bi-github me-2"></i>View on GitHub
+                        </a>
                     </div>
                 </div>
 
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>What's included:</strong> Docker Compose files, configuration templates, and deployment scripts. No compilation required!
+                <div class="alert alert-warning">
+                    <i class="bi bi-box-seam me-2"></i>
+                    <strong>Note:</strong> You must download the Minecraft Bedrock Dedicated Server separately from the official Minecraft website (see instructions below).
                 </div>
             </div>
         </div>
@@ -142,16 +134,22 @@ Restart-Computer</code></pre>
                 <pre class="bg-dark text-light p-3 rounded"><code>winget install -e --id Docker.DockerDesktop
 # Restart after installation</code></pre>
 
-                <h4 class="h5 mt-4">Step 3: Download MCBDSHost</h4>
+                <h4 class="h5 mt-4">Step 3: Clone MCBDSHost Repository</h4>
                 <div class="alert alert-primary">
-                    <i class="bi bi-download me-2"></i>
-                    <strong>Download the Windows package from this website</strong> (see download section above)
+                    <i class="bi bi-github me-2"></i>
+                    <strong>Clone the repository from GitHub</strong>
                 </div>
-                <pre class="bg-dark text-light p-3 rounded"><code># Create directory and extract
+                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
+git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+cd MCBDSHost
+
+# Create directory for deployment
 New-Item -Path "C:\MCBDSHost" -ItemType Directory -Force
-# Extract the downloaded mcbdshost-windows.zip to C:\MCBDSHost
-Expand-Archive -Path "Downloads\mcbdshost-windows.zip" -DestinationPath "C:\MCBDSHost"
-Set-Location "C:\MCBDSHost"</code></pre>
+Copy-Item -Path "docker-compose.windows.yml" -Destination "C:\MCBDSHost\"
+Set-Location "C:\MCBDSHost"
+
+# Verify files
+Get-ChildItem</code></pre>
 
                 <h4 class="h5 mt-4">Step 4: Download Minecraft Bedrock Server</h4>
                 <div class="alert alert-warning">
@@ -214,15 +212,22 @@ sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 # Log out and back in for group changes to take effect</code></pre>
 
-                <h4 class="h5 mt-4">Step 2: Download MCBDSHost</h4>
+                <h4 class="h5 mt-4">Step 2: Clone MCBDSHost Repository</h4>
                 <div class="alert alert-primary">
-                    <i class="bi bi-download me-2"></i>
-                    <strong>Download the Linux package from this website</strong> (see download section above)
+                    <i class="bi bi-github me-2"></i>
+                    <strong>Clone the repository from GitHub</strong>
                 </div>
-                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbdshost
+                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
+git clone https://github.com/JoshuaBylotas/MCBDSHost.git
+cd MCBDSHost
+
+# Copy deployment files
+sudo mkdir -p /opt/mcbdshost
+sudo cp docker-compose.linux.yml /opt/mcbdshost/
 cd /opt/mcbdshost
-# Extract the downloaded mcbdshost-linux.zip
-unzip ~/Downloads/mcbdshost-linux.zip -d .</code></pre>
+
+# Verify files
+ls -la</code></pre>
 
                 <h4 class="h5 mt-4">Step 3: Download Minecraft Bedrock Server</h4>
                 <div class="alert alert-warning">

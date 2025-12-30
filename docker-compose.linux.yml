@@ -1,0 +1,50 @@
+# Docker Compose for Linux Deployment (Ubuntu/Debian)
+# Data is stored in /opt/mcbdshost/ on the host for easy access
+
+services:
+  # Minecraft Bedrock Dedicated Server API
+  mcbds-api:
+    build:
+      context: .
+      dockerfile: MCBDS.API/Dockerfile
+    container_name: mcbds-api
+    ports:
+      - "8080:8080"       # HTTP API
+      - "19132:19132/udp" # Minecraft Bedrock IPv4
+      - "19133:19133/udp" # Minecraft Bedrock IPv6
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    volumes:
+      # Mount bedrock-server from host (contains server executable, worlds, config)
+      - /opt/mcbdshost/bedrock-server:/app/Binaries
+      # Logs accessible directly on host at /opt/mcbdshost/logs
+      - /opt/mcbdshost/logs:/app/logs
+      # Backups accessible directly on host at /opt/mcbdshost/backups
+      - /opt/mcbdshost/backups:/app/backups
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Client Web UI - Blazor Server application
+  mcbds-clientui-web:
+    build:
+      context: .
+      dockerfile: MCBDS.ClientUI/MCBDS.ClientUI.Web/Dockerfile
+    container_name: mcbds-clientui-web
+    ports:
+      - "5000:8080"  # Web UI accessible on port 5000
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ApiSettings__BaseUrl=http://mcbds-api:8080
+    depends_on:
+      mcbds-api:
+        condition: service_healthy
+    restart: unless-stopped
