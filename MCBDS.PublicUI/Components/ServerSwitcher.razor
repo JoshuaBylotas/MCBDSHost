@@ -1,12 +1,10 @@
 @inject ServerConfigService ServerConfig
 @inject NavigationManager Navigation
-
-<div class="server-switcher">
+<div class="server-switcher nav-item px-0">
+    
     <div class="server-selector">
-        <label class="server-label">
-            <i class="bi bi-hdd-network me-1"></i>
-            Server:
-        </label>
+       
+        
         
         @if (!isEditing)
         {
@@ -29,8 +27,8 @@
                 <input type="text" class="form-control form-control-sm" 
                        placeholder="Server Name" 
                        @bind="newServerName" />
-                <input type="text" class="form-control form-control-sm" 
-                       placeholder="URL (e.g., http://192.168.1.100:8080)" 
+                <input type="text" class="form-control form-control-sm"
+                       placeholder="URL (http://192.168.1.100:8080)" 
                        @bind="newServerUrl" />
                 <button class="btn btn-sm btn-success" @onclick="AddNewServer" title="Add Server">
                     <i class="bi bi-check-lg"></i>
