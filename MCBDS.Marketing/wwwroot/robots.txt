@@ -11,7 +11,7 @@ Disallow: /_framework/
 Disallow: /logs/
 
 # Point to sitemap
-Sitemap: https://mcbdshost.com/sitemap.xml
+Sitemap: https://www.mc-bds.com/sitemap.xml
 
 # Crawl delay (optional - remove if not needed)
 # Crawl-delay: 1
