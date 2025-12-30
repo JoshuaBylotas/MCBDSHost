@@ -4,7 +4,7 @@
 
 The `GetBedrockWorldPath()` method now correctly determines the world directory based on the location of `bedrock_server.exe` instead of the API assembly location.
 
-## ?? Problem
+##  Problem
 
 Previously, the code was using:
 ```csharp
