@@ -1,0 +1,43 @@
+# Docker Compose for Windows Containers with HTTPS
+# For deployment to Windows Server from C:\MCBDSHost\MCBDSHost\
+
+services:
+  mcbds-api:
+    build:
+      context: .
+      dockerfile: MCBDS.API/Dockerfile.windows
+      args:
+        - WINDOWS_VERSION=ltsc2022
+    container_name: mcbds-api
+    ports:
+      - "8080:8080"       # HTTP API
+      - "8081:8081"       # HTTPS API
+      - "19132:19132/udp" # Minecraft Bedrock IPv4
+      - "19133:19133/udp" # Minecraft Bedrock IPv6
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=C:/https/mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    volumes:
+      # HTTPS Certificate
+      - C:/MCBDSHost/certs:C:/https:ro
+      # Bedrock server (Windows .exe)
+      - C:/MCBDSHost/bedrock-server:C:/app/Binaries
+      # Logs
+      - C:/MCBDSHost/logs:C:/app/logs
+      # Backups
+      - C:/MCBDSHost/backups:C:/app/backups
+    restart: unless-stopped
+    isolation: process
+    healthcheck:
+      test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri https://localhost:8081/health -UseBasicParsing -SkipCertificateCheck; exit 0 } catch { exit 1 }"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: mcbds-network
