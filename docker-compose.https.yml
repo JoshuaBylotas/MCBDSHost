@@ -5,28 +5,34 @@ services:
       dockerfile: MCBDS.API/Dockerfile
     container_name: mcbds-api
     ports:
-      - "8080:8080"   # HTTP (keep for internal/fallback)
-      - "8081:8081"   # HTTPS (primary for web clients)
+      - "8080:8080"       # HTTP API
+      - "8081:8081"       # HTTPS API (for web clients)
+      - "19132:19132/udp" # Minecraft Bedrock IPv4
+      - "19133:19133/udp" # Minecraft Bedrock IPv6
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=https://+:8081;http://+:8080
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mcbds-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
+      - DOTNET_RUNNING_IN_CONTAINER=true
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
-      # Use relative paths - works on both Windows and Linux hosts
+      # HTTPS Certificate
       - ./certs:/https:ro
-      - ./bedrock-server:/app/bedrock-server
-      - ./backups:/app/backups
+      # Mount bedrock-server from current directory (ORIGINAL PATH)
+      - ./bedrock-server:/app/Binaries
+      # Logs
       - ./logs:/app/logs
+      # Backups
+      - ./backups:/app/backups
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "-k", "https://localhost:8081/api/runner/status"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 40s
 
 networks:
   default:
