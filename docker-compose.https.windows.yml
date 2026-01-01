@@ -12,20 +12,25 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=C:\https\mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=C:/https/mcbds-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
-      # Logging
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
-      # Certificate volume (use Windows paths)
-      - ./certs:C:/https:ro
-      # Bedrock server files
-      - ./bedrock-server:C:/app/bedrock-server
-      # Backup storage
-      - ./backups:C:/app/backups
-      # Logs
-      - ./logs:C:/app/logs
+      # Windows container volumes use forward slashes
+      - type: bind
+        source: ./certs
+        target: C:/https
+        read_only: true
+      - type: bind
+        source: ./bedrock-server
+        target: C:/app/bedrock-server
+      - type: bind
+        source: ./backups
+        target: C:/app/backups
+      - type: bind
+        source: ./logs
+        target: C:/app/logs
     restart: unless-stopped
     # Note: healthcheck with curl not available on Windows, use PowerShell
     healthcheck:

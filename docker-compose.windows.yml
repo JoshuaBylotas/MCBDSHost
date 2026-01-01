@@ -1,4 +1,4 @@
-# Docker Compose for Windows Server Deployment
+# Docker Compose for Windows Server Deployment with HTTPS
 # Data is stored in C:\MCBDSHost\ on the host for easy access
 
 services:
@@ -12,13 +12,20 @@ services:
     container_name: mcbds-api
     ports:
       - "8080:8080"       # HTTP API
+      - "8081:8081"       # HTTPS API (for web clients)
       - "19132:19132/udp" # Minecraft Bedrock IPv4
       - "19133:19133/udp" # Minecraft Bedrock IPv6
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=C:/https/mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
       - DOTNET_RUNNING_IN_CONTAINER=true
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
+      # HTTPS Certificate (read-only)
+      - C:/MCBDSHost/certs:C:/https:ro
       # Mount bedrock-server from host (contains server executable, worlds, config)
       - C:/MCBDSHost/bedrock-server:C:/app/Binaries
       # Logs accessible directly on host at C:\MCBDSHost\logs
@@ -26,7 +33,7 @@ services:
       # Backups accessible directly on host at C:\MCBDSHost\backups
       - C:/MCBDSHost/backups:C:/app/backups
     healthcheck:
-      test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing -ErrorAction Stop; exit 0 } catch { exit 1 }"]
+      test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri https://localhost:8081/health -UseBasicParsing -SkipCertificateCheck -ErrorAction Stop; exit 0 } catch { exit 1 }"]
       interval: 30s
       timeout: 10s
       retries: 3

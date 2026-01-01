@@ -1,4 +1,4 @@
-# Docker Compose for Linux Deployment (Ubuntu/Debian)
+# Docker Compose for Linux Deployment (Ubuntu/Debian) with HTTPS
 # Data is stored in /opt/mcbdshost/ on the host for easy access
 
 services:
@@ -10,13 +10,20 @@ services:
     container_name: mcbds-api
     ports:
       - "8080:8080"       # HTTP API
+      - "8081:8081"       # HTTPS API (for web clients)
       - "19132:19132/udp" # Minecraft Bedrock IPv4
       - "19133:19133/udp" # Minecraft Bedrock IPv6
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
       - DOTNET_RUNNING_IN_CONTAINER=true
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
+      # HTTPS Certificate (read-only)
+      - /opt/mcbdshost/certs:/https:ro
       # Mount bedrock-server from host (contains server executable, worlds, config)
       - /opt/mcbdshost/bedrock-server:/app/Binaries
       # Logs accessible directly on host at /opt/mcbdshost/logs
@@ -24,7 +31,7 @@ services:
       # Backups accessible directly on host at /opt/mcbdshost/backups
       - /opt/mcbdshost/backups:/app/backups
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8081/health"]
       interval: 30s
       timeout: 10s
       retries: 3
