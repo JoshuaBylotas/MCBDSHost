@@ -12,17 +12,13 @@ services:
       - ASPNETCORE_URLS=https://+:8081;http://+:8080
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mcbds-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
-      # Logging
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
-      # Certificate volume (read-only for security)
+      # Use relative paths - works on both Windows and Linux hosts
       - ./certs:/https:ro
-      # Bedrock server files
       - ./bedrock-server:/app/bedrock-server
-      # Backup storage
       - ./backups:/app/backups
-      # Logs
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
