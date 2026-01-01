@@ -87,6 +87,27 @@
                     }
                 </div>
             }
+
+            @if (showItemSuggestions && filteredItems.Any())
+            {
+                <div class="autocomplete-dropdown item-dropdown">
+                    <div class="dropdown-header">
+                        <i class="bi bi-box-seam-fill me-2"></i>
+                        <strong>@GetSuggestionsHeader()</strong>
+                    </div>
+                    @foreach (var (item, index) in filteredItems.Select((it, i) => (it, i)))
+                    {
+                        <div class="autocomplete-item @(index == selectedItemIndex ? "selected" : "")"
+                             @onmousedown="@(() => SelectItem(item))"
+                             @onmouseover="@(() => selectedItemIndex = index)">
+                            <div class="item-name">
+                                <i class="bi bi-cube-fill me-2 text-info"></i>
+                                <strong>@item</strong>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
         </div>
         
         @if (selectedCommand != null && !string.IsNullOrWhiteSpace(commandInput))
@@ -244,10 +265,13 @@
     private bool showSuggestions = false;
     private bool showCommandReference = false;
     private bool showPlayerSuggestions = false;
+    private bool showItemSuggestions = false;
     private int selectedSuggestionIndex = 0;
     private int selectedPlayerIndex = 0;
+    private int selectedItemIndex = 0;
     private List<MinecraftCommand> filteredCommands = new();
     private List<string> filteredPlayers = new();
+    private List<string> filteredItems = new();
     private MinecraftCommand? selectedCommand = null;
     private System.Threading.Timer? autoRefreshTimer;
     private readonly PlayerTracker playerTracker = new();
@@ -283,6 +307,7 @@
         {
             showSuggestions = false;
             showPlayerSuggestions = false;
+            showItemSuggestions = false;
             StateHasChanged();
         }));
     }
@@ -293,6 +318,7 @@
         {
             showSuggestions = false;
             showPlayerSuggestions = false;
+            showItemSuggestions = false;
             selectedCommand = null;
             return;
         }
@@ -300,41 +326,91 @@
         var parts = commandInput.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var commandName = parts[0].ToLower();
         currentCommandName = commandName;
-        currentParameterIndex = parts.Length - 1;
+        
+        // Calculate which parameter we're typing
+        // Count spaces to determine if we're typing a new parameter
+        var spaceCount = commandInput.Count(c => c == ' ');
+        currentParameterIndex = spaceCount;
 
         // If we're on the first word, show command suggestions
-        if (parts.Length == 1)
+        if (parts.Length == 1 && !commandInput.EndsWith(' '))
         {
             filteredCommands = BedrockCommands.SearchCommands(commandName).Take(10).ToList();
             showSuggestions = filteredCommands.Any();
             showPlayerSuggestions = false;
+            showItemSuggestions = false;
             selectedSuggestionIndex = 0;
         }
         else
         {
-            // Check if we should show player suggestions
+            // We're typing parameters - check what type of parameter we need
             var cmd = BedrockCommands.GetCommand(commandName);
-            if (cmd != null && currentParameterIndex < cmd.Parameters.Count)
+            if (cmd != null && currentParameterIndex > 0 && currentParameterIndex <= cmd.Parameters.Count)
             {
-                var param = cmd.Parameters[currentParameterIndex];
+                var paramIndex = currentParameterIndex - 1; // Convert to 0-based index
+                var param = cmd.Parameters[paramIndex];
+                
+                // Get the partial value being typed
+                var partialValue = parts.Length > paramIndex + 1 ? parts[paramIndex + 1] : "";
+                
                 if (param.Type == "target")
                 {
-                    var partialName = parts[currentParameterIndex];
-                    filteredPlayers = playerTracker.GetPlayerSuggestions(partialName);
+                    filteredPlayers = playerTracker.GetPlayerSuggestions(partialValue);
                     showPlayerSuggestions = filteredPlayers.Any();
                     showSuggestions = false;
+                    showItemSuggestions = false;
                     selectedPlayerIndex = 0;
+                }
+                else if (param.Type == "string" && (param.Name.Contains("item") || commandName == "give" || commandName == "clear"))
+                {
+                    filteredItems = MinecraftItems.SearchItems(partialValue, 15);
+                    showItemSuggestions = filteredItems.Any();
+                    showSuggestions = false;
+                    showPlayerSuggestions = false;
+                    selectedItemIndex = 0;
+                }
+                else if (param.Type == "gamerule" && param.PossibleValues != null && param.PossibleValues.Any())
+                {
+                    // Show game rule suggestions
+                    var lowerPartial = partialValue.ToLower();
+                    filteredItems = param.PossibleValues
+                        .Where(v => v.ToLower().Contains(lowerPartial))
+                        .OrderBy(v => v.ToLower().StartsWith(lowerPartial) ? 0 : 1)
+                        .ThenBy(v => v)
+                        .Take(15)
+                        .ToList();
+                    showItemSuggestions = filteredItems.Any();
+                    showSuggestions = false;
+                    showPlayerSuggestions = false;
+                    selectedItemIndex = 0;
+                }
+                else if (param.PossibleValues != null && param.PossibleValues.Any())
+                {
+                    // Show suggestions for any parameter with possible values
+                    var lowerPartial = partialValue.ToLower();
+                    filteredItems = param.PossibleValues
+                        .Where(v => v.ToLower().Contains(lowerPartial))
+                        .OrderBy(v => v.ToLower().StartsWith(lowerPartial) ? 0 : 1)
+                        .ThenBy(v => v)
+                        .Take(15)
+                        .ToList();
+                    showItemSuggestions = filteredItems.Any();
+                    showSuggestions = false;
+                    showPlayerSuggestions = false;
+                    selectedItemIndex = 0;
                 }
                 else
                 {
                     showSuggestions = false;
                     showPlayerSuggestions = false;
+                    showItemSuggestions = false;
                 }
             }
             else
             {
                 showSuggestions = false;
                 showPlayerSuggestions = false;
+                showItemSuggestions = false;
             }
         }
 
@@ -372,6 +448,37 @@
             else if (e.Key == "Escape")
             {
                 showPlayerSuggestions = false;
+                StateHasChanged();
+                return;
+            }
+        }
+
+        // Handle item suggestions
+        if (showItemSuggestions && filteredItems.Any())
+        {
+            if (e.Key == "ArrowDown")
+            {
+                selectedItemIndex = Math.Min(selectedItemIndex + 1, filteredItems.Count - 1);
+                StateHasChanged();
+                return;
+            }
+            else if (e.Key == "ArrowUp")
+            {
+                selectedItemIndex = Math.Max(selectedItemIndex - 1, 0);
+                StateHasChanged();
+                return;
+            }
+            else if (e.Key == "Tab" || (e.Key == "Enter" && showItemSuggestions))
+            {
+                if (selectedItemIndex < filteredItems.Count)
+                {
+                    SelectItem(filteredItems[selectedItemIndex]);
+                }
+                return;
+            }
+            else if (e.Key == "Escape")
+            {
+                showItemSuggestions = false;
                 StateHasChanged();
                 return;
             }
@@ -441,17 +548,50 @@
     private void SelectPlayer(string playerName)
     {
         var parts = commandInput.Split(' ').ToList();
-        if (currentParameterIndex < parts.Count)
+        var paramIndex = currentParameterIndex;
+        
+        // If we have enough parts, replace the current parameter
+        if (parts.Count > paramIndex)
         {
-            parts[currentParameterIndex] = playerName;
+            parts[paramIndex] = playerName;
         }
         else
         {
+            // Add the player name
+            while (parts.Count < paramIndex)
+            {
+                parts.Add("");
+            }
             parts.Add(playerName);
         }
         
-        commandInput = string.Join(" ", parts) + " ";
+        commandInput = string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p))) + " ";
         showPlayerSuggestions = false;
+        StateHasChanged();
+    }
+
+    private void SelectItem(string itemName)
+    {
+        var parts = commandInput.Split(' ').ToList();
+        var paramIndex = currentParameterIndex;
+        
+        // If we have enough parts, replace the current parameter
+        if (parts.Count > paramIndex)
+        {
+            parts[paramIndex] = itemName;
+        }
+        else
+        {
+            // Add the item name
+            while (parts.Count < paramIndex)
+            {
+                parts.Add("");
+            }
+            parts.Add(itemName);
+        }
+        
+        commandInput = string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p))) + " ";
+        showItemSuggestions = false;
         StateHasChanged();
     }
 
@@ -474,6 +614,25 @@
     {
         showCommandReference = !showCommandReference;
         StateHasChanged();
+    }
+
+    private string GetSuggestionsHeader()
+    {
+        var cmd = BedrockCommands.GetCommand(currentCommandName ?? "");
+        if (cmd != null && currentParameterIndex > 0 && currentParameterIndex <= cmd.Parameters.Count)
+        {
+            var paramIndex = currentParameterIndex - 1;
+            var param = cmd.Parameters[paramIndex];
+            
+            return param.Type switch
+            {
+                "gamerule" => "Game Rules",
+                "string" when param.Name.Contains("item") => "Minecraft Items",
+                _ when param.PossibleValues != null && param.PossibleValues.Any() => $"{param.Name} Options",
+                _ => "Suggestions"
+            };
+        }
+        return "Suggestions";
     }
 
     private List<string> GetFilteredCategories()

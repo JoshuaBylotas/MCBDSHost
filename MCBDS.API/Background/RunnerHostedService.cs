@@ -179,36 +179,52 @@ namespace MCBDS.API.Background
             return false;
         }
 
-        public async Task<string?> SendLineAndReadResponseAsync(string line, int timeoutMs = 3000)
+        public async Task<string?> SendLineAndReadResponseAsync(string line, int timeoutMs = 5000)
         {
             if (_bedrockProcess == null || _bedrockProcess.HasExited)
                 return null;
-            var tcs = new TaskCompletionSource<string?>();
-            DataReceivedEventHandler? handler = null;
-            handler = (s, e) =>
+
+            // Store the current log length to capture only new output
+            int initialLogLength;
+            lock (_lock)
             {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    _bedrockProcess!.OutputDataReceived -= handler;
-                    tcs.TrySetResult(e.Data);
-                }
-            };
-            _bedrockProcess.OutputDataReceived += handler;
+                initialLogLength = _logBuilder.Length;
+            }
+
+            // Send the command
             try
             {
                 _bedrockProcess.StandardInput.WriteLine(line);
                 _bedrockProcess.StandardInput.Flush();
+                _logger.LogInformation("Command sent: {Line}", line);
             }
-            catch
+            catch (Exception ex)
             {
-                _bedrockProcess.OutputDataReceived -= handler;
+                _logger.LogError(ex, "Failed to send command: {Line}", line);
                 return null;
             }
-            var completedTask = await Task.WhenAny(tcs.Task, Task.Delay(timeoutMs));
-            if (completedTask == tcs.Task)
-                return tcs.Task.Result;
-            _bedrockProcess.OutputDataReceived -= handler;
-            return null;
+
+            // Wait for new log output
+            var startTime = DateTime.UtcNow;
+            while ((DateTime.UtcNow - startTime).TotalMilliseconds < timeoutMs)
+            {
+                await Task.Delay(100);
+                
+                string newOutput;
+                lock (_lock)
+                {
+                    if (_logBuilder.Length > initialLogLength)
+                    {
+                        // Get only the new output since the command was sent
+                        newOutput = _logBuilder.ToString(initialLogLength, _logBuilder.Length - initialLogLength);
+                        _logger.LogInformation("New output captured: {Output}", newOutput);
+                        return newOutput.Trim();
+                    }
+                }
+            }
+
+            _logger.LogWarning("Command timed out after {TimeoutMs}ms: {Line}", timeoutMs, line);
+            return "Command sent successfully (no immediate response)";
         }
 
         public async Task<bool> RestartProcessAsync()

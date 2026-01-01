@@ -14,6 +14,33 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Configure CORS to allow web clients to connect
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+    
+    // Named policy for more restrictive production use
+    options.AddPolicy("Production", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:5000",
+                "http://localhost:5001",
+                "https://localhost:5001",
+                "http://localhost:8080",
+                "https://localhost:8080",
+                "http://127.0.0.1:5000",
+                "http://127.0.0.1:8080"
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 // Configure backup settings with change tracking
 builder.Services.Configure<BackupConfiguration>(builder.Configuration.GetSection("Backup"));
 
@@ -35,6 +62,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseHttpsRedirection();
 }
+
+// Enable CORS - must be before UseAuthorization
+app.UseCors();
 
 app.UseAuthorization();
 

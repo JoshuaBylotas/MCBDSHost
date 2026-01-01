@@ -304,12 +304,22 @@ public static class BedrockCommands
             Category = "World Management",
             Parameters = new()
             {
-                new() { Name = "rule", Type = "string", Required = true, Description = "Game rule name",
-                    PossibleValues = new() { "commandBlockOutput", "doDaylightCycle", "doEntityDrops", "doFireTick", 
-                        "doInsomnia", "doMobLoot", "doMobSpawning", "doTileDrops", "doWeatherCycle", "drowningDamage",
-                        "fallDamage", "fireDamage", "keepInventory", "mobGriefing", "naturalRegeneration", "pvp",
-                        "randomTickSpeed", "sendCommandFeedback", "showCoordinates", "showDeathMessages", "spawnRadius",
-                        "tntExplodes" } },
+                new() { Name = "rule", Type = "gamerule", Required = true, Description = "Game rule name",
+                    PossibleValues = new() { 
+                        // Common Game Rules
+                        "commandBlockOutput", "doDaylightCycle", "doEntityDrops", "doFireTick", 
+                        "doInsomnia", "doMobLoot", "doMobSpawning", "doTileDrops", "doWeatherCycle", 
+                        "drowningDamage", "fallDamage", "fireDamage", "freezeDamage",
+                        "keepInventory", "mobGriefing", "naturalRegeneration", "pvp",
+                        "randomTickSpeed", "sendCommandFeedback", "showCoordinates", "showDeathMessages", 
+                        "spawnRadius", "tntExplodes",
+                        // Additional Bedrock Rules
+                        "announceAdvancements", "disableElytraMovementCheck", "doImmediateRespawn",
+                        "doLimitedCrafting", "maxCommandChainLength", "maxEntityCramming",
+                        "playersSleepingPercentage", "reducedDebugInfo", "respawnBlocksExplode",
+                        "showBorderEffect", "showTags", "spectatorsGenerateChunks",
+                        "universalAnger", "doPatrolSpawning", "doTraderSpawning"
+                    } },
                 new() { Name = "value", Type = "bool", Required = false, Description = "Rule value (true/false)" }
             },
             Examples = new() { "gamerule keepInventory true", "gamerule doDaylightCycle false", "gamerule showCoordinates" }

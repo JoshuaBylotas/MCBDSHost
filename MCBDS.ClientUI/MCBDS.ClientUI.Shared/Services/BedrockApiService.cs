@@ -32,9 +32,9 @@ public enum ApiErrorType
 public class BedrockApiService
 {
     private readonly HttpClient _httpClient;
-    private readonly ServerConfigService? _serverConfig;
+    private readonly IServerConfigService? _serverConfig;
 
-    public BedrockApiService(HttpClient httpClient, ServerConfigService? serverConfig = null)
+    public BedrockApiService(HttpClient httpClient, IServerConfigService? serverConfig = null)
     {
         _httpClient = httpClient;
         _serverConfig = serverConfig;
@@ -262,6 +262,30 @@ public class BedrockApiService
         }
     }
 
+    public async Task<ApiResult<RestoreBackupResponse>> RestoreBackupAsync(string backupName)
+    {
+        try
+        {
+            var url = BuildUrl($"/api/backup/restore/{backupName}");
+            var response = await _httpClient.PostAsync(url, null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<RestoreBackupResponse>();
+                return result != null 
+                    ? ApiResult<RestoreBackupResponse>.Ok(result) 
+                    : ApiResult<RestoreBackupResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<RestoreBackupResponse>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<RestoreBackupResponse>.Fail(GetFriendlyErrorMessage(ex, "restore backup"), GetErrorType(ex));
+        }
+    }
+
     // Server Properties API methods
     public async Task<ApiResult<ServerPropertiesResponse>> GetServerPropertiesAsync()
     {
@@ -353,6 +377,13 @@ public class BackupInfo
 public class DeleteBackupResponse
 {
     public string? message { get; set; }
+}
+
+public class RestoreBackupResponse
+{
+    public string? message { get; set; }
+    public string? backupName { get; set; }
+    public DateTime restoredAt { get; set; }
 }
 
 public class ServerPropertiesResponse

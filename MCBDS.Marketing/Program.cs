@@ -1,10 +1,14 @@
 using MCBDS.Marketing.Components;
+using MCBDS.Marketing.Services;
 using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
+
+// Add Documentation Service
+builder.Services.AddScoped<DocumentationService>();
 
 // Configure logging
 builder.Logging.ClearProviders();

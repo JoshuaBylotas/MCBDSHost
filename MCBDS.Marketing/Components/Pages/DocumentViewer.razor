@@ -1,0 +1,593 @@
+@page "/docs/{route}"
+@using MCBDS.Marketing.Services
+@using Markdig
+@inject DocumentationService DocService
+@inject NavigationManager NavManager
+
+<PageTitle>@pageTitle - MCBDSHost Documentation</PageTitle>
+
+<div class="container-fluid py-4">
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading documentation...</p>
+        </div>
+    }
+    else if (document == null)
+    {
+        <div class="alert alert-warning">
+            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i>Document Not Found</h4>
+            <p>The requested documentation could not be found.</p>
+            <hr>
+            <p class="mb-0">
+                <a href="/docs" class="alert-link">Return to Documentation Index</a>
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12 mb-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/docs">Documentation</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@document.Title</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-9">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h3 mb-0">
+                            <i class="bi bi-file-text me-2"></i>@document.Title
+                        </h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="badge bg-secondary me-2">
+                                <i class="bi bi-tag me-1"></i>@document.Category
+                            </span>
+                            <span class="badge bg-info">
+                                <i class="bi bi-file-earmark me-1"></i>@document.FileName
+                            </span>
+                        </div>
+
+                        <div class="markdown-content">
+                            @((MarkupString)htmlContent)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a href="/docs" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Documentation Index
+                    </a>
+                    <a href="#top" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-up me-2"></i>Back to Top
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-list-nested me-2"></i>On This Page</h5>
+                    </div>
+                    <div class="card-body" id="toc">
+                        @if (tableOfContents.Any())
+                        {
+                            <ul class="nav flex-column">
+                                @foreach (var item in tableOfContents)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link py-1 toc-link" 
+                                           href="@($"/docs/{Route}#{item.Id}")"
+                                           style="padding-left: @(item.Level * 12)px;">
+                                            @((MarkupString)item.Text)
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">No headings found</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .markdown-content {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        scroll-margin-top: 80px;
+    }
+
+    .markdown-content h1 {
+        font-size: 2rem;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 0.5rem;
+    }
+
+    .markdown-content h2 {
+        font-size: 1.75rem;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 0.5rem;
+    }
+
+    .markdown-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .markdown-content h4 {
+        font-size: 1.25rem;
+    }
+
+    .markdown-content code {
+        background-color: #f8f9fa;
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+        color: #d63384;
+    }
+
+    .markdown-content pre {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        overflow-x: auto;
+    }
+
+    .markdown-content pre code {
+        background-color: transparent;
+        padding: 0;
+        color: #D4CDDE;
+        font-size: 0.875rem;
+    }
+
+    .markdown-content table {
+        width: 100%;
+        margin-bottom: 1rem;
+        border-collapse: collapse;
+    }
+
+    .markdown-content table th,
+    .markdown-content table td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+    }
+
+    .markdown-content table thead {
+        background-color: #f8f9fa;
+    }
+
+    .markdown-content blockquote {
+        border-left: 4px solid #0d6efd;
+        padding-left: 1rem;
+        margin-left: 0;
+        color: #6c757d;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+        padding-left: 2rem;
+    }
+
+    .markdown-content ul li,
+    .markdown-content ol li {
+        margin-bottom: 0.5rem;
+    }
+
+    .markdown-content a {
+        color: #0d6efd;
+        text-decoration: none;
+    }
+
+    .markdown-content a:hover {
+        color: #0a58ca;
+        text-decoration: underline;
+    }
+
+    .markdown-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.375rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin: 1rem 0;
+    }
+
+    .sticky-top {
+        z-index: 1020;
+    }
+
+    #toc .nav-link {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    #toc .nav-link:hover {
+        color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+
+    .breadcrumb {
+        background-color: #f8f9fa;
+        padding: 0.75rem 1rem;
+        border-radius: 0.375rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string Route { get; set; } = string.Empty;
+
+    private DocumentationService.DocumentationItem? document;
+    private string htmlContent = string.Empty;
+    private string pageTitle = "Documentation";
+    private bool isLoading = true;
+    private List<TocItem> tableOfContents = new();
+
+    private class TocItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public int Level { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocument();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadDocument();
+    }
+
+    private async Task LoadDocument()
+    {
+        isLoading = true;
+        
+        try
+        {
+            document = await DocService.GetDocumentAsync(Route);
+            
+            if (document != null)
+            {
+                pageTitle = document.Title;
+                htmlContent = ConvertMarkdownToHtml(document.Content);
+                ExtractTableOfContents(document.Content);
+            }
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string ConvertMarkdownToHtml(string markdown)
+    {
+        var pipeline = new MarkdownPipelineBuilder()
+            .UseAdvancedExtensions()
+            .UseAutoIdentifiers()
+            .Build();
+        
+        var html = Markdown.ToHtml(markdown, pipeline);
+        
+        // Replace emojis with Bootstrap icons for better rendering
+        html = html
+            .Replace("?", "<i class=\"bi bi-check-circle-fill text-success\"></i>")
+            .Replace("?", "<i class=\"bi bi-x-circle-fill text-danger\"></i>")
+            .Replace("??", "<i class=\"bi bi-exclamation-triangle-fill text-warning\"></i>")
+            .Replace("??", "<i class=\"bi bi-book\"></i>")
+            .Replace("??", "<i class=\"bi bi-stars\"></i>")
+            .Replace("??", "<i class=\"bi bi-wrench\"></i>")
+            .Replace("??", "<i class=\"bi bi-lightbulb\"></i>")
+            .Replace("??", "<i class=\"bi bi-rocket-takeoff\"></i>")
+            .Replace("??", "<i class=\"bi bi-pencil\"></i>")
+            .Replace("??", "<i class=\"bi bi-box\"></i>")
+            .Replace("??", "<i class=\"bi bi-lock\"></i>")
+            .Replace("??", "<i class=\"bi bi-key\"></i>")
+            .Replace("?", "<i class=\"bi bi-star-fill text-warning\"></i>")
+            .Replace("??", "<i class=\"bi bi-bullseye\"></i>")
+            .Replace("??", "<i class=\"bi bi-clipboard\"></i>")
+            .Replace("??", "<i class=\"bi bi-search\"></i>")
+            .Replace("??", "<i class=\"bi bi-laptop\"></i>")
+            .Replace("??", "<i class=\"bi bi-globe\"></i>")
+            .Replace("??", "<i class=\"bi bi-phone\"></i>")
+            .Replace("???", "<i class=\"bi bi-display\"></i>")
+            .Replace("??", "<i class=\"bi bi-gear\"></i>")
+            .Replace("???", "<i class=\"bi bi-tools\"></i>")
+            .Replace("??", "<i class=\"bi bi-file-text\"></i>")
+            .Replace("??", "<i class=\"bi bi-folder\"></i>")
+            .Replace("??", "<i class=\"bi bi-house\"></i>")
+            .Replace("?", "<i class=\"bi bi-sparkles\"></i>")
+            .Replace("??", "<i class=\"bi bi-link-45deg\"></i>")
+            .Replace("??", "<i class=\"bi bi-bar-chart\"></i>")
+            .Replace("??", "<i class=\"bi bi-graph-up\"></i>")
+            .Replace("??", "<i class=\"bi bi-controller\"></i>")
+            .Replace("??", "<i class=\"bi bi-dice-5\"></i>")
+            .Replace("??", "<i class=\"bi bi-arrow-repeat\"></i>")
+            .Replace("??", "<i class=\"bi bi-stopwatch\"></i>")
+            .Replace("??", "<i class=\"bi bi-telephone\"></i>")
+            .Replace("??", "<i class=\"bi bi-envelope\"></i>")
+            .Replace("??", "<i class=\"bi bi-chat\"></i>")
+            .Replace("??", "<i class=\"bi bi-bell\"></i>")
+            .Replace("??", "<i class=\"bi bi-exclamation-circle\"></i>")
+            .Replace("??", "<i class=\"bi bi-lightning\"></i>")
+            .Replace("??", "<i class=\"bi bi-fire\"></i>")
+            .Replace("??", "<i class=\"bi bi-droplet\"></i>")
+            .Replace("??", "<i class=\"bi bi-star\"></i>")
+            .Replace("?", "<i class=\"bi bi-lightning-charge\"></i>")
+            .Replace("??", "<i class=\"bi bi-gift\"></i>")
+            .Replace("??", "<i class=\"bi bi-trophy\"></i>")
+            .Replace("??", "<i class=\"bi bi-award\"></i>")
+            .Replace("??", "<i class=\"bi bi-award\"></i>")
+            .Replace("??", "<i class=\"bi bi-award\"></i>")
+            .Replace("??", "<i class=\"bi bi-info-circle\"></i>")
+            .Replace("??", "<i class=\"bi bi-person\"></i>")
+            .Replace("??", "<i class=\"bi bi-people\"></i>")
+            .Replace("??", "<i class=\"bi bi-envelope-at\"></i>")
+            .Replace("??", "<i class=\"bi bi-shield-lock\"></i>")
+            .Replace("???", "<i class=\"bi bi-folder2\"></i>")
+            .Replace("??", "<i class=\"bi bi-folder2-open\"></i>")
+            .Replace("??", "<i class=\"bi bi-floppy\"></i>")
+            .Replace("???", "<i class=\"bi bi-trash\"></i>")
+            .Replace("??", "<i class=\"bi bi-arrow-down\"></i>")
+            .Replace("??", "<i class=\"bi bi-arrow-up\"></i>")
+            .Replace("??", "<i class=\"bi bi-arrow-right\"></i>")
+            .Replace("??", "<i class=\"bi bi-arrow-left\"></i>")
+            .Replace("??", "<i class=\"bi bi-shuffle\"></i>")
+            .Replace("??", "<i class=\"bi bi-play-fill\"></i>")
+            .Replace("??", "<i class=\"bi bi-pause-fill\"></i>")
+            .Replace("??", "<i class=\"bi bi-stop-fill\"></i>")
+            .Replace("??", "<i class=\"bi bi-volume-up\"></i>")
+            .Replace("??", "<i class=\"bi bi-volume-mute\"></i>")
+            .Replace("??", "<i class=\"bi bi-music-note\"></i>")
+            .Replace("??", "<i class=\"bi bi-camera-video\"></i>")
+            .Replace("??", "<i class=\"bi bi-camera\"></i>")
+            .Replace("???", "<i class=\"bi bi-image\"></i>")
+            .Replace("??", "<i class=\"bi bi-paperclip\"></i>")
+            .Replace("??", "<i class=\"bi bi-plug\"></i>")
+            .Replace("??", "<i class=\"bi bi-disc\"></i>")
+            .Replace("???", "<i class=\"bi bi-printer\"></i>")
+            .Replace("??", "<i class=\"bi bi-keyboard\"></i>")
+            .Replace("???", "<i class=\"bi bi-mouse\"></i>")
+            .Replace("??", "<i class=\"bi bi-battery-full\"></i>")
+            .Replace("??", "<i class=\"bi bi-broadcast\"></i>")
+            .Replace("??", "<i class=\"bi bi-globe-americas\"></i>")
+            .Replace("??", "<i class=\"bi bi-globe-americas\"></i>")
+            .Replace("??", "<i class=\"bi bi-globe-asia-australia\"></i>")
+            .Replace("???", "<i class=\"bi bi-map\"></i>")
+            .Replace("??", "<i class=\"bi bi-geo-alt-fill\"></i>")
+            .Replace("?", "<i class=\"bi bi-alarm\"></i>")
+            .Replace("??", "<i class=\"bi bi-clock\"></i>")
+            .Replace("??", "<i class=\"bi bi-calendar\"></i>")
+            .Replace("??", "<i class=\"bi bi-calendar-event\"></i>");
+        
+        // Fix links to other markdown files - convert them to /docs/ routes
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"href=""([^""]+\.md)(#[^""]*)?""",
+            match => {
+                var mdFile = match.Groups[1].Value;
+                var anchor = match.Groups[2].Value;
+                
+                // Extract filename without path and extension
+                var fileName = System.IO.Path.GetFileNameWithoutExtension(mdFile);
+                
+                // Convert to kebab-case route
+                var route = fileName
+                    .Replace("_", "-")
+                    .Replace(" ", "-")
+                    .ToLower();
+                
+                return $"href=\"/docs/{route}{anchor}\"";
+            });
+        
+        // Fix any remaining relative links that might go to root
+        // Keep absolute paths (starting with /), external links (http/https), anchors (#), and mailto as-is
+        html = System.Text.RegularExpressions.Regex.Replace(
+            html,
+            @"href=""(?!http|https|/|#|mailto:)([^""]+)""",
+            match => {
+                var url = match.Groups[1].Value;
+                // For other relative links, keep them as-is but they'll be relative to current page
+                return $"href=\"{url}\"";
+            });
+        
+        return html;
+    }
+
+    private void ExtractTableOfContents(string markdown)
+    {
+        tableOfContents.Clear();
+        
+        var lines = markdown.Split('\n');
+        foreach (var line in lines)
+        {
+            if (line.StartsWith('#'))
+            {
+                var level = line.TakeWhile(c => c == '#').Count();
+                if (level <= 3) // Only show h1, h2, h3
+                {
+                    var text = line.TrimStart('#').Trim();
+                    
+                    // Generate ID using Markdig's AutoIdentifiers format
+                    // This matches how Markdig generates IDs for headings
+                    var id = text.ToLower()
+                        .Replace(" ", "-")
+                        .Replace("&", "")
+                        .Replace(".", "")
+                        .Replace(",", "")
+                        .Replace("'", "")
+                        .Replace("\"", "")
+                        .Replace("(", "")
+                        .Replace(")", "")
+                        .Replace("[", "")
+                        .Replace("]", "")
+                        .Replace(":", "")
+                        .Replace(";", "")
+                        .Replace("!", "")
+                        .Replace("?", "")
+                        .Replace("/", "")
+                        .Replace("\\", "")
+                        .Replace("|", "")
+                        .Replace("*", "")
+                        .Replace("+", "")
+                        .Replace("=", "")
+                        .Replace("_", "")
+                        .Replace("#", "")
+                        .Replace("`", "")
+                        .Replace("~", "")
+                        .Replace("@", "")
+                        .Replace("$", "")
+                        .Replace("%", "")
+                        .Replace("^", "")
+                        .Replace("<", "")
+                        .Replace(">", "")
+                        .Replace("{", "")
+                        .Replace("}", "")
+                        // Remove common emojis
+                        .Replace("?", "")
+                        .Replace("?", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("?", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("???", "")
+                        .Replace("??", "")
+                        .Replace("???", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("?", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("?", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Replace("??", "")
+                        .Trim('-');
+                    
+                    // Remove multiple consecutive dashes
+                    while (id.Contains("--"))
+                    {
+                        id = id.Replace("--", "-");
+                    }
+                    
+                    // Clean up the display text - replace emojis with Bootstrap icons where appropriate
+                    var displayText = text
+                        .Replace("?", "<i class=\"bi bi-check-circle-fill text-success\"></i> ")
+                        .Replace("?", "<i class=\"bi bi-x-circle-fill text-danger\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-exclamation-triangle-fill text-warning\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-book\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-stars\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-wrench\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-lightbulb\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-rocket-takeoff\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-pencil\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-box\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-lock\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-key\"></i> ")
+                        .Replace("?", "<i class=\"bi bi-star-fill text-warning\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-bullseye\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-clipboard\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-search\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-laptop\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-globe\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-phone\"></i> ")
+                        .Replace("???", "<i class=\"bi bi-display\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-gear\"></i> ")
+                        .Replace("???", "<i class=\"bi bi-tools\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-file-text\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-folder\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-house\"></i> ")
+                        .Replace("?", "<i class=\"bi bi-sparkles\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-link-45deg\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-bar-chart\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-graph-up\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-controller\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-dice-5\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-arrow-repeat\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-stopwatch\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-telephone\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-envelope\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-chat\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-bell\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-exclamation-circle\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-lightning\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-fire\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-droplet\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-star\"></i> ")
+                        .Replace("?", "<i class=\"bi bi-lightning-charge\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-gift\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-trophy\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-award\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-award\"></i> ")
+                        .Replace("??", "<i class=\"bi bi-award\"></i> ");
+                    
+                    if (!string.IsNullOrWhiteSpace(id))
+                    {
+                        tableOfContents.Add(new TocItem
+                        {
+                            Id = id,
+                            Text = displayText,
+                            Level = level - 1
+                        });
+                    }
+                }
+            }
+        }
+    }
+}
