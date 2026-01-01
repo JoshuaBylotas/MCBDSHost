@@ -2,7 +2,9 @@ services:
   mcbds-api:
     build:
       context: .
-      dockerfile: MCBDS.API/Dockerfile
+      dockerfile: MCBDS.API/Dockerfile.windows
+      args:
+        WINDOWS_VERSION: ltsc2022
     container_name: mcbds-api
     ports:
       - "8080:8080"   # HTTP (keep for internal/fallback)
@@ -10,27 +12,28 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=C:\https\mcbds-api.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
       # Logging
       - Logging__LogLevel__Default=Information
       - Logging__LogLevel__Microsoft.AspNetCore=Warning
     volumes:
-      # Certificate volume (read-only for security)
-      - ./certs:/https:ro
+      # Certificate volume (use Windows paths)
+      - ./certs:C:/https:ro
       # Bedrock server files
-      - ./bedrock-server:/app/bedrock-server
+      - ./bedrock-server:C:/app/bedrock-server
       # Backup storage
-      - ./backups:/app/backups
+      - ./backups:C:/app/backups
       # Logs
-      - ./logs:/app/logs
+      - ./logs:C:/app/logs
     restart: unless-stopped
+    # Note: healthcheck with curl not available on Windows, use PowerShell
     healthcheck:
-      test: ["CMD", "curl", "-f", "-k", "https://localhost:8081/api/runner/status"]
+      test: ["CMD", "powershell", "-Command", "try { Invoke-WebRequest -Uri https://localhost:8081/api/runner/status -UseBasicParsing -SkipCertificateCheck | Out-Null; exit 0 } catch { exit 1 }"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 30s
 
 networks:
   default:
