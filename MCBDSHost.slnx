@@ -13,6 +13,7 @@
   <Project Path="MCBDS.PublicUI.Android/MCBDS.PublicUI.Android.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
+  <Project Path="MCBDS.PublicUI.Web/MCBDS.PublicUI.Web.csproj" />
   <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj">
     <Deploy Solution="Debug|*" />
   </Project>

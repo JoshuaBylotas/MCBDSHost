@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mcbds-api:
+    image: mcbds-api:latest
+    build:
+      context: .
+      dockerfile: MCBDS.API/Dockerfile
+    container_name: mcbds-api
+    ports:
+      - "8080:8080"   # HTTP (keep for internal/fallback)
+      - "8081:8081"   # HTTPS (primary for web clients)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/mcbds-api.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=McbdsApiCert123!
+      # Logging
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+    volumes:
+      # Certificate volume (read-only for security)
+      - ./certs:/https:ro
+      # Bedrock server files
+      - ./bedrock-server:/app/bedrock-server
+      # Backup storage
+      - ./backups:/app/backups
+      # Logs
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8081/api/runner/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    name: mcbds-network

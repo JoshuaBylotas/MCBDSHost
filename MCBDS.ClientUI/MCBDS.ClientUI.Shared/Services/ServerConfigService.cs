@@ -4,8 +4,9 @@ namespace MCBDS.ClientUI.Shared.Services;
 
 /// <summary>
 /// Service to manage server connection configuration with persistence
+/// Uses file system for MAUI/desktop applications
 /// </summary>
-public class ServerConfigService
+public class ServerConfigService : IServerConfigService
 {
     private readonly string _settingsFilePath;
     private ServerConfig? _cachedConfig;

@@ -191,7 +191,7 @@ else
                                         <th>Name</th>
                                         <th>Created</th>
                                         <th>Size</th>
-                                        <th>Action</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -202,11 +202,27 @@ else
                                             <td><small>@backup.CreatedAt.ToString("g")</small></td>
                                             <td><small>@backup.SizeMB.ToString("F2") MB</small></td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-danger" 
-                                                        @onclick="() => DeleteBackup(backup.Name)"
-                                                        disabled="@isDeletingBackup">
-                                                    <i class="bi bi-trash me-1"></i>Delete
-                                                </button>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-success" 
+                                                            @onclick="() => RestoreBackup(backup.Name)"
+                                                            disabled="@isRestoringBackup"
+                                                            title="Restore this backup">
+                                                        @if (isRestoringBackup && restoringBackupName == backup.Name)
+                                                        {
+                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                                        }
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" 
+                                                            @onclick="() => DeleteBackup(backup.Name)"
+                                                            disabled="@isDeletingBackup"
+                                                            title="Delete this backup">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -246,6 +262,8 @@ else
     private bool isBackingUp = false;
     private bool isLoadingBackups = false;
     private bool isDeletingBackup = false;
+    private bool isRestoringBackup = false;
+    private string? restoringBackupName;
     private List<BackupInfo> backups = new();
     private DateTime lastLoadTime = DateTime.Now;
 
@@ -379,6 +397,41 @@ else
         }
         
         isLoadingBackups = false;
+        StateHasChanged();
+    }
+
+    private async Task RestoreBackup(string backupName)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to restore backup '{backupName}'?\n\n" +
+            "WARNING: This will stop the server, replace the current world with the backup, and restart the server. " +
+            "All players will be disconnected and any unsaved progress will be lost.");
+        
+        if (!confirmed)
+        {
+            return;
+        }
+
+        isRestoringBackup = true;
+        restoringBackupName = backupName;
+        SetStatus($"<i class=\"bi bi-hourglass-split me-1\"></i>Restoring backup '{backupName}'... This may take a moment.", "alert-info");
+        StateHasChanged();
+
+        var result = await ApiService.RestoreBackupAsync(backupName);
+        
+        if (result.Success && result.Data != null)
+        {
+            SetStatus($"<i class=\"bi bi-check-circle me-1\"></i>Backup '{backupName}' restored successfully!<br/>" +
+                     $"Restored at: {result.Data.restoredAt:g}<br/>" +
+                     $"{result.Data.message}", "alert-success");
+        }
+        else
+        {
+            SetStatus($"<i class=\"bi bi-x-circle me-1\"></i>Failed to restore backup: {result.ErrorMessage}", "alert-danger");
+        }
+        
+        isRestoringBackup = false;
+        restoringBackupName = null;
         StateHasChanged();
     }
 

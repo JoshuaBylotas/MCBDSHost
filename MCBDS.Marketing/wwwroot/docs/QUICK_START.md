@@ -1,0 +1,109 @@
+# Quick Start Guide
+
+## Step-by-Step Instructions
+
+### 1?? Start Aspire Services
+
+1. In Visual Studio, set **MCBDSHost.AppHost** as the startup project
+2. Press **F5** or click **Run**
+3. The Aspire Dashboard will open automatically in your browser
+
+### 2?? Find Your API URL
+
+In the Aspire Dashboard:
+1. Look for the **mcbds-api** service in the list
+2. Find the **Endpoints** column
+3. Copy the **HTTPS** URL (example: `https://localhost:7123`)
+
+### 3?? Update MAUI Apps (First Time Only)
+
+You need to update the API URL in your MAUI apps to match what Aspire assigned.
+
+**Option A: MCBDS.ClientUI (MAUI)**
+
+Edit: `MCBDS.ClientUI\MCBDS.ClientUI\MauiProgram.cs`
+
+Find line ~26 and replace the port:
+```csharp
+BaseAddress = new Uri("https://localhost:7123") // Use YOUR port from Aspire Dashboard
+```
+
+**Option B: MCBDS.PublicUI (MAUI)**
+
+Edit: `MCBDS.PublicUI\MauiProgram.cs`
+
+Find line ~25 and replace the port:
+```csharp
+BaseAddress = new Uri("https://localhost:7123") // Use YOUR port from Aspire Dashboard
+```
+
+### 4?? Run Your MAUI App
+
+1. In Visual Studio, set your MAUI project as startup:
+   - Either **MCBDS.ClientUI** 
+   - Or **MCBDS.PublicUI**
+2. Select your target platform (Windows, Android emulator, etc.)
+3. Press **F5** or click **Run**
+
+### 5?? Test the Connection
+
+Your MAUI app should now be able to:
+- ? Connect to the API running in Aspire
+- ? Get Minecraft server logs
+- ? Send commands to the server
+- ? Restart the server
+
+## Troubleshooting
+
+### "Cannot connect to API"
+- ? Make sure the AppHost is running (Aspire Dashboard should be open)
+- ? Check that the URL in your MAUI app matches the Aspire Dashboard
+- ? Verify the `mcbds-api` service is showing as "Running" (green) in the dashboard
+
+### "Port already in use"
+- Aspire assigns dynamic ports by default
+- Check the Aspire Dashboard for the current port
+- Update your MAUI app if the port changed
+
+### "SSL certificate error"
+- Run this in a command prompt (one-time setup):
+  ```
+  dotnet dev-certs https --trust
+  ```
+
+## Architecture Diagram
+
+```
+???????????????????????????????????????????????
+?         Aspire AppHost (Orchestrator)        ?
+?                                              ?
+?  ??????????????????    ???????????????????  ?
+?  ?  MCBDS.API     ?    ? ClientUI.Web    ?  ?
+?  ?  (Backend)     ?????? (Blazor Web)    ?  ?
+?  ?  Port: 7xxx    ?    ? Service Disc.   ?  ?
+?  ??????????????????    ???????????????????  ?
+?         ?                                    ?
+????????????????????????????????????????????????
+          ?
+          ? HTTP/HTTPS
+          ? (Direct URL)
+          ?
+    ???????????????????????????
+    ?           ?             ?
+??????????  ??????????   ??????????
+?ClientUI?  ?PublicUI?   ? Other  ?
+? (MAUI) ?  ? (MAUI) ?   ?Clients ?
+??????????  ??????????   ??????????
+```
+
+## What's Orchestrated vs What's Not
+
+### ? Orchestrated by Aspire
+- MCBDS.API (Backend API)
+- MCBDS.ClientUI.Web (Blazor Web App)
+
+### ? NOT Orchestrated (Run Separately)
+- MCBDS.ClientUI (MAUI - Mobile/Desktop app)
+- MCBDS.PublicUI (MAUI - Mobile/Desktop app)
+
+MAUI apps are **client applications** that connect TO the services, they're not services themselves.
