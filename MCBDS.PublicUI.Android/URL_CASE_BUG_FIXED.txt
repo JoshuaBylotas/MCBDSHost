@@ -1,0 +1,64 @@
+=== URL CASE SENSITIVITY BUG - FIXED ===
+
+THE PROBLEM:
+When you typed: Https://WINSERVER03.bylotas.net:8081 (capital H)
+The app created: http://Https://WINSERVER03.bylotas.net:8081 (DOUBLE PROTOCOL!)
+
+WHY IT HAPPENED:
+The NormalizeUrl function checked for "https://" (lowercase only)
+Since "Https://" != "https://", it thought there was no protocol
+So it added "http://" prefix, resulting in "http://Https://..."
+
+THE FIX:
+Changed all protocol checks to be case-INSENSITIVE:
+- url.IndexOf("://", StringComparison.OrdinalIgnoreCase)
+- url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+- url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+
+NOW IT HANDLES:
+? https://server.com ? https://server.com
+? Https://server.com ? https://server.com (normalized to lowercase)
+? HTTPS://server.com ? https://server.com (normalized to lowercase)
+? hTtPs://server.com ? https://server.com (normalized to lowercase)
+? hpps://server.com ? https://server.com (typo fixed)
+? server.com ? http://server.com (default protocol added)
+
+FILES FIXED:
+? MCBDS.PublicUI.Android\Components\ServerSwitcher.razor
+? MCBDS.PublicUI.Web\Components\ServerSwitcher.razor
+? MCBDS.PublicUI\Components\ServerSwitcher.razor
+? MCBDS.ClientUI.Shared\Services\ServerConfigService.cs
+? MCBDS.PublicUI.Web\Services\WebServerConfigService.cs
+
+BUILD STATUS: ? SUCCESSFUL
+
+WHAT YOU NEED TO DO:
+1. Stop debugging
+2. In the Android app, DELETE the bad server entry:
+   - Select the server with "http://Https://..." from dropdown
+   - Click the trash icon ???
+   - Confirm deletion
+   
+3. Add the server again (it will work now):
+   - Click dropdown
+   - Select "+ Add New Server..."
+   - Name: WinServer03
+   - URL: https://winserver03.bylotas.net:8081
+   - Or even: Https://winserver03.bylotas.net:8081 (will be normalized)
+   - Click checkmark ?
+
+4. The URL will now be properly saved as:
+   https://winserver03.bylotas.net:8081
+   
+   NOT as:
+   http://Https://winserver03.bylotas.net:8081
+
+ALTERNATIVE - QUICK FIX:
+Or just edit the existing server:
+1. Select the bad server from dropdown
+2. Click pencil icon ??
+3. Change URL to: https://winserver03.bylotas.net:8081 (lowercase)
+4. Click checkmark ?
+5. The URL will be normalized and saved correctly
+
+The connection should work now!

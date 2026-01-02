@@ -1,0 +1,61 @@
+=== Android Connection Troubleshooting - WINSERVER03.bylotas.net ===
+
+ISSUE: Android app cannot connect to http://WINSERVER03.bylotas.net:8081
+
+CHANGES MADE:
+1. Updated network_security_config.xml - Added explicit winserver03.bylotas.net
+2. Updated MauiProgram.cs - Increased timeout to 60s, added logging
+3. Created ConnectionTest.razor - Diagnostic tool
+
+QUICK DIAGNOSTIC STEPS:
+
+Step 1: Test in Android Chrome Browser
+- Open Chrome on your Android device
+- Navigate to: http://winserver03.bylotas.net:8081/health
+- Does it work? 
+  YES ? App configuration issue
+  NO ? Network/Server issue
+
+Step 2: Test in PC Browser
+- Open Chrome on your PC
+- Navigate to: http://winserver03.bylotas.net:8081/health
+- Does it work?
+  YES ? Android network issue
+  NO ? Server configuration issue
+
+Step 3: Check Server Listening
+- On WINSERVER03, run: netstat -an | findstr 8081
+- Should show: 0.0.0.0:8081 (all interfaces)
+- If shows: 127.0.0.1:8081 (localhost only - PROBLEM!)
+
+Step 4: Clean Rebuild App
+- Uninstall app from Android device completely
+- Clean solution in Visual Studio
+- Rebuild MCBDS.PublicUI.Android
+- Reinstall on device
+- Try again
+
+COMMON URL FORMATS TO TRY:
+1. http://winserver03.bylotas.net:8081 (lowercase)
+2. http://WINSERVER03.bylotas.net:8081 (uppercase)
+3. http://[SERVER-IP-ADDRESS]:8081 (direct IP)
+
+CHECK THESE:
+[ ] Can access from PC browser?
+[ ] Can access from Android Chrome?
+[ ] Server listening on 0.0.0.0:8081?
+[ ] Firewall allows port 8081?
+[ ] Android on same network as server?
+[ ] App rebuilt after code changes?
+[ ] App uninstalled/reinstalled?
+
+LOGCAT COMMAND:
+adb logcat | findstr "http network connection error"
+
+FILES MODIFIED:
+- Platforms\Android\Resources\xml\network_security_config.xml
+- MauiProgram.cs
+- Components\ConnectionTest.razor (NEW)
+
+BUILD STATUS: SUCCESSFUL
+NEXT: Deploy to Android and test
