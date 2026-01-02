@@ -1,0 +1,81 @@
+=== ServerSwitcher Not Working - Diagnostics Added ===
+
+ISSUE: ServerSwitcher appears but doesn't work/respond
+
+CHANGES MADE:
+1. Added debug logging throughout ServerSwitcher component
+2. Added error handling with try-catch blocks
+3. Added "Loading..." message when servers list is empty
+4. Added user-friendly error messages
+5. Fixed potential null reference issues
+
+DEBUG OUTPUT TO CHECK:
+The component now logs to Debug console:
+- "ServerSwitcher: OnInitializedAsync started"
+- "ServerSwitcher: Loaded X servers"
+- "ServerSwitcher: LoadServers complete. Current URL: ..."
+- "ServerSwitcher: OnServerSelected - value: ..."
+- "ServerSwitcher: Adding new server - Name: X, URL: Y"
+- "ServerSwitcher: Normalized URL: ..."
+
+ERROR MESSAGES NOW SHOWN:
+- "Error loading servers" - if LoadServers fails
+- "Error saving server" - if SaveEditedServer fails
+- "Name and URL required" - if adding without both fields
+- "Error switching server" - if OnServerSelected fails
+- "Failed to add server" - if AddServerAsync returns false
+
+HOW TO USE (TESTING):
+1. Deploy the updated app to Android device/emulator
+2. Look at Debug output window in Visual Studio
+3. Check for ServerSwitcher log messages
+4. Try to interact with ServerSwitcher:
+   - Click dropdown
+   - Select "+ Add New Server..."
+   - Enter name and URL
+   - Click checkmark
+
+WHAT TO CHECK:
+[ ] Does dropdown show "Loading..." initially?
+[ ] Does dropdown populate with servers?
+[ ] Can you click the dropdown?
+[ ] Can you select "+ Add New Server..."?
+[ ] Do input fields appear?
+[ ] Can you type in the fields?
+[ ] Does checkmark button work?
+
+COMMON ISSUES:
+
+1. **Dropdown not responding**
+   - Check if touch events are being blocked
+   - Look for JavaScript errors in debug console
+
+2. **Input fields not appearing**
+   - Check debug output for "OnServerSelected" message
+   - Verify isEditing is being set to true
+
+3. **Save button not working**
+   - Check debug output for "Adding new server" message
+   - Look for error messages
+
+4. **No servers showing**
+   - Check debug output for "Loaded X servers"
+   - Verify server-config.json exists in AppDataDirectory
+
+TO VIEW DEBUG OUTPUT:
+1. Visual Studio ? View ? Output
+2. Select "Debug" from dropdown
+3. Look for lines starting with "ServerSwitcher:"
+
+FILE MODIFIED:
+- MCBDS.PublicUI.Android\Components\ServerSwitcher.razor
+
+BUILD STATUS: ? SUCCESSFUL
+
+NEXT STEPS:
+1. Stop current debug session
+2. Clean and rebuild
+3. Deploy to device/emulator
+4. Check Debug output window
+5. Try interacting with ServerSwitcher
+6. Report what debug messages you see

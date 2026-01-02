@@ -165,14 +165,8 @@ public class ServerConfigService : IServerConfigService
     {
         var config = _cachedConfig ?? GetDefaultConfig();
         
-        // Normalize URL
-        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-        {
-            url = "http://" + url;
-        }
-        
-        // Remove trailing slash
-        url = url.TrimEnd('/');
+        // Normalize URL - strip any protocol prefix and add http:// if needed
+        url = NormalizeUrl(url);
         
         // Check if server already exists
         var existing = config.SavedServers.FirstOrDefault(s => 
@@ -261,6 +255,39 @@ public class ServerConfigService : IServerConfigService
         {
             Console.WriteLine($"Error setting HttpClient base address: {ex.Message}");
         }
+    }
+
+    private static string NormalizeUrl(string url)
+    {
+        // Remove any protocol prefix (valid or malformed like hpps://, htps://, etc.)
+        var protocolIndex = url.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+        if (protocolIndex > 0)
+        {
+            var protocol = url.Substring(0, protocolIndex).ToLowerInvariant();
+            // Only keep valid protocols, strip invalid ones
+            if (protocol == "http" || protocol == "https")
+            {
+                // Valid protocol, keep as-is but normalize to lowercase
+                url = protocol + url.Substring(protocolIndex);
+            }
+            else
+            {
+                // Invalid protocol, strip it
+                url = url.Substring(protocolIndex + 3);
+            }
+        }
+        
+        // Add http:// if no protocol (case-insensitive check)
+        if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+            !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            url = "http://" + url;
+        }
+        
+        // Remove trailing slash
+        url = url.TrimEnd('/');
+        
+        return url;
     }
 
     private static ServerConfig GetDefaultConfig()
