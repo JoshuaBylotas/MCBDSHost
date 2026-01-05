@@ -19,4 +19,7 @@
   </Project>
   <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
   <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
+  <Project Path="TestAndroid/TestAndroid.csproj" Id="f5c5665c-37ce-495a-bcb4-511dc98d4353">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>
