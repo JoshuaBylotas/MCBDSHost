@@ -325,13 +325,6 @@ if ($configIssues.Count -gt 0) {
 }
 
 # Replace paths in the file (handle various possible existing paths)
-# Escape backslashes for regex replacement
-$bedrockPathForRegex = [regex]::Escape($bedrockPath)
-$backupPathForRegex = [regex]::Escape($backupPath)
-$configPathForRegex = [regex]::Escape($configPath)
-$certsPathForRegex = [regex]::Escape($certsPath)
-$logsPathForRegex = [regex]::Escape($logsPath)
-
 # Update volume mounts - handle both forward and backward slashes
 $content = $content -replace 'C:/MCBDSHost/bedrock-server', $bedrockPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\bedrock-server', $bedrockPath
