@@ -353,16 +353,11 @@ cd MCBDSHost</code></pre>
                 </div>
 
                 <h4 class="h5 mt-4">Step 1: Clone MCBDS Manager Repository</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
+                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository to your desired location
 git clone https://github.com/JoshuaBylotas/MCBDSHost.git
 cd MCBDSHost
 
-# Create directory for deployment
-New-Item -Path "C:\MCBDSManager" -ItemType Directory -Force
-Copy-Item -Path "docker-compose.windows.yml" -Destination "C:\MCBDSManager\"
-Set-Location "C:\MCBDSManager"
-
-# Verify files
+# Verify files exist
 Get-ChildItem</code></pre>
 
                 <div class="alert alert-success mt-3">
@@ -445,9 +440,9 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JoshuaBylotas/MCBDSHos
                     <li>Accept the EULA and download the ZIP file</li>
                 </ol>
                 
-                <pre class="bg-dark text-light p-3 rounded"><code># Create bedrock-server directory
-New-Item -Path "C:\MCBDSManager\bedrock-server" -ItemType Directory -Force
-Set-Location "C:\MCBDSManager\bedrock-server"
+                <pre class="bg-dark text-light p-3 rounded"><code># Create bedrock-server directory in your MCBDSHost folder
+New-Item -Path ".\bedrock-server" -ItemType Directory -Force
+Set-Location ".\bedrock-server"
 
 # Extract the downloaded Minecraft Bedrock Server ZIP
 # (bedrock-server-X.XX.XX.XX.zip from Minecraft website)
@@ -457,6 +452,9 @@ Expand-Archive -Path "$env:USERPROFILE\Downloads\bedrock-server-*.zip" -Destinat
 if (Test-Path "bedrock_server.exe") {
     Write-Host "? Bedrock Server installed successfully!" -ForegroundColor Green
 }
+
+# Return to MCBDSHost directory
+Set-Location ".."
 
 # If you configured custom paths, use your custom path instead:
 # Set-Location "D:\Minecraft\bedrock-server"  # Example</code></pre>
@@ -469,7 +467,10 @@ New-NetFirewallRule -DisplayName "Minecraft IPv4" -Direction Inbound -LocalPort 
 New-NetFirewallRule -DisplayName "Minecraft IPv6" -Direction Inbound -LocalPort 19133 -Protocol UDP -Action Allow</code></pre>
 
                 <h4 class="h5 mt-4">Step 4: Start Services</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>Set-Location "C:\MCBDSManager"
+                <pre class="bg-dark text-light p-3 rounded"><code># Make sure you're in the MCBDSHost directory
+cd MCBDSHost
+
+# Build and start containers
 docker compose -f docker-compose.windows.yml build
 docker compose -f docker-compose.windows.yml up -d
 
