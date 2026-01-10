@@ -7,6 +7,9 @@ Write-Host "  MCBDS Manager - Volume Configuration" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# Get the current directory (where docker-compose.windows.yml should be)
+$rootDir = Get-Location
+
 # Function to validate path
 function Test-ValidPath {
     param([string]$Path)
@@ -14,7 +17,7 @@ function Test-ValidPath {
     # Check if drive exists
     $drive = $Path.Split(':')[0]
     if ($drive.Length -eq 1) {
-        $driveExists = Test-Path "${drive}:\"
+        $driveExists = Test-Path "${drive}:\."
         if (-not $driveExists) {
             Write-Host "  Warning: Drive ${drive}: does not exist or is not accessible" -ForegroundColor Yellow
             return $false
@@ -107,7 +110,12 @@ function Test-DockerComposeConfig {
 function Add-MissingDockerConfig {
     param(
         [string]$Content,
-        [array]$Issues
+        [array]$Issues,
+        [string]$BedrockPath,
+        [string]$BackupPath,
+        [string]$ConfigPath,
+        [string]$CertsPath,
+        [string]$LogsPath
     )
     
     $modified = $Content
@@ -124,7 +132,7 @@ function Add-MissingDockerConfig {
         $applyRef = Read-Host
         
         if ($applyRef -eq 'Y' -or $applyRef -eq 'y') {
-            # Create a reference configuration template
+            # Create a reference configuration template with user's paths
             $referenceConfig = @"
 # Docker Compose for Windows Containers with HTTPS
 # Auto-configured by Configure-MCBDSVolumes.ps1
@@ -150,15 +158,15 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
     volumes:
       # HTTPS Certificate
-      - C:/MCBDSManager/certs:C:/https:ro
+      - $CertsPath`:C:/https:ro
       # Bedrock server (Windows .exe)
-      - C:/MCBDSManager/bedrock-server:C:/app/Binaries
+      - $BedrockPath`:C:/app/Binaries
       # Logs
-      - C:/MCBDSManager/logs:C:/app/logs
+      - $LogsPath`:C:/app/logs
       # Backups
-      - C:/MCBDSManager/backups:C:/app/backups
+      - $BackupPath`:C:/app/backups
       # Configuration
-      - C:/MCBDSManager/config:C:/app/config
+      - $ConfigPath`:C:/app/config
     restart: unless-stopped
     isolation: process
     healthcheck:
@@ -183,12 +191,15 @@ networks:
 $composeFile = "docker-compose.windows.yml"
 if (-not (Test-Path $composeFile)) {
     Write-Host "Error: $composeFile not found in current directory!" -ForegroundColor Red
-    Write-Host "Please run this script from the MCBDSHost directory." -ForegroundColor Yellow
+    Write-Host "Current directory: $rootDir" -ForegroundColor Yellow
+    Write-Host "Please run this script from the MCBDSHost root directory." -ForegroundColor Yellow
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
 }
 
+Write-Host "Current directory: $rootDir" -ForegroundColor Gray
+Write-Host ""
 Write-Host "This script will help you configure custom drive locations for:" -ForegroundColor White
 Write-Host "  1. Bedrock Server files" -ForegroundColor White
 Write-Host "  2. Backup storage" -ForegroundColor White
@@ -217,30 +228,32 @@ if ($configIssues.Count -gt 0) {
     Write-Host ""
 }
 
-# Get paths from user
+# Get paths from user - using root directory as base
+$defaultBase = "$rootDir"
+
 $bedrockPath = Get-PathWithDefault `
     -Prompt "Bedrock Server Location" `
-    -Default "C:\MCBDSManager\bedrock-server" `
+    -Default "$defaultBase\bedrock-server" `
     -Description "Location for Minecraft Bedrock Dedicated Server files"
 
 $backupPath = Get-PathWithDefault `
     -Prompt "Backup Storage Location" `
-    -Default "C:\MCBDSManager\backups" `
+    -Default "$defaultBase\backups" `
     -Description "Location for automated world backups"
 
 $configPath = Get-PathWithDefault `
     -Prompt "Configuration Location" `
-    -Default "C:\MCBDSManager\config" `
+    -Default "$defaultBase\config" `
     -Description "Location for MCBDS Manager configuration files"
 
 $certsPath = Get-PathWithDefault `
     -Prompt "HTTPS Certificates Location" `
-    -Default "C:\MCBDSManager\certs" `
+    -Default "$defaultBase\certs" `
     -Description "Location for HTTPS certificates"
 
 $logsPath = Get-PathWithDefault `
     -Prompt "Logs Location" `
-    -Default "C:\MCBDSManager\logs" `
+    -Default "$defaultBase\logs" `
     -Description "Location for API and server logs"
 
 # Display summary
@@ -306,20 +319,43 @@ $content = Get-Content $composeFile -Raw
 if ($configIssues.Count -gt 0) {
     Write-Host ""
     Write-Host "Applying configuration fixes..." -ForegroundColor Cyan
-    $content = Add-MissingDockerConfig -Content $content -Issues $configIssues
+    $content = Add-MissingDockerConfig -Content $content -Issues $configIssues `
+        -BedrockPath $bedrockPath -BackupPath $backupPath -ConfigPath $configPath `
+        -CertsPath $certsPath -LogsPath $logsPath
 }
 
-# Replace paths in the file
-# Update volume mounts
+# Replace paths in the file (handle various possible existing paths)
+# Escape backslashes for regex replacement
+$bedrockPathForRegex = [regex]::Escape($bedrockPath)
+$backupPathForRegex = [regex]::Escape($backupPath)
+$configPathForRegex = [regex]::Escape($configPath)
+$certsPathForRegex = [regex]::Escape($certsPath)
+$logsPathForRegex = [regex]::Escape($logsPath)
+
+# Update volume mounts - handle both forward and backward slashes
+$content = $content -replace 'C:/MCBDSHost/bedrock-server', $bedrockPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\bedrock-server', $bedrockPath
+$content = $content -replace 'C:/MCBDSManager/bedrock-server', $bedrockPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSManager\\bedrock-server', $bedrockPath
+
+$content = $content -replace 'C:/MCBDSHost/backups', $backupPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\backups', $backupPath
+$content = $content -replace 'C:/MCBDSManager/backups', $backupPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSManager\\backups', $backupPath
+
+$content = $content -replace 'C:/MCBDSHost/config', $configPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\config', $configPath
+$content = $content -replace 'C:/MCBDSManager/config', $configPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSManager\\config', $configPath
+
+$content = $content -replace 'C:/MCBDSHost/certs', $certsPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\certs', $certsPath
+$content = $content -replace 'C:/MCBDSManager/certs', $certsPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSManager\\certs', $certsPath
+
+$content = $content -replace 'C:/MCBDSHost/logs', $logsPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSHost\\logs', $logsPath
+$content = $content -replace 'C:/MCBDSManager/logs', $logsPath.Replace('\', '/')
 $content = $content -replace 'C:\\MCBDSManager\\logs', $logsPath
 
 # Write updated content
