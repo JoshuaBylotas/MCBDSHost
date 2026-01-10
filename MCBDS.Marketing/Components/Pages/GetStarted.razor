@@ -14,6 +14,7 @@
             "Install MCBDS Manager",
             "Complete guide to install and configure MCBDS Manager for Minecraft Bedrock Server management",
             new List<string> {
+                "Install Git on your system",
                 "Install Docker or Docker Desktop on your system",
                 "Clone the MCBDS Manager repository from GitHub",
                 "Download Minecraft Bedrock Dedicated Server from official website",
@@ -31,8 +32,238 @@
         <p class="lead text-muted">Download and deploy in minutes</p>
     </div>
 
+    <!-- Requirements Section -->
+    <section class="mb-5" id="requirements">
+        <h2 class="h3 mb-4"><i class="bi bi-tools text-primary me-2"></i>Prerequisites & Requirements</h2>
+        
+        <!-- System Requirements -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><i class="bi bi-pc-display text-primary me-2"></i>System Requirements</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold">Minimum Requirements</h4>
+                        <ul>
+                            <li>4GB RAM</li>
+                            <li>2 CPU cores</li>
+                            <li>10GB free disk space</li>
+                            <li>Git version control</li>
+                            <li>Docker or Docker Desktop</li>
+                            <li>Internet connection</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold">Recommended Requirements</h4>
+                        <ul>
+                            <li>8GB+ RAM</li>
+                            <li>4+ CPU cores</li>
+                            <li>20GB+ free disk space</li>
+                            <li>SSD for better performance</li>
+                            <li>Stable internet connection</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Install Git -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><i class="bi bi-git text-danger me-2"></i>Step 1: Install Git</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Git is required to clone the MCBDS Manager repository from GitHub.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-primary"><i class="bi bi-windows me-2"></i>Windows Installation</h4>
+                        
+                        <p class="small text-muted">Using winget (recommended):</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Run in PowerShell as Administrator
+winget install -e --id Git.Git
+
+# Verify installation
+git --version</code></pre>
+
+                        <p class="small text-muted">Alternative - Manual download:</p>
+                        <ol class="small">
+                            <li>Visit <a href="https://git-scm.com/download/win" target="_blank" rel="noopener">https://git-scm.com/download/win</a></li>
+                            <li>Download the installer for your system (64-bit recommended)</li>
+                            <li>Run the installer and follow the setup wizard</li>
+                            <li>Accept default options (recommended for beginners)</li>
+                            <li>Restart PowerShell/Command Prompt after installation</li>
+                        </ol>
+
+                        <div class="alert alert-warning small mt-3">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Configure PATH (if needed):</strong> If Git is installed but not recognized, add it to your PATH:
+                            <pre class="bg-dark text-light p-2 rounded mt-2 mb-2"><code># Run in PowerShell
+$gitCmd = "C:\Program Files\Git\cmd"
+$gitBin = "C:\Program Files\Git\bin"
+
+# Add to current session PATH if missing
+$paths = $env:Path.Split(';') | Where-Object { $_ -ne '' }
+if ($paths -notcontains $gitCmd) { 
+    $env:Path = $env:Path + ";" + $gitCmd 
+}
+if ($paths -notcontains $gitBin) { 
+    $env:Path = $env:Path + ";" + $gitBin 
+}
+
+# Test Git
+git --version</code></pre>
+                            <small class="text-muted d-block mt-2">
+                                <strong>Note:</strong> This adds Git to PATH for the current PowerShell session only. 
+                                To make it permanent, restart PowerShell or add to System Environment Variables.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-danger"><i class="bi bi-ubuntu me-2"></i>Linux Installation</h4>
+                        
+                        <p class="small text-muted">Ubuntu/Debian:</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>sudo apt update
+sudo apt install git -y
+
+# Verify installation
+git --version</code></pre>
+
+                        <p class="small text-muted">Red Hat/CentOS/Fedora:</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>sudo yum install git -y
+# or
+sudo dnf install git -y
+
+# Verify installation
+git --version</code></pre>
+
+                        <p class="small text-muted">Arch Linux:</p>
+                        <pre class="bg-dark text-light p-3 rounded"><code>sudo pacman -S git
+
+# Verify installation
+git --version</code></pre>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>First-time Git Setup:</strong> After installation, configure your identity:
+                    <pre class="bg-dark text-light p-2 rounded mt-2 mb-0"><code>git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Install Docker -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><i class="bi bi-box-seam text-info me-2"></i>Step 2: Install Docker</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Docker is required to run MCBDS Manager in containers for easy deployment and management.</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-primary"><i class="bi bi-windows me-2"></i>Windows Installation</h4>
+                        
+                        <p class="small text-muted">Windows Server / Windows 10/11 Pro:</p>
+                        
+                        <div class="alert alert-warning small">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Prerequisites:</strong> Windows 10/11 Pro, Enterprise, or Education with Hyper-V support, or Windows Server 2019/2022/2025
+                        </div>
+
+                        <p class="small fw-bold">Option 1: Using winget (recommended):</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Run in PowerShell as Administrator
+winget install -e --id Docker.DockerDesktop
+
+# Restart your computer after installation</code></pre>
+
+                        <p class="small fw-bold">Option 2: Manual installation:</p>
+                        <ol class="small">
+                            <li>Enable Hyper-V and Containers features:
+                                <pre class="bg-dark text-light p-2 rounded my-2"><code>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
+Restart-Computer</code></pre>
+                            </li>
+                            <li>Download Docker Desktop from <a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">docker.com</a></li>
+                            <li>Run the installer and follow the setup wizard</li>
+                            <li>Restart your computer</li>
+                            <li>Launch Docker Desktop from the Start menu</li>
+                        </ol>
+
+                        <p class="small fw-bold">Verify installation:</p>
+                        <pre class="bg-dark text-light p-3 rounded"><code>docker --version
+docker compose version</code></pre>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-danger"><i class="bi bi-ubuntu me-2"></i>Linux Installation</h4>
+                        
+                        <p class="small text-muted">Using Docker's official installation script (recommended):</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Download and run the Docker installation script
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add your user to the docker group
+sudo usermod -aG docker $USER
+
+# Log out and back in for group changes to take effect
+# Or run: newgrp docker
+
+# Verify installation
+docker --version
+docker compose version</code></pre>
+
+                        <p class="small fw-bold">Manual installation (Ubuntu/Debian):</p>
+                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Update package index
+sudo apt update
+
+# Install prerequisites
+sudo apt install ca-certificates curl gnupg lsb-release -y
+
+# Add Docker's official GPG key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Set up repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Start Docker service
+sudo systemctl enable docker
+sudo systemctl start docker</code></pre>
+
+                        <p class="small fw-bold">For other distributions:</p>
+                        <ul class="small">
+                            <li><a href="https://docs.docker.com/engine/install/centos/" target="_blank" rel="noopener">CentOS/RHEL</a></li>
+                            <li><a href="https://docs.docker.com/engine/install/fedora/" target="_blank" rel="noopener">Fedora</a></li>
+                            <li><a href="https://docs.docker.com/engine/install/debian/" target="_blank" rel="noopener">Debian</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Test Docker Installation:</strong> Run this command to verify Docker is working:
+                    <pre class="bg-dark text-light p-2 rounded mt-2 mb-0"><code>docker run hello-world</code></pre>
+                    <small class="d-block mt-2 text-muted">If you see "Hello from Docker!", your installation is successful!</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Quick Start Options -->
     <section class="mb-5">
+        <h2 class="h3 mb-4"><i class="bi bi-lightning-charge text-warning me-2"></i>Choose Your Platform</h2>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card h-100 text-center border-primary">
@@ -79,14 +310,14 @@
     <section class="mb-5" id="download">
         <div class="card shadow-sm border-primary">
             <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0"><i class="bi bi-github me-2"></i>Get MCBDSHost</h2>
+                <h2 class="h4 mb-0"><i class="bi bi-github me-2"></i>Step 3: Get MCBDS Manager</h2>
             </div>
             <div class="card-body">
-                <p class="lead">Clone the repository and build from source</p>
+                <p class="lead">Clone the repository from GitHub</p>
                 
                 <div class="alert alert-info mb-4">
-                    <i class="bi bi-github me-2"></i>
-                    <strong>GitHub Repository:</strong> MCBDSHost is open source and available on GitHub. Clone the repository to get started.
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Prerequisites Completed:</strong> Make sure you've installed Git and Docker from the steps above before proceeding.
                 </div>
 
                 <div class="card border-primary mb-4">
@@ -109,37 +340,6 @@ cd MCBDSHost</code></pre>
         </div>
     </section>
 
-    <!-- System Requirements -->
-    <section class="mb-5" id="requirements">
-        <h2 class="h3 mb-4"><i class="bi bi-pc-display text-primary me-2"></i>System Requirements</h2>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold">Minimum Requirements</h4>
-                        <ul>
-                            <li>4GB RAM</li>
-                            <li>2 CPU cores</li>
-                            <li>10GB free disk space</li>
-                            <li>Docker or Docker Desktop</li>
-                            <li>Internet connection</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold">Recommended Requirements</h4>
-                        <ul>
-                            <li>8GB+ RAM</li>
-                            <li>4+ CPU cores</li>
-                            <li>20GB+ free disk space</li>
-                            <li>SSD for better performance</li>
-                            <li>Stable internet connection</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Windows Server Guide -->
     <section class="mb-5" id="windows">
         <h2 class="h3 mb-4"><i class="bi bi-windows text-primary me-2"></i>Windows Server Deployment</h2>
@@ -147,34 +347,93 @@ cd MCBDSHost</code></pre>
             <div class="card-body">
                 <p class="lead">Complete deployment guide for Windows Server 2019/2022/2025</p>
                 
-                <h4 class="h5 mt-4">Step 1: Install Prerequisites</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Run PowerShell as Administrator
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
-Restart-Computer</code></pre>
-
-                <h4 class="h5 mt-4">Step 2: Install Docker Desktop</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>winget install -e --id Docker.DockerDesktop
-# Restart after installation</code></pre>
-
-                <h4 class="h5 mt-4">Step 3: Clone MCBDSHost Repository</h4>
-                <div class="alert alert-primary">
-                    <i class="bi bi-github me-2"></i>
-                    <strong>Clone the repository from GitHub</strong>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Prerequisites:</strong> Ensure you have completed Git and Docker installation from the <a href="#requirements">Requirements section</a> above.
                 </div>
+
+                <h4 class="h5 mt-4">Step 1: Clone MCBDS Manager Repository</h4>
                 <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
 git clone https://github.com/JoshuaBylotas/MCBDSHost.git
 cd MCBDSHost
 
 # Create directory for deployment
-New-Item -Path "C:\MCBDSHost" -ItemType Directory -Force
-Copy-Item -Path "docker-compose.windows.yml" -Destination "C:\MCBDSHost\"
-Set-Location "C:\MCBDSHost"
+New-Item -Path "C:\MCBDSManager" -ItemType Directory -Force
+Copy-Item -Path "docker-compose.windows.yml" -Destination "C:\MCBDSManager\"
+Set-Location "C:\MCBDSManager"
 
 # Verify files
 Get-ChildItem</code></pre>
 
-                <h4 class="h5 mt-4">Step 4: Download Minecraft Bedrock Server</h4>
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-lightbulb-fill me-2"></i>
+                    <strong>Advanced: Configure Custom Drive Locations</strong>
+                    <p class="mb-2 mt-2">Want to store Minecraft server files on a different drive (e.g., D:\, E:\)? Use our interactive configuration script!</p>
+                    
+                    <button class="btn btn-sm btn-outline-success mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#customDriveInstructions">
+                        <i class="bi bi-chevron-down me-1"></i>Show Instructions
+                    </button>
+                    
+                    <div class="collapse" id="customDriveInstructions">
+                        <hr class="my-3">
+                        <p class="small"><strong>Option 1: Interactive Script (Recommended)</strong></p>
+                        <pre class="bg-dark text-light p-2 rounded small"><code># Run the configuration script
+.\Configure-MCBDSVolumes.ps1
+
+# The script will prompt you for:
+# - Bedrock Server location (e.g., D:\MinecraftServer\bedrock)
+# - Backup storage location (e.g., E:\Backups\minecraft)
+# - Configuration files location (e.g., C:\MCBDSManager\config)
+
+# It will automatically:
+# - Create the directories
+# - Update docker-compose.windows.yml with your paths
+# - Backup the original configuration</code></pre>
+
+                        <p class="small mt-3"><strong>Option 2: Manual Configuration</strong></p>
+                        <p class="small text-muted">Edit <code>docker-compose.windows.yml</code> and update the volume paths:</p>
+                        <pre class="bg-dark text-light p-2 rounded small"><code># Find these lines in docker-compose.windows.yml
+volumes:
+  - C:\MCBDSManager\bedrock-server:/bedrock
+  - C:\MCBDSManager\backups:/app/backups
+  - C:\MCBDSManager\config:/app/config
+
+# Change to your desired paths, for example:
+volumes:
+  - D:\Minecraft\bedrock-server:/bedrock
+  - E:\Backups\minecraft:/app/backups
+  - D:\Minecraft\config:/app/config</code></pre>
+
+                        <p class="small mt-3"><strong>Example Configuration:</strong></p>
+                        <pre class="bg-dark text-light p-2 rounded small"><code># Using D: drive for game files and E: drive for backups
+$bedrockPath = "D:\Minecraft\bedrock-server"
+$backupPath = "E:\Backups\minecraft"
+$configPath = "D:\Minecraft\config"
+
+# Create directories
+New-Item -Path $bedrockPath -ItemType Directory -Force
+New-Item -Path $backupPath -ItemType Directory -Force
+New-Item -Path $configPath -ItemType Directory -Force
+
+# Download Configure-MCBDSVolumes.ps1 from repository
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JoshuaBylotas/MCBDSHost/master/Configure-MCBDSVolumes.ps1" -OutFile "Configure-MCBDSVolumes.ps1"
+
+# Run the script
+.\Configure-MCBDSVolumes.ps1</code></pre>
+
+                        <div class="alert alert-warning small mt-3 mb-0">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Make sure the drives you choose:
+                            <ul class="small mb-0 mt-1">
+                                <li>Have enough free space (20GB+ recommended)</li>
+                                <li>Are accessible when Docker starts</li>
+                                <li>Are not removable drives (USB drives may disconnect)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="h5 mt-4">Step 2: Download Minecraft Bedrock Server</h4>
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Important:</strong> You must download the Minecraft Bedrock Dedicated Server separately from the official Minecraft website.
@@ -187,27 +446,30 @@ Get-ChildItem</code></pre>
                 </ol>
                 
                 <pre class="bg-dark text-light p-3 rounded"><code># Create bedrock-server directory
-New-Item -Path "C:\MCBDSHost\bedrock-server" -ItemType Directory -Force
-Set-Location "C:\MCBDSHost\bedrock-server"
+New-Item -Path "C:\MCBDSManager\bedrock-server" -ItemType Directory -Force
+Set-Location "C:\MCBDSManager\bedrock-server"
 
 # Extract the downloaded Minecraft Bedrock Server ZIP
 # (bedrock-server-X.XX.XX.XX.zip from Minecraft website)
-Expand-Archive -Path "Downloads\bedrock-server-*.zip" -DestinationPath . -Force
+Expand-Archive -Path "$env:USERPROFILE\Downloads\bedrock-server-*.zip" -DestinationPath . -Force
 
 # Verify bedrock_server.exe exists
 if (Test-Path "bedrock_server.exe") {
     Write-Host "? Bedrock Server installed successfully!" -ForegroundColor Green
-}</code></pre>
+}
 
-                <h4 class="h5 mt-4">Step 5: Configure Firewall</h4>
+# If you configured custom paths, use your custom path instead:
+# Set-Location "D:\Minecraft\bedrock-server"  # Example</code></pre>
+
+                <h4 class="h5 mt-4">Step 3: Configure Firewall</h4>
                 <pre class="bg-dark text-light p-3 rounded"><code># Create firewall rules
-New-NetFirewallRule -DisplayName "MCBDSHost Web UI" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "MCBDSHost API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "MCBDS Manager Web UI" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "MCBDS Manager API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
 New-NetFirewallRule -DisplayName "Minecraft IPv4" -Direction Inbound -LocalPort 19132 -Protocol UDP -Action Allow
 New-NetFirewallRule -DisplayName "Minecraft IPv6" -Direction Inbound -LocalPort 19133 -Protocol UDP -Action Allow</code></pre>
 
-                <h4 class="h5 mt-4">Step 6: Start Services</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>Set-Location "C:\MCBDSHost"
+                <h4 class="h5 mt-4">Step 4: Start Services</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>Set-Location "C:\MCBDSManager"
 docker compose -f docker-compose.windows.yml build
 docker compose -f docker-compose.windows.yml up -d
 
@@ -217,6 +479,19 @@ docker compose -f docker-compose.windows.yml logs -f</code></pre>
                 <div class="alert alert-success mt-3">
                     <i class="bi bi-check-circle me-2"></i>
                     <strong>Success!</strong> Access your server at <code>http://localhost:5000</code>
+                </div>
+
+                <div class="card bg-light border-0 mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-info-circle text-info me-2"></i>Volume Configuration Benefits</h5>
+                        <ul class="mb-0 small">
+                            <li><strong>Separate drives:</strong> Keep large game files and backups on dedicated storage</li>
+                            <li><strong>Performance:</strong> Use SSDs for game files, HDDs for backups</li>
+                            <li><strong>Organization:</strong> Keep different data types on different drives</li>
+                            <li><strong>Backup strategy:</strong> Easier to backup specific drives</li>
+                            <li><strong>Space management:</strong> Utilize multiple drives efficiently</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -229,30 +504,25 @@ docker compose -f docker-compose.windows.yml logs -f</code></pre>
             <div class="card-body">
                 <p class="lead">Deploy on Ubuntu, Debian, or compatible distributions</p>
                 
-                <h4 class="h5 mt-4">Step 1: Install Docker</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker $USER
-# Log out and back in for group changes to take effect</code></pre>
-
-                <h4 class="h5 mt-4">Step 2: Clone MCBDSHost Repository</h4>
-                <div class="alert alert-primary">
-                    <i class="bi bi-github me-2"></i>
-                    <strong>Clone the repository from GitHub</strong>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Prerequisites:</strong> Ensure you have completed Git and Docker installation from the <a href="#requirements">Requirements section</a> above.
                 </div>
+
+                <h4 class="h5 mt-4">Step 1: Clone MCBDS Manager Repository</h4>
                 <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
 git clone https://github.com/JoshuaBylotas/MCBDSHost.git
 cd MCBDSHost
 
 # Copy deployment files
-sudo mkdir -p /opt/mcbdshost
-sudo cp docker-compose.linux.yml /opt/mcbdshost/
-cd /opt/mcbdshost
+sudo mkdir -p /opt/mcbds-manager
+sudo cp docker-compose.linux.yml /opt/mcbds-manager/
+cd /opt/mcbds-manager
 
 # Verify files
 ls -la</code></pre>
 
-                <h4 class="h5 mt-4">Step 3: Download Minecraft Bedrock Server</h4>
+                <h4 class="h5 mt-4">Step 2: Download Minecraft Bedrock Server</h4>
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     <strong>Important:</strong> Download from the official Minecraft website.
@@ -263,8 +533,8 @@ ls -la</code></pre>
                     <li>Accept the EULA</li>
                 </ol>
                 
-                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbdshost/bedrock-server
-cd /opt/mcbdshost/bedrock-server
+                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbds-manager/bedrock-server
+cd /opt/mcbds-manager/bedrock-server
 
 # Extract the downloaded Minecraft Bedrock Server
 unzip ~/Downloads/bedrock-server-*.zip
@@ -275,19 +545,19 @@ chmod +x bedrock_server
 # Verify installation
 ls -la bedrock_server</code></pre>
 
-                <h4 class="h5 mt-4">Step 4: Configure Firewall</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>sudo ufw allow 5000/tcp comment 'MCBDSHost Web UI'
-sudo ufw allow 8080/tcp comment 'MCBDSHost API'
+                <h4 class="h5 mt-4">Step 3: Configure Firewall</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>sudo ufw allow 5000/tcp comment 'MCBDS Manager Web UI'
+sudo ufw allow 8080/tcp comment 'MCBDS Manager API'
 sudo ufw allow 19132/udp comment 'Minecraft IPv4'
 sudo ufw allow 19133/udp comment 'Minecraft IPv6'</code></pre>
 
-                <h4 class="h5 mt-4">Step 5: Start Services</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>cd /opt/mcbdshost
-docker-compose -f docker-compose.linux.yml build
-docker-compose -f docker-compose.linux.yml up -d
+                <h4 class="h5 mt-4">Step 4: Start Services</h4>
+                <pre class="bg-dark text-light p-3 rounded"><code>cd /opt/mcbds-manager
+docker compose -f docker-compose.linux.yml build
+docker compose -f docker-compose.linux.yml up -d
 
 # View logs
-docker-compose -f docker-compose.linux.yml logs -f</code></pre>
+docker compose -f docker-compose.linux.yml logs -f</code></pre>
 
                 <div class="alert alert-success mt-3">
                     <i class="bi bi-check-circle me-2"></i>
@@ -393,7 +663,7 @@ docker-compose -f docker-compose.linux.yml logs -f</code></pre>
                 <ul class="mb-0">
                     <li><strong>EULA:</strong> By downloading and using Minecraft Bedrock Server, you agree to the <a href="https://www.minecraft.net/en-us/eula" target="_blank">Minecraft EULA</a></li>
                     <li><strong>Updates:</strong> Check the Minecraft website regularly for Bedrock Server updates</li>
-                    <li><strong>Licensing:</strong> MCBDSHost is open source (MIT), but Minecraft Bedrock Server has its own license</li>
+                    <li><strong>Licensing:</strong> MCBDS Manager is open source (MIT), but Minecraft Bedrock Server has its own license</li>
                     <li><strong>Support:</strong> For Minecraft server issues, refer to official Minecraft documentation</li>
                 </ul>
             </div>
@@ -432,7 +702,7 @@ docker-compose -f docker-compose.linux.yml logs -f</code></pre>
         <p class="lead mb-4">Check the documentation for assistance</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a href="/get-started#requirements" class="btn btn-outline-primary">
-                <i class="bi bi-pc-display me-2"></i>System Requirements
+                <i class="bi bi-tools me-2"></i>Requirements
             </a>
             <a href="/features" class="btn btn-outline-success">
                 <i class="bi bi-star me-2"></i>View Features
