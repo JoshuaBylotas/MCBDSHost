@@ -37,6 +37,8 @@ public class DocumentationService
             new() { Title = "Aspire MAUI Setup", FileName = "ASPIRE_MAUI_SETUP.md", Category = "Setup & Configuration", Route = "aspire-maui-setup" },
             new() { Title = "External Bedrock Server Architecture", FileName = "EXTERNAL_BEDROCK_SERVER_ARCHITECTURE.md", Category = "Setup & Configuration", Route = "external-bedrock-architecture" },
             new() { Title = "Port Configuration", FileName = "deployment-packages/PORT_CONFIGURATION.md", Category = "Setup & Configuration", Route = "port-configuration" },
+            new() { Title = "Volume Configuration Guide", FileName = "VOLUME-CONFIGURATION.md", Category = "Setup & Configuration", Route = "volume-configuration" },
+            new() { Title = "Volume Configuration Feature", FileName = "VOLUME-CONFIGURATION-FEATURE.md", Category = "Setup & Configuration", Route = "volume-configuration-feature" },
             
             // Deployment Guides
             new() { Title = "Docker Deployment", FileName = "DOCKER_DEPLOYMENT.md", Category = "Deployment", Route = "docker-deployment" },
@@ -60,6 +62,7 @@ public class DocumentationService
             // Marketing & Website
             new() { Title = "Marketing Deployment", FileName = "MCBDS_MARKETING_DEPLOYMENT.md", Category = "Marketing Website", Route = "marketing-deployment" },
             new() { Title = "Domain Update Summary", FileName = "DOMAIN-UPDATE-SUMMARY.md", Category = "Marketing Website", Route = "domain-update" },
+            new() { Title = "Branding Update Summary", FileName = "BRANDING-UPDATE.md", Category = "Marketing Website", Route = "branding-update" },
             new() { Title = "SEO Setup Guide", FileName = "deployment-packages/SEO-SETUP-GUIDE.md", Category = "Marketing Website", Route = "seo-setup" },
             new() { Title = "Google Analytics Setup", FileName = "deployment-packages/GOOGLE-ANALYTICS-SETUP.md", Category = "Marketing Website", Route = "google-analytics" },
             new() { Title = "Google Analytics Verification", FileName = "deployment-packages/GOOGLE-ANALYTICS-VERIFICATION-FIX.md", Category = "Marketing Website", Route = "analytics-verification" },
