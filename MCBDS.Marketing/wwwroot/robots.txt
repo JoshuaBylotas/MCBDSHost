@@ -1,20 +1,24 @@
-# MCBDSHost Marketing Site - robots.txt
-# Allows search engines to crawl all content
+# robots.txt for MCBDS Manager Marketing Site
+# https://www.mc-bds.com
 
 User-agent: *
 Allow: /
-
-# Disallow search engines from crawling unnecessary paths
+Disallow: /Error
+Disallow: /not-found
 Disallow: /bin/
 Disallow: /obj/
 Disallow: /_framework/
 Disallow: /logs/
 
-# Point to sitemap
+# Common SEO bots - explicit allow
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemap location
 Sitemap: https://www.mc-bds.com/sitemap.xml
 
-# Crawl delay (optional - remove if not needed)
-# Crawl-delay: 1
-
-# Request rate (optional - remove if not needed)
-# Request-rate: 1/5s
+# Crawl-delay for respectful crawling (optional)
+Crawl-delay: 1
