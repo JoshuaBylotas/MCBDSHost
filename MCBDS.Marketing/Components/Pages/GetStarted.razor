@@ -1,10 +1,33 @@
 @page "/get-started"
+@inject StructuredDataService StructuredDataService
 
-<PageTitle>Get Started - MCBDSHost</PageTitle>
+<PageTitle>Get Started - MCBDS Manager Installation & Setup Guide</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Complete installation guide for MCBDS Manager. Deploy on Windows Server, Linux, or home servers in minutes. Download, configure, and start managing your Minecraft Bedrock server." />
+    <meta name="keywords" content="mcbds manager installation, minecraft server setup, docker deployment, windows server minecraft, linux minecraft server, bedrock server installation" />
+    <link rel="canonical" href="https://www.mc-bds.com/get-started" />
+    
+    <!-- Structured Data for How-To Guide -->
+    <script type="application/ld+json">
+        @((MarkupString)StructuredDataService.GetHowToData(
+            "Install MCBDS Manager",
+            "Complete guide to install and configure MCBDS Manager for Minecraft Bedrock Server management",
+            new List<string> {
+                "Install Docker or Docker Desktop on your system",
+                "Clone the MCBDS Manager repository from GitHub",
+                "Download Minecraft Bedrock Dedicated Server from official website",
+                "Configure firewall rules for required ports",
+                "Start services using docker-compose",
+                "Access the web interface at http://localhost:5000"
+            }
+        ))
+    </script>
+</HeadContent>
 
 <div class="container py-5">
     <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold">Get Started with MCBDSHost</h1>
+        <h1 class="display-4 fw-bold">Get Started with MCBDS Manager</h1>
         <p class="lead text-muted">Download and deploy in minutes</p>
     </div>
 

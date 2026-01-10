@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net10.0-android</TargetFramework>
@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MCBDS.ClientUI\MCBDS.ClientUI.Shared\MCBDS.ClientUI.Shared.csproj" />
+    <ProjectReference Include="..\MCBDS.PublicUI\MCBDS.PublicUI.csproj" />
   </ItemGroup>
 
 </Project>

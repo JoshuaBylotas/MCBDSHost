@@ -7,8 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents();
 
-// Add Documentation Service
+// Add SEO Services
 builder.Services.AddScoped<DocumentationService>();
+builder.Services.AddScoped<StructuredDataService>();
 
 // Configure logging
 builder.Logging.ClearProviders();
@@ -48,6 +49,17 @@ app.Use(async (context, next) =>
         return;
     }
 
+    await next();
+});
+
+// Add security headers for SEO and security
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+    
     await next();
 });
 

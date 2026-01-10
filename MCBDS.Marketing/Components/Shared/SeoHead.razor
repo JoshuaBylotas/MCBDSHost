@@ -1,0 +1,61 @@
+@* SEO Head Component - Provides dynamic meta tags for SEO optimization *@
+
+@inject NavigationManager Navigation
+
+<HeadContent>
+    @* Primary Meta Tags *@
+    <meta name="title" content="@Title" />
+    <meta name="description" content="@Description" />
+    <meta name="keywords" content="@Keywords" />
+    <meta name="author" content="@Author" />
+    <meta name="robots" content="@Robots" />
+    <link rel="canonical" href="@CanonicalUrl" />
+
+    @* Open Graph / Facebook *@
+    <meta property="og:type" content="@OgType" />
+    <meta property="og:url" content="@CanonicalUrl" />
+    <meta property="og:title" content="@Title" />
+    <meta property="og:description" content="@Description" />
+    <meta property="og:image" content="@ImageUrl" />
+    <meta property="og:site_name" content="MCBDS Manager" />
+
+    @* Twitter *@
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="@CanonicalUrl" />
+    <meta name="twitter:title" content="@Title" />
+    <meta name="twitter:description" content="@Description" />
+    <meta name="twitter:image" content="@ImageUrl" />
+
+    @* Additional SEO Tags *@
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="distribution" content="global" />
+    <meta name="rating" content="general" />
+
+    @* Structured Data (JSON-LD) *@
+    @if (!string.IsNullOrEmpty(StructuredData))
+    {
+        <script type="application/ld+json">
+            @((MarkupString)StructuredData)
+        </script>
+    }
+</HeadContent>
+
+@code {
+    [Parameter] public string Title { get; set; } = "MCBDS Manager - Professional Minecraft Bedrock Server Management";
+    [Parameter] public string Description { get; set; } = "Professional web-based management for Minecraft Bedrock Dedicated Server. Monitor, control, and automate your server with an intuitive interface.";
+    [Parameter] public string Keywords { get; set; } = "minecraft, bedrock, server, management, docker, blazor, maui, mcbds, dedicated server, monitoring, automation";
+    [Parameter] public string Author { get; set; } = "MCBDS Manager";
+    [Parameter] public string Robots { get; set; } = "index, follow";
+    [Parameter] public string OgType { get; set; } = "website";
+    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public string? StructuredData { get; set; }
+
+    private string CanonicalUrl => Navigation.Uri;
+    private string DefaultImageUrl => $"{Navigation.BaseUri}images/og-image.png";
+
+    protected override void OnInitialized()
+    {
+        ImageUrl ??= DefaultImageUrl;
+    }
+}
