@@ -39,6 +39,7 @@ public class DocumentationService
             new() { Title = "Port Configuration", FileName = "deployment-packages/PORT_CONFIGURATION.md", Category = "Setup & Configuration", Route = "port-configuration" },
             new() { Title = "Volume Configuration Guide", FileName = "VOLUME-CONFIGURATION.md", Category = "Setup & Configuration", Route = "volume-configuration" },
             new() { Title = "Volume Configuration Feature", FileName = "VOLUME-CONFIGURATION-FEATURE.md", Category = "Setup & Configuration", Route = "volume-configuration-feature" },
+            new() { Title = "Let's Encrypt SSL Setup", FileName = "LETSENCRYPT-SSL-SETUP.md", Category = "Setup & Configuration", Route = "letsencrypt-ssl-setup" },
             
             // Deployment Guides
             new() { Title = "Docker Deployment", FileName = "DOCKER_DEPLOYMENT.md", Category = "Deployment", Route = "docker-deployment" },
