@@ -197,6 +197,17 @@ Restart-Computer</code></pre>
                         <p class="small fw-bold">Verify installation:</p>
                         <pre class="bg-dark text-light p-3 rounded"><code>docker --version
 docker compose version</code></pre>
+                        
+                        <div class="alert alert-info small mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Important - Windows Containers Mode:</strong> After installing Docker Desktop, make sure it's set to use Windows containers (not Linux containers).
+                            <ul class="small mb-0 mt-2">
+                                <li>Right-click the Docker Desktop icon in system tray</li>
+                                <li>If you see "Switch to Windows containers...", click it</li>
+                                <li>If you see "Switch to Linux containers...", you're already in Windows mode ?</li>
+                            </ul>
+                            <p class="small mb-0 mt-2"><strong>Note:</strong> MCBDS Manager requires Windows containers to run bedrock_server.exe</p>
+                        </div>
                     </div>
 
                     <div class="col-md-6">

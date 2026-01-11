@@ -373,7 +373,7 @@ if ($configIssues.Count -gt 0) {
 Write-Host "Next Steps:" -ForegroundColor Cyan
 Write-Host "  1. Generate HTTPS certificate (if not exists):" -ForegroundColor White
 Write-Host "     .\generate-https-cert.ps1" -ForegroundColor Gray
-Write-Host "     Copy-Item .\certs\mcbds-api.pfx $certsPath\ -Force" -ForegroundColor Gray
+Write-Host "     Copy-Item .\certs\mcbds-api.pfx '$certsPath\' -Force" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  2. Download Minecraft Bedrock Server to: $bedrockPath" -ForegroundColor White
 Write-Host ""
