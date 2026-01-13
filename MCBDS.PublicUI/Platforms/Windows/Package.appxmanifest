@@ -1,46 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package
-  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
-
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
-
-  <mp:PhoneIdentity PhoneProductId="579C99DD-39BB-4A22-A7DF-C01A5FB45A1B" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
-
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" IgnorableNamespaces="uap rescap">
+  <Identity Name="50677PinecrestConsultants.MCBDSManager" Publisher="CN=5DB9918C-386B-4DCF-98CB-FF6BA76EA289" Version="1.0.24.1" />
+  <mp:PhoneIdentity PhoneProductId="579C99DD-39BB-4A22-A7DF-C01A5FB45A1B" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
-    <DisplayName>$placeholder$</DisplayName>
-    <PublisherDisplayName>User Name</PublisherDisplayName>
-    <Logo>$placeholder$.png</Logo>
+    <DisplayName>MCBDS Manager</DisplayName>
+    <PublisherDisplayName>Pinecrest Consultants</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.transparent.png</Logo>
   </Properties>
-
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
     <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
   </Dependencies>
-
   <Resources>
     <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
-      <uap:VisualElements
-        DisplayName="$placeholder$"
-        Description="$placeholder$"
-        Square150x150Logo="$placeholder$.png"
-        Square44x44Logo="$placeholder$.png"
-        BackgroundColor="transparent">
-        <uap:DefaultTile Square71x71Logo="$placeholder$.png" Wide310x150Logo="$placeholder$.png" Square310x310Logo="$placeholder$.png" />
-        <uap:SplashScreen Image="$placeholder$.png" />
+      <uap:VisualElements DisplayName="MCBDS Manager" Description="Minecraft Bedrock Dedicated Server Manager" Square150x150Logo="Assets\Square150x150Logo.transparent.png" Square44x44Logo="Assets\Square44x44Logo.transparent.png" BackgroundColor="transparent">
+        <uap:DefaultTile Square71x71Logo="Assets\Square71x71Logo.transparent.png" Wide310x150Logo="Assets\Wide310x150Logo.transparent.png" Square310x310Logo="Assets\Square310x310Logo.transparent.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.transparent.png" />
       </uap:VisualElements>
     </Application>
   </Applications>
-
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="privateNetworkClientServer" />
   </Capabilities>
-
 </Package>

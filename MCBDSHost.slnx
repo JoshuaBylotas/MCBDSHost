@@ -7,19 +7,13 @@
   <Project Path="MCBDS.ClientUI/MCBDS.ClientUI.Shared/MCBDS.ClientUI.Shared.csproj" />
   <Project Path="MCBDS.ClientUI/MCBDS.ClientUI.Web/MCBDS.ClientUI.Web.csproj" />
   <Project Path="MCBDS.ClientUI/MCBDS.ClientUI/MCBDS.ClientUI.csproj">
-    <Deploy Solution="Debug|*" />
+    <Deploy />
   </Project>
   <Project Path="MCBDS.Marketing/MCBDS.Marketing.csproj" />
-  <Project Path="MCBDS.PublicUI.Android/MCBDS.PublicUI.Android.csproj">
-    <Deploy Solution="Debug|*" />
-  </Project>
   <Project Path="MCBDS.PublicUI.Web/MCBDS.PublicUI.Web.csproj" />
   <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj">
-    <Deploy Solution="Debug|*" />
+    <Deploy />
   </Project>
   <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
   <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
-  <Project Path="TestAndroid/TestAndroid.csproj" Id="f5c5665c-37ce-495a-bcb4-511dc98d4353">
-    <Deploy Solution="Debug|*" />
-  </Project>
 </Solution>

@@ -86,50 +86,26 @@
 
     <!-- Windows Store Assets -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-        <Content Include="Platforms\Windows\Assets\Square44x44Logo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\Square44x44Logo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\Square44x44Logo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\Square71x71Logo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\Square71x71Logo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\Square71x71Logo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\Square150x150Logo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\Square150x150Logo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\Square150x150Logo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\Square310x310Logo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\Square310x310Logo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\Square310x310Logo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\Wide310x150Logo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\Wide310x150Logo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\Wide310x150Logo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\StoreLogo.transparent.png">
+        <Content Include="Platforms\Windows\Assets\StoreLogo.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\StoreLogo.transparent.png</Link>
         </Content>
-        <Content Include="Platforms\Windows\Assets\SplashScreen.transparent.png">
+        <Content Include="Platforms\Windows\Assets\SplashScreen.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\SplashScreen.transparent.png</Link>
-        </Content>
-        <!-- Scaled splash screens -->
-        <Content Include="Platforms\Windows\Assets\SplashScreen.transparent.scale-125.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\SplashScreen.transparent.scale-125.png</Link>
-        </Content>
-        <Content Include="Platforms\Windows\Assets\SplashScreen.transparent.scale-150.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\SplashScreen.transparent.scale-150.png</Link>
-        </Content>
-        <Content Include="Platforms\Windows\Assets\SplashScreen.transparent.scale-200.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\SplashScreen.transparent.scale-200.png</Link>
-        </Content>
-        <Content Include="Platforms\Windows\Assets\SplashScreen.transparent.scale-400.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>Assets\SplashScreen.transparent.scale-400.png</Link>
         </Content>
     </ItemGroup>
 
