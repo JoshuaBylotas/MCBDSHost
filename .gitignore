@@ -10,6 +10,15 @@ MCBDS.API/bedrock-server/*
 !MCBDS.API/bedrock-server/DOWNLOAD_INSTRUCTIONS.md
 !MCBDS.API/bedrock-server/bedrock_server_how_to.html
 
+# Windows Store/MSIX Package Files (can be very large)
+AppPackages/
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
+*.msixupload
+*.appxupload
+
 # Visual Studio IDE folder
 .vs/
 
