@@ -19,6 +19,19 @@
     </div>
 }
 
+<!-- Quick Commands Section -->
+<div class="quick-commands-section mb-3">
+    <h5><i class="bi bi-lightning-fill me-2"></i>Quick Commands</h5>
+    <div class="btn-group" role="group" aria-label="Quick commands">
+        <button class="btn btn-success" @onclick="EnableCoordinates" disabled="@isProcessing" title="Enable coordinate display for all players">
+            <i class="bi bi-geo-alt-fill me-1"></i>Enable Coordinates
+        </button>
+        <button class="btn btn-info" @onclick="EnableOnePlayerSleep" disabled="@isProcessing" title="Allow one player to skip the night">
+            <i class="bi bi-moon-stars-fill me-1"></i>Enable 1-Player Sleep
+        </button>
+    </div>
+</div>
+
 <div class="commands-container">
     <div class="command-input-section">
         <div class="input-group position-relative">
@@ -771,6 +784,44 @@
     {
         statusMessage = message;
         statusClass = cssClass;
+    }
+
+    private async Task EnableCoordinates()
+    {
+        await SendQuickCommand("gamerule showCoordinates true", "Coordinates enabled for all players");
+    }
+
+    private async Task EnableOnePlayerSleep()
+    {
+        await SendQuickCommand("gamerule playersSleepingPercentage 1", "One-player sleep enabled");
+    }
+
+    private async Task SendQuickCommand(string command, string successMessage)
+    {
+        isProcessing = true;
+        statusMessage = string.Empty;
+        connectionError = null;
+        StateHasChanged();
+
+        var result = await ApiService.SendLineAsync(command);
+        
+        if (result.Success)
+        {
+            SetStatus(successMessage, "alert-success");
+            await Task.Delay(500);
+            await RefreshLog();
+        }
+        else
+        {
+            if (result.ErrorType == ApiErrorType.ConnectionFailed)
+            {
+                connectionError = result.ErrorMessage;
+            }
+            SetStatus(result.ErrorMessage ?? $"Failed to execute: {command}", "alert-danger");
+        }
+        
+        isProcessing = false;
+        StateHasChanged();
     }
 
     public void Dispose()

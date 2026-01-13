@@ -5,6 +5,63 @@
     padding: 1rem 0;
 }
 
+.quick-commands-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    color: white;
+}
+
+.quick-commands-section h5 {
+    color: white;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.quick-commands-section .btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.quick-commands-section .btn {
+    flex: 1;
+    min-width: 180px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.quick-commands-section .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.quick-commands-section .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.quick-commands-section .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.quick-commands-section .btn-success:hover:not(:disabled) {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.quick-commands-section .btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.quick-commands-section .btn-info:hover:not(:disabled) {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+
 .command-input-section {
     background-color: var(--bs-light);
     padding: 1.5rem;
