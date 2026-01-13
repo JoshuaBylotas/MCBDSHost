@@ -272,6 +272,47 @@ public class BackupController : ControllerBase
         }
     }
 
+    [HttpPost("restore/{backupName}")]
+    public async Task<IActionResult> RestoreBackup(string backupName)
+    {
+        try
+        {
+            _logger.LogInformation("Restore backup API called for: {BackupName}", backupName);
+
+            if (_backupService == null)
+            {
+                return StatusCode(503, new { error = "Backup service is not available" });
+            }
+
+            var (success, message) = await _backupService.RestoreBackupAsync(backupName);
+            
+            if (success)
+            {
+                _logger.LogInformation("Backup restored successfully: {BackupName}", backupName);
+                return Ok(new
+                {
+                    message = message,
+                    backupName = backupName,
+                    restoredAt = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                _logger.LogWarning("Failed to restore backup: {BackupName}, Reason: {Message}", backupName, message);
+                return StatusCode(500, new
+                {
+                    error = "Failed to restore backup",
+                    message = message
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error restoring backup: {BackupName}", backupName);
+            return StatusCode(500, new { error = "Failed to restore backup", message = ex.Message });
+        }
+    }
+
     private long GetDirectorySize(DirectoryInfo directory)
     {
         try

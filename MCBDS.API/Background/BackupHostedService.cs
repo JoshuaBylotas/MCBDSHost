@@ -13,6 +13,7 @@ public class BackupHostedService : BackgroundService
     private readonly IOptionsMonitor<BackupConfiguration> _configMonitor;
     private readonly IConfiguration _configuration;
     private readonly SemaphoreSlim _backupSemaphore = new(1, 1);
+    private readonly SemaphoreSlim _restoreSemaphore = new(1, 1);
     private CancellationTokenSource? _loopCts;
     private string? _cachedLevelName;
 
@@ -224,6 +225,168 @@ public class BackupHostedService : BackgroundService
         {
             _logger.LogError(ex, "Error during manual backup");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Restores a backup by stopping the server, replacing world files, and restarting
+    /// </summary>
+    public async Task<(bool success, string message)> RestoreBackupAsync(string backupName)
+    {
+        try
+        {
+            _logger.LogInformation("Restore backup triggered for: {BackupName}", backupName);
+            
+            // Ensure only one restore can run at a time
+            if (!await _restoreSemaphore.WaitAsync(0))
+            {
+                _logger.LogWarning("A restore is already in progress");
+                return (false, "A restore operation is already in progress. Please wait.");
+            }
+
+            try
+            {
+                return await PerformRestoreCoreAsync(backupName);
+            }
+            finally
+            {
+                _restoreSemaphore.Release();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during backup restore");
+            return (false, $"Failed to restore backup: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Core restore logic - assumes semaphore is already held by caller
+    /// </summary>
+    private async Task<(bool success, string message)> PerformRestoreCoreAsync(string backupName)
+    {
+        var config = CurrentConfig;
+        
+        if (string.IsNullOrWhiteSpace(config.BackupDirectory))
+        {
+            return (false, "Backup directory not configured");
+        }
+
+        // Validate backup name to prevent directory traversal
+        if (backupName.Contains("..") || backupName.Contains("/") || backupName.Contains("\\"))
+        {
+            return (false, "Invalid backup name");
+        }
+
+        var backupPath = Path.Combine(config.BackupDirectory, backupName);
+        
+        if (!Directory.Exists(backupPath))
+        {
+            return (false, $"Backup '{backupName}' not found");
+        }
+
+        var worldPath = GetBedrockWorldPath();
+        var levelName = GetLevelName();
+
+        _logger.LogInformation("Starting restore process for backup: {BackupName}", backupName);
+        _logger.LogInformation("World path: {WorldPath}", worldPath);
+        _logger.LogInformation("Backup path: {BackupPath}", backupPath);
+
+        try
+        {
+            // Step 1: Stop the Bedrock server
+            _logger.LogInformation("Step 1: Stopping Bedrock server...");
+            await _runnerService.StopAsync(CancellationToken.None);
+            
+            // Wait for the process to fully stop
+            await Task.Delay(3000);
+            _logger.LogInformation("Bedrock server stopped");
+
+            // Step 2: Delete existing world directory
+            if (Directory.Exists(worldPath))
+            {
+                _logger.LogInformation("Step 2: Deleting existing world at: {WorldPath}", worldPath);
+                Directory.Delete(worldPath, recursive: true);
+                _logger.LogInformation("Existing world deleted");
+            }
+            else
+            {
+                _logger.LogInformation("Step 2: No existing world found at: {WorldPath}", worldPath);
+            }
+
+            // Step 3: Create new world directory
+            _logger.LogInformation("Step 3: Creating world directory: {WorldPath}", worldPath);
+            Directory.CreateDirectory(worldPath);
+
+            // Step 4: Copy backup files to world directory
+            _logger.LogInformation("Step 4: Restoring files from backup...");
+            var filesRestored = 0;
+            var filesFailed = 0;
+
+            var backupFiles = Directory.GetFiles(backupPath, "*", SearchOption.AllDirectories);
+            
+            foreach (var sourceFile in backupFiles)
+            {
+                try
+                {
+                    // Get the relative path from backup directory
+                    var relativePath = Path.GetRelativePath(backupPath, sourceFile);
+                    var destPath = Path.Combine(worldPath, relativePath);
+
+                    // Create destination directory if needed
+                    var destDir = Path.GetDirectoryName(destPath);
+                    if (!string.IsNullOrEmpty(destDir))
+                    {
+                        Directory.CreateDirectory(destDir);
+                    }
+
+                    // Copy the file
+                    File.Copy(sourceFile, destPath, overwrite: true);
+                    filesRestored++;
+                    _logger.LogDebug("Restored: {File}", relativePath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to restore file: {File}", sourceFile);
+                    filesFailed++;
+                }
+            }
+
+            _logger.LogInformation("Restore completed. Restored {Restored} files, {Failed} failed", filesRestored, filesFailed);
+
+            // Step 5: Restart the Bedrock server
+            _logger.LogInformation("Step 5: Restarting Bedrock server...");
+            await _runnerService.StartAsync(CancellationToken.None);
+            
+            // Wait a moment for the server to start
+            await Task.Delay(2000);
+            _logger.LogInformation("Bedrock server restarted");
+
+            if (filesRestored > 0)
+            {
+                return (true, $"Successfully restored {filesRestored} files from backup '{backupName}'. Server has been restarted.");
+            }
+            else
+            {
+                return (false, "No files were restored from the backup");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Critical error during restore process");
+            
+            // Attempt to restart the server even if restore failed
+            try
+            {
+                _logger.LogInformation("Attempting to restart server after failed restore...");
+                await _runnerService.StartAsync(CancellationToken.None);
+            }
+            catch (Exception startEx)
+            {
+                _logger.LogError(startEx, "Failed to restart server after restore failure");
+            }
+            
+            return (false, $"Restore failed: {ex.Message}. Server restart attempted.");
         }
     }
 
