@@ -1,0 +1,219 @@
+@page "/diagnostics"
+@using MCBDS.PublicUI.Services
+
+<PageTitle>Diagnostics</PageTitle>
+
+<h1><i class="bi bi-bug me-2"></i>Diagnostic Information</h1>
+
+<p>This page helps diagnose application issues and view crash logs.</p>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>Crash Log</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <button class="btn btn-primary me-2" @onclick="RefreshLog">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh Log
+            </button>
+            <button class="btn btn-secondary me-2" @onclick="ClearLog">
+                <i class="bi bi-trash me-1"></i>Clear Log
+            </button>
+            <button class="btn btn-info" @onclick="CopyToClipboard">
+                <i class="bi bi-clipboard me-1"></i>Copy to Clipboard
+            </button>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(logFilePath))
+        {
+            <div class="alert alert-info">
+                <strong><i class="bi bi-folder me-1"></i>Log File Path:</strong>
+                <br/>
+                <code>@logFilePath</code>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="alert @statusClass">
+                @statusMessage
+            </div>
+        }
+        
+        <div class="log-container">
+            <pre class="log-content">@logContent</pre>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>System Information</h5>
+    </div>
+    <div class="card-body">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th>Platform</th>
+                    <td>@DeviceInfo.Current.Platform</td>
+                </tr>
+                <tr>
+                    <th>Device Model</th>
+                    <td>@DeviceInfo.Current.Model</td>
+                </tr>
+                <tr>
+                    <th>Device Name</th>
+                    <td>@DeviceInfo.Current.Name</td>
+                </tr>
+                <tr>
+                    <th>OS Version</th>
+                    <td>@DeviceInfo.Current.VersionString</td>
+                </tr>
+                <tr>
+                    <th>App Version</th>
+                    <td>@AppInfo.Current.VersionString</td>
+                </tr>
+                <tr>
+                    <th>App Data Directory</th>
+                    <td><code>@FileSystem.Current.AppDataDirectory</code></td>
+                </tr>
+                <tr>
+                    <th>Cache Directory</th>
+                    <td><code>@FileSystem.Current.CacheDirectory</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .log-container {
+        background-color: #1e1e1e;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .log-content {
+        color: #d4d4d4;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 0.875rem;
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .log-container::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .log-container::-webkit-scrollbar-track {
+        background: #252526;
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+        background: #3e3e42;
+        border-radius: 5px;
+    }
+
+    .log-container::-webkit-scrollbar-thumb:hover {
+        background: #4e4e52;
+    }
+</style>
+
+@code {
+    private string? logFilePath;
+    private string logContent = "Loading...";
+    private string statusMessage = string.Empty;
+    private string statusClass = "alert-info";
+
+    protected override void OnInitialized()
+    {
+        RefreshLog();
+    }
+
+    private void RefreshLog()
+    {
+        try
+        {
+            logFilePath = CrashLogger.GetLogFilePath();
+            
+            if (logFilePath != null && File.Exists(logFilePath))
+            {
+                logContent = File.ReadAllText(logFilePath);
+                
+                if (string.IsNullOrWhiteSpace(logContent))
+                {
+                    logContent = "Log file is empty.";
+                }
+                
+                SetStatus("Log refreshed successfully", "alert-success");
+            }
+            else
+            {
+                logContent = "No log file found. The app may not have been initialized yet.";
+                SetStatus("No log file available", "alert-warning");
+            }
+        }
+        catch (Exception ex)
+        {
+            logContent = $"Error reading log: {ex.Message}\n\nStack Trace:\n{ex.StackTrace}";
+            SetStatus($"Error: {ex.Message}", "alert-danger");
+        }
+        
+        StateHasChanged();
+    }
+
+    private void ClearLog()
+    {
+        try
+        {
+            CrashLogger.ClearLog();
+            logContent = "Log cleared.";
+            SetStatus("Log cleared successfully", "alert-success");
+        }
+        catch (Exception ex)
+        {
+            logContent = $"Error clearing log: {ex.Message}";
+            SetStatus($"Error: {ex.Message}", "alert-danger");
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task CopyToClipboard()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(logContent))
+            {
+                await Clipboard.SetTextAsync(logContent);
+                SetStatus("Log copied to clipboard", "alert-success");
+            }
+            else
+            {
+                SetStatus("Nothing to copy", "alert-warning");
+            }
+        }
+        catch (Exception ex)
+        {
+            SetStatus($"Failed to copy: {ex.Message}", "alert-danger");
+        }
+        
+        StateHasChanged();
+    }
+
+    private void SetStatus(string message, string cssClass)
+    {
+        statusMessage = message;
+        statusClass = cssClass;
+        
+        // Clear status after 3 seconds
+        Task.Delay(3000).ContinueWith(_ => InvokeAsync(() =>
+        {
+            statusMessage = string.Empty;
+            StateHasChanged();
+        }));
+    }
+}

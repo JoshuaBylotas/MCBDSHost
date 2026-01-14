@@ -30,11 +30,21 @@ public class ServerConfigService : IServerConfigService
     {
         try
         {
+            // Note: CrashLogger may not be available yet, use Debug.WriteLine as backup
+            System.Diagnostics.Debug.WriteLine("ServerConfigService: Initializing default config");
+            System.Diagnostics.Debug.WriteLine($"ServerConfigService: Settings file path: {_settingsFilePath}");
+
             // Try to load config synchronously on startup
             if (File.Exists(_settingsFilePath))
             {
+                System.Diagnostics.Debug.WriteLine("ServerConfigService: Config file exists, attempting to read");
                 var json = File.ReadAllText(_settingsFilePath);
                 _cachedConfig = JsonSerializer.Deserialize<ServerConfig>(json);
+                System.Diagnostics.Debug.WriteLine("ServerConfigService: Config loaded successfully");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("ServerConfigService: Config file does not exist, using defaults");
             }
             
             _cachedConfig ??= GetDefaultConfig();
@@ -43,15 +53,45 @@ public class ServerConfigService : IServerConfigService
             if (!string.IsNullOrWhiteSpace(_cachedConfig.CurrentServerUrl))
             {
                 SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
+                System.Diagnostics.Debug.WriteLine($"ServerConfigService: HttpClient base address set to: {_cachedConfig.CurrentServerUrl}");
             }
             
+            _isInitialized = true;
+            System.Diagnostics.Debug.WriteLine("ServerConfigService: Initialized successfully");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ServerConfigService: File access denied - using default config. Error: {ex.Message}");
+            _cachedConfig = GetDefaultConfig();
+            SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
+            _isInitialized = true;
+        }
+        catch (IOException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ServerConfigService: IO error - using default config. Error: {ex.Message}");
+            _cachedConfig = GetDefaultConfig();
+            SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
+            _isInitialized = true;
+        }
+        catch (JsonException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ServerConfigService: JSON parsing error - using default config. Error: {ex.Message}");
+            _cachedConfig = GetDefaultConfig();
+            SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
             _isInitialized = true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error initializing server config: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"ServerConfigService: Unexpected error during initialization - using default config. Error: {ex.GetType().Name}: {ex.Message}");
             _cachedConfig = GetDefaultConfig();
-            SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
+            try
+            {
+                SetHttpClientBaseAddress(_cachedConfig.CurrentServerUrl);
+            }
+            catch (Exception httpEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"ServerConfigService: Failed to set HttpClient base address: {httpEx.Message}");
+            }
             _isInitialized = true;
         }
     }
