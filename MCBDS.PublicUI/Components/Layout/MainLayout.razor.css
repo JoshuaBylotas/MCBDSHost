@@ -82,3 +82,26 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+/* Android-specific layout */
+.android-layout {
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.android-layout main {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Add padding for bottom navigation + safe area using custom property */
+    padding-bottom: calc(72px + max(env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px)));
+}
+
+.android-layout .content {
+    padding: 16px;
+}
+
+
+
+

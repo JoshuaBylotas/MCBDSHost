@@ -99,6 +99,25 @@
     width: 100%;
 }
 
+.no-servers-message {
+    padding: 0.75rem;
+    background-color: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 4px;
+    color: #ffc107;
+    font-size: 0.85rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.no-servers-message .bi {
+    font-size: 1rem;
+}
+
+
 .delete-confirm {
     width: 100%;
     animation: slideDown 0.2s ease-out;

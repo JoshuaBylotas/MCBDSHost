@@ -1,0 +1,56 @@
+/* Bottom Navigation Bar */
+.android-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 56px;
+    background-color: #ffffff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000 !important;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    /* Add padding for Android system navigation bar using custom property set by MainPage */
+    padding-bottom: max(env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px));
+    /* Adjust height to include safe area */
+    height: calc(56px + max(env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px)));
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: #757575;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.bottom-nav-item i {
+    font-size: 24px;
+    margin-bottom: 2px;
+}
+
+.bottom-nav-item span {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.bottom-nav-item:active {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.bottom-nav-item.active {
+    color: #667eea;
+}
+
+.bottom-nav-item.active i {
+    transform: scale(1.1);
+}
+
+

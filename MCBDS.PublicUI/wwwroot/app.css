@@ -150,6 +150,31 @@ h1:focus {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23212529' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z'/%3E%3Cpath d='M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z'/%3E%3C/svg%3E");
 }
 
+/* Android Bottom Navigation - Global override to ensure it's always at the bottom */
+.android-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+}
+
+/* Android safe area fallback - add padding for devices with navigation bars */
+@media (max-width: 768px) {
+    .android-bottom-nav {
+        /* Fallback: Add 48px padding for typical Android navigation bar height */
+        padding-bottom: max(48px, env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px)) !important;
+        height: calc(56px + max(48px, env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px))) !important;
+    }
+    
+    .android-layout main {
+        /* Ensure content doesn't hide behind bottom nav */
+        padding-bottom: calc(72px + max(48px, env(safe-area-inset-bottom), var(--safe-area-inset-bottom, 0px))) !important;
+    }
+}
+
+
+
 .bi-exclamation-triangle-fill {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23856404' viewBox='0 0 16 16'%3E%3Cpath d='M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/%3E%3C/svg%3E");
 }

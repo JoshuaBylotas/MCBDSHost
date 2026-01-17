@@ -1,4 +1,4 @@
-﻿namespace MCBDS.PublicUI;
+namespace MCBDS.PublicUI;
 
 public partial class MainPage : ContentPage
 {

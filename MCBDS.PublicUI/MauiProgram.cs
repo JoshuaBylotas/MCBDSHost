@@ -1,6 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using MCBDS.ClientUI.Shared.Services;
 using MCBDS.PublicUI.Services;
+using Microsoft.AspNetCore.Components.WebView.Maui;
+
+#if ANDROID
+using MCBDS.PublicUI.Platforms.Android;
+#endif
 
 namespace MCBDS.PublicUI;
 
@@ -16,6 +21,13 @@ public static class MauiProgram
 				.ConfigureFonts(fonts =>
 				{
 					fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+				})
+				.ConfigureMauiHandlers(handlers =>
+				{
+#if ANDROID
+					// Register custom BlazorWebView handler for Android safe area support
+					handlers.AddHandler<BlazorWebView, CustomBlazorWebViewHandler>();
+#endif
 				});
 
 			// Initialize crash logger FIRST thing
@@ -90,6 +102,10 @@ public static class MauiProgram
 					throw;
 				}
 			});
+			
+			// Register platform service
+			builder.Services.AddSingleton<IFormFactor, MauiFormFactorService>();
+			builder.Services.AddSingleton<MauiFormFactorService>();
 
 			builder.Services.AddMauiBlazorWebView();
 

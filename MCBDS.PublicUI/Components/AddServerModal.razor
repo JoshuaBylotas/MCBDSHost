@@ -1,0 +1,164 @@
+@inject ServerConfigService ServerConfig
+@inject NavigationManager Navigation
+
+@if (isVisible)
+{
+    <div class="modal-backdrop" @onclick="PreventClose"></div>
+    <div class="modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-server me-2"></i>Add Server Connection
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">
+                    Enter the details of your MCBDS API server to get started.
+                </p>
+                
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-1"></i>@errorMessage
+                    </div>
+                }
+                
+                <div class="mb-3">
+                    <label class="form-label">Server Name</label>
+                    <input type="text" 
+                           class="form-control" 
+                           placeholder="e.g., My Server" 
+                           @bind="serverName"
+                           @bind:event="oninput" />
+                    <small class="form-text text-muted">A friendly name to identify this server</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Server URL</label>
+                    <input type="text" 
+                           class="form-control" 
+                           placeholder="e.g., 192.168.1.100:8080" 
+                           @bind="serverUrl"
+                           @bind:event="oninput" />
+                    <small class="form-text text-muted">IP address or hostname with port</small>
+                </div>
+                
+                <div class="form-text">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <strong>Examples:</strong>
+                    <ul class="mb-0 mt-1">
+                        <li>localhost:8080</li>
+                        <li>192.168.1.100:8080</li>
+                        <li>myserver.com:8080</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" 
+                        @onclick="AddServer"
+                        disabled="@(!CanAddServer())">
+                    <i class="bi bi-check-lg me-1"></i>Add Server
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+    
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+    
+    private bool isVisible => IsVisible;
+    private string serverName = "";
+    private string serverUrl = "";
+    private string errorMessage = "";
+    
+    private void PreventClose()
+    {
+        // Modal cannot be closed by clicking backdrop - user must add a server
+    }
+    
+    private bool CanAddServer()
+    {
+        return !string.IsNullOrWhiteSpace(serverName) && !string.IsNullOrWhiteSpace(serverUrl);
+    }
+    
+    private async Task AddServer()
+    {
+        if (!CanAddServer())
+        {
+            errorMessage = "Please enter both server name and URL";
+            return;
+        }
+        
+        try
+        {
+            errorMessage = "";
+            
+            // Add the server
+            var addSuccess = await ServerConfig.AddServerAsync(serverName.Trim(), serverUrl.Trim());
+            
+            if (!addSuccess)
+            {
+                errorMessage = "Failed to add server. Please try again.";
+                return;
+            }
+            
+            // Switch to the new server
+            var normalizedUrl = NormalizeUrl(serverUrl.Trim());
+            var switchSuccess = await ServerConfig.SwitchServerAsync(normalizedUrl);
+            
+            if (!switchSuccess)
+            {
+                errorMessage = "Server added but failed to connect. Please try again.";
+                return;
+            }
+            
+            // Close modal and reload page
+            await CloseModal();
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+    
+    private async Task CloseModal()
+    {
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+    
+    private static string NormalizeUrl(string url)
+    {
+        // Remove any protocol prefix
+        var protocolIndex = url.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+        if (protocolIndex > 0)
+        {
+            var protocol = url.Substring(0, protocolIndex).ToLowerInvariant();
+            if (protocol == "http" || protocol == "https")
+            {
+                url = protocol + url.Substring(protocolIndex);
+            }
+            else
+            {
+                url = url.Substring(protocolIndex + 3);
+            }
+        }
+        
+        // Add http:// if no protocol
+        if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+            !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            url = "http://" + url;
+        }
+        
+        // Remove trailing slash
+        url = url.TrimEnd('/');
+        
+        return url;
+    }
+}

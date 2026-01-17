@@ -1,13 +1,54 @@
 ﻿@inherits LayoutComponentBase
+@inject ServerConfigService ServerConfig
+@inject MauiFormFactorService PlatformService
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+@if (PlatformService.IsAndroid())
+{
+    <div class="page android-layout">
+        <AndroidToolbar />
+        <main>
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+        <AndroidBottomNav />
     </div>
+}
+else
+{
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-    <main>
-             <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+        <main>
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+}
+
+<AddServerModal IsVisible="@showAddServerModal" IsVisibleChanged="@OnModalVisibilityChanged" />
+
+@code {
+    private bool showAddServerModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServerConfig.EnsureInitializedAsync();
+        
+        // Check if any servers are configured
+        var servers = ServerConfig.GetSavedServers();
+        if (servers == null || servers.Count == 0)
+        {
+            showAddServerModal = true;
+        }
+    }
+
+    private void OnModalVisibilityChanged(bool isVisible)
+    {
+        showAddServerModal = isVisible;
+        StateHasChanged();
+    }
+}

@@ -169,12 +169,17 @@ public class ServerConfigService : IServerConfigService
 
     public string GetCurrentServerUrl()
     {
-        return _cachedConfig?.CurrentServerUrl ?? GetDefaultConfig().CurrentServerUrl;
+        var url = _cachedConfig?.CurrentServerUrl ?? GetDefaultConfig().CurrentServerUrl;
+        return string.IsNullOrWhiteSpace(url) ? "" : url;
     }
 
     public string GetCurrentServerName()
     {
         var config = _cachedConfig ?? GetDefaultConfig();
+        if (string.IsNullOrWhiteSpace(config.CurrentServerUrl))
+        {
+            return "No Server Configured";
+        }
         var current = config.SavedServers?.FirstOrDefault(s => s.Url == config.CurrentServerUrl);
         return current?.Name ?? config.CurrentServerUrl;
     }
@@ -236,12 +241,19 @@ public class ServerConfigService : IServerConfigService
         {
             config.SavedServers.Remove(server);
             
-            // If we removed the current server, switch to the first available
-            if (config.CurrentServerUrl.Equals(url, StringComparison.OrdinalIgnoreCase) 
-                && config.SavedServers.Count > 0)
+            // If we removed the current server, switch to the first available or empty
+            if (config.CurrentServerUrl.Equals(url, StringComparison.OrdinalIgnoreCase))
             {
-                config.CurrentServerUrl = config.SavedServers.First().Url;
-                SetHttpClientBaseAddress(config.CurrentServerUrl);
+                if (config.SavedServers.Count > 0)
+                {
+                    config.CurrentServerUrl = config.SavedServers.First().Url;
+                    SetHttpClientBaseAddress(config.CurrentServerUrl);
+                }
+                else
+                {
+                    config.CurrentServerUrl = "";
+                    // Don't attempt to set HttpClient base address when empty
+                }
             }
             
             return await SaveConfigAsync(config);
@@ -334,18 +346,15 @@ public class ServerConfigService : IServerConfigService
     {
         return new ServerConfig
         {
-            CurrentServerUrl = "http://localhost:8080",
-            SavedServers = new List<SavedServer>
-            {
-                new SavedServer { Name = "Local Development", Url = "http://localhost:8080" }
-            }
+            CurrentServerUrl = "",
+            SavedServers = new List<SavedServer>()
         };
     }
 }
 
 public class ServerConfig
 {
-    public string CurrentServerUrl { get; set; } = "http://localhost:8080";
+    public string CurrentServerUrl { get; set; } = "";
     public List<SavedServer> SavedServers { get; set; } = new();
 }
 

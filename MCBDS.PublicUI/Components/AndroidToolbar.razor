@@ -1,0 +1,50 @@
+@inject MauiFormFactorService PlatformService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (PlatformService.IsAndroid())
+{
+    <div class="android-toolbar">
+        <h1 class="toolbar-title">MCBDS Manager</h1>
+        <button class="toolbar-button" @onclick="ToggleServerMenu">
+            <i class="bi bi-hdd-network"></i>
+        </button>
+    </div>
+
+    @if (showServerMenu)
+    {
+        <div class="android-overlay" @onclick="CloseMenus"></div>
+        <div class="android-server-modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h5>Server Selection</h5>
+                    <button class="close-btn" @onclick="CloseMenus">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ServerSwitcher />
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private bool showServerMenu = false;
+
+    private void ToggleServerMenu()
+    {
+        showServerMenu = !showServerMenu;
+    }
+
+    private void CloseMenus()
+    {
+        showServerMenu = false;
+    }
+    
+    public void Dispose()
+    {
+        // Cleanup if needed
+    }
+}

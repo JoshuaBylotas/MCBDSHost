@@ -2,6 +2,7 @@
 @using MCBDS.ClientUI.Shared.Services
 @using MCBDS.PublicUI.Components
 @inject BedrockApiService ApiService
+@inject ServerConfigService ServerConfig
 @implements IDisposable
 
 <PageTitle>Overview</PageTitle>
@@ -10,7 +11,19 @@
 
 <p>Real-time statistics for the Minecraft Bedrock Dedicated Server and API host.</p>
 
-@if (isLoading)
+@if (!hasServerConfigured)
+{
+    <div class="alert alert-info" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle display-4 me-3"></i>
+            <div>
+                <h5 class="alert-heading">No Server Configured</h5>
+                <p class="mb-0">Please add a server connection using the Server dropdown in the menu to get started.</p>
+            </div>
+        </div>
+    </div>
+}
+else if (isLoading)
 {
     <div class="text-center my-5">
         <div class="spinner-border" role="status">
@@ -279,21 +292,34 @@ else if (status != null)
 }
 
 @code {
-    private SystemStatusResponse? status;
-    private bool isLoading = true;
-    private string? errorMessage;
-    private ApiErrorType errorType = ApiErrorType.None;
-    private DateTime lastUpdated = DateTime.Now;
-    private bool autoRefreshEnabled = true;
-    private System.Threading.Timer? refreshTimer;
-    private readonly PlayerTracker playerTracker = new();
-    private int maxPlayers = 10;
+private SystemStatusResponse? status;
+private bool isLoading = true;
+private string? errorMessage;
+private ApiErrorType errorType = ApiErrorType.None;
+private DateTime lastUpdated = DateTime.Now;
+private bool autoRefreshEnabled = true;
+private System.Threading.Timer? refreshTimer;
+private readonly PlayerTracker playerTracker = new();
+private int maxPlayers = 10;
+private bool hasServerConfigured = false;
 
-    protected override async Task OnInitializedAsync()
+protected override async Task OnInitializedAsync()
+{
+    // Check if a server is configured before attempting to load status
+    await ServerConfig.EnsureInitializedAsync();
+    var currentUrl = ServerConfig.GetCurrentServerUrl();
+    hasServerConfigured = !string.IsNullOrWhiteSpace(currentUrl);
+        
+    if (hasServerConfigured)
     {
         await LoadStatusAsync();
         StartAutoRefresh();
     }
+    else
+    {
+        isLoading = false;
+    }
+}
 
     private void StartAutoRefresh()
     {

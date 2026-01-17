@@ -1,0 +1,64 @@
+@inject MauiFormFactorService PlatformService
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (PlatformService.IsAndroid())
+{
+    <div class="android-bottom-nav">
+        <div class="bottom-nav-item @GetActiveClass("/")" @onclick="@(() => NavigateTo("/"))">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Overview</span>
+        </div>
+        <div class="bottom-nav-item @GetActiveClass("/commands")" @onclick="@(() => NavigateTo("/commands"))">
+            <i class="bi bi-terminal-fill"></i>
+            <span>Commands</span>
+        </div>
+        <div class="bottom-nav-item @GetActiveClass("/server-properties")" @onclick="@(() => NavigateTo("/server-properties"))">
+            <i class="bi bi-gear-fill"></i>
+            <span>Server</span>
+        </div>
+        <div class="bottom-nav-item @GetActiveClass("/backup-settings")" @onclick="@(() => NavigateTo("/backup-settings"))">
+            <i class="bi bi-archive-fill"></i>
+            <span>Backup</span>
+        </div>
+        <div class="bottom-nav-item @GetActiveClass("/diagnostics")" @onclick="@(() => NavigateTo("/diagnostics"))">
+            <i class="bi bi-bug-fill"></i>
+            <span>Diagnostics</span>
+        </div>
+    </div>
+}
+
+@code {
+    private string currentPath = "/";
+
+    protected override void OnInitialized()
+    {
+        currentPath = Navigation.ToBaseRelativePath(Navigation.Uri);
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        currentPath = Navigation.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+
+    private string GetActiveClass(string path)
+    {
+        if (path == "/" && currentPath == "")
+            return "active";
+        if (path != "/" && currentPath.StartsWith(path.TrimStart('/')))
+            return "active";
+        return "";
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

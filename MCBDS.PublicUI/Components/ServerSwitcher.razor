@@ -1,9 +1,21 @@
 @inject ServerConfigService ServerConfig
 @inject NavigationManager Navigation
+@implements IDisposable
+
 <div class="server-switcher nav-item px-0">
     
     <div class="server-selector">
-        @if (!isEditing && editingServer == null)
+        @if (savedServers.Count == 0)
+        {
+            <div class="no-servers-message">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                <span>No servers configured</span>
+            </div>
+            <button class="btn btn-sm btn-primary w-100 mt-2" @onclick="ShowAddServerForm">
+                <i class="bi bi-plus-lg me-1"></i> Add Server
+            </button>
+        }
+        else if (!isEditing && editingServer == null)
         {
             <select class="form-select form-select-sm server-select" @onchange="OnServerSelected" value="@currentServerUrl">
                 @foreach (var server in savedServers)
@@ -12,6 +24,7 @@
                 }
                 <option value="__add_new__">+ Add New Server...</option>
             </select>
+            
             
             @if (savedServers.Count > 1 && !string.IsNullOrEmpty(currentServerUrl))
             {
@@ -23,6 +36,12 @@
                         <i class="bi bi-trash me-1"></i> Delete
                     </button>
                 </div>
+            }
+            else if (savedServers.Count == 1)
+            {
+                <button class="btn btn-sm btn-outline-secondary w-100" @onclick="StartEditServer" title="Edit Server">
+                    <i class="bi bi-pencil me-1"></i> Edit Server
+                </button>
             }
             
             @if (!string.IsNullOrEmpty(statusMessage))
@@ -173,15 +192,7 @@
 
     private async Task DeleteCurrentServer()
     {
-        if (savedServers.Count <= 1)
-        {
-            statusMessage = "Cannot delete the last server";
-            statusClass = "status-error";
-            showDeleteConfirm = false;
-            StateHasChanged();
-            return;
-        }
-
+        // Allow deleting the last server now - user will be prompted to add a new one
         var success = await ServerConfig.RemoveServerAsync(currentServerUrl);
         
         if (success)
@@ -189,9 +200,16 @@
             await LoadServers();
             showDeleteConfirm = false;
             
-            // The service automatically switches to another server
-            // Reload to reflect the new server
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            // If there are more servers, reload page with new server
+            // If no servers left, just stay on current page (modal will show in MainLayout)
+            if (savedServers.Count > 0)
+            {
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            else
+            {
+                StateHasChanged();
+            }
         }
         else
         {
@@ -287,6 +305,15 @@
         newServerName = "";
         newServerUrl = "";
         // Reset to previous selection
+        StateHasChanged();
+    }
+    
+    private void ShowAddServerForm()
+    {
+        isEditing = true;
+        newServerName = "";
+        newServerUrl = "";
+        showDeleteConfirm = false;
         StateHasChanged();
     }
 
