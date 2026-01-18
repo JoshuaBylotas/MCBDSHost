@@ -10,7 +10,6 @@
     <Deploy />
   </Project>
   <Project Path="MCBDS.Marketing/MCBDS.Marketing.csproj" />
-  <Project Path="MCBDS.PublicUI.Web/MCBDS.PublicUI.Web.csproj" />
   <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj">
     <Deploy />
   </Project>
