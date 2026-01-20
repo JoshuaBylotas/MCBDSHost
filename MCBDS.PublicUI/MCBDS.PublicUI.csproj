@@ -20,7 +20,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>MCBDS.PublicUI</ApplicationTitle>
+        <ApplicationTitle>MCBDS Manager</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.mcbds.publicui</ApplicationId>
@@ -57,8 +57,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <!-- App Icon - Use PNG for all platforms (StoreLogo.transparent.png) -->
+        <MauiIcon Include="Resources\AppIcon\appicon.png" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\bcbds_manager_splash.png" Color="#FFFFFF" BaseSize="456,456" />
