@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+<PropertyGroup>
+  <TargetFramework>net10.0-windows</TargetFramework>
+  <Nullable>enable</Nullable>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <OutputType>Exe</OutputType>
+  <RootNamespace>MCBDS.WindowsService</RootNamespace>
+    
+  <!-- Windows Service configuration -->
+  <UseWindowsServiceLifetime>true</UseWindowsServiceLifetime>
+  <PublishSingleFile>false</PublishSingleFile>
+  <SelfContained>true</SelfContained>
+  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+</PropertyGroup>
+
+<ItemGroup>
+  <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
+  <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.1" />
+</ItemGroup>
+
+<!-- Remove duplicate appsettings.json from referenced projects -->
+<Target Name="RemoveDuplicateAppSettings" BeforeTargets="Publish">
+  <ItemGroup>
+    <PublishItemsOutputGroupDependencies Remove="@(PublishItemsOutputGroupDependencies)" Condition="'%(Filename)' == 'appsettings' AND '%(Extension)' == '.json'" />
+  </ItemGroup>
+</Target>
+
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\MCBDS.API\MCBDS.API.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exclude appsettings.json from MCBDS.API project -->
+    <Content Remove="..\..\MCBDS.API\appsettings.json" />
+  </ItemGroup>
+
+  <!-- Copy Binaries folder to output -->
+  <Target Name="CopyBinariesOnPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <BinariesFiles Include="..\MCBDS.API\Binaries\**\*.*" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(BinariesFiles)"
+      DestinationFiles="@(BinariesFiles->'$(PublishDir)Binaries\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

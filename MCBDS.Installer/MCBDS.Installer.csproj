@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ProjectName>MCBDS.Installer</ProjectName>
+    <Description>NSIS-based Windows Service Installer for MCBDS API</Description>
+    <TargetFramework>net10.0</TargetFramework>
+    
+    <!-- This is not a normal C# project - it's just for organization -->
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <!-- Include all NSIS and documentation files -->
+  <ItemGroup>
+    <!-- Installer Scripts -->
+    <None Include="build-installer.ps1" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Documentation Files -->
+    <None Include="00-START-HERE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="INDEX.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="QUICK-REFERENCE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Configuration Documentation -->
+    <None Include="INSTALLER-CONFIGURATION-GUIDE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CONFIGURATION-QUICK-START.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CONFIGURATION-IMPLEMENTATION-SUMMARY.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CONFIGURATION-AT-A-GLANCE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="WHAT-CHANGED.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="README-CONFIGURATION.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Setup Documentation -->
+    <None Include="INSTALLER-SETUP-GUIDE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="INSTALLER-COMPLETE-SETUP.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="INSTALLER-OVERVIEW.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="NSIS-MIGRATION-SUMMARY.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="NSIS-README.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Registry Documentation -->
+    <None Include="REGISTRY-REMOVAL-UPDATE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="REGISTRY-REMOVED-SUMMARY.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CONFIGURATION-REGISTRY-REMOVAL-COMPLETE.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Solution Fix Documentation -->
+    <None Include="FIX-SOLUTION-LOAD.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="MANUAL-FIX-STEPS.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="SOLUTION-FIX-SUMMARY.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="VISUAL-FIX-GUIDE.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Architecture Documentation -->
+    <None Include="ARCHITECTURE.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="FILE-INVENTORY.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="COMMANDS-REFERENCE.md" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Custom Build Target -->
+  <Target Name="BuildInstaller" BeforeTargets="Build">
+    <Message Text="Building NSIS Installer..." Importance="high" />
+    <Exec Command="powershell.exe -File build-installer.ps1" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
+  </Target>
+
+  <!-- Custom Clean Target -->
+  <Target Name="CleanInstaller" BeforeTargets="Clean">
+    <Message Text="Cleaning installer build artifacts..." Importance="high" />
+    <Delete Files="$(MSBuildProjectDirectory)\MCBDS.API.Service.Installer.exe" />
+  </Target>
+
+</Project>

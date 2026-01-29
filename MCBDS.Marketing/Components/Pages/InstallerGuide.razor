@@ -1,0 +1,491 @@
+@page "/installer"
+@inject StructuredDataService StructuredDataService
+
+<PageTitle>MCBDS Windows Installer - Quick Setup Guide</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Download and install MCBDS API Service with our Windows standalone installer. One-click setup for Minecraft Bedrock Server management on Windows." />
+    <meta name="keywords" content="mcbds installer, windows installer, minecraft bedrock server management, standalone installer, windows service" />
+    <link rel="canonical" href="https://www.mc-bds.com/installer" />
+    
+    <!-- Structured Data for How-To Guide -->
+    <script type="application/ld+json">
+        @((MarkupString)StructuredDataService.GetHowToData(
+            "Install MCBDS API Service Installer",
+            "Complete guide to install MCBDS Manager using the Windows standalone installer",
+            new List<string> {
+                "Download MCBDS.API.Service.Installer.exe",
+                "Run the installer executable",
+                "Follow the setup wizard to configure installation paths",
+                "Download and extract Minecraft Bedrock Server",
+                "Complete the installation",
+                "Access the management interface at http://localhost:8080"
+            }
+        ))
+    </script>
+</HeadContent>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">MCBDS Windows Installer</h1>
+        <p class="lead text-muted">One-click installation for Windows Server and Desktop</p>
+    </div>
+
+    <!-- Quick Start Alert -->
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-lightning-charge-fill me-2"></i>
+        <strong>Fastest Way to Get Started!</strong> The Windows installer is the simplest way to set up MCBDS Manager on Windows systems.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- System Requirements Section -->
+    <section class="mb-5" id="requirements">
+        <h2 class="h3 mb-4"><i class="bi bi-pc-display text-primary me-2"></i>System Requirements</h2>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">Windows Installer Requirements</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-primary">Minimum Requirements</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success me-2"></i>Windows 10 or later (or Windows Server 2016+)</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>4GB RAM minimum</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>2 CPU cores minimum</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>10GB free disk space</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>.NET Runtime 10.0 (auto-installed if missing)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4 class="h6 fw-bold text-primary">Recommended Specification</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-star-fill text-warning me-2"></i>Windows 11 or Windows Server 2022+</li>
+                            <li><i class="bi bi-star-fill text-warning me-2"></i>8GB+ RAM</li>
+                            <li><i class="bi bi-star-fill text-warning me-2"></i>4+ CPU cores</li>
+                            <li><i class="bi bi-star-fill text-warning me-2"></i>20GB+ free disk space (SSD preferred)</li>
+                            <li><i class="bi bi-star-fill text-warning me-2"></i>Static IP address (for server stability)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Administrator Rights Required:</strong> The installer must be run with administrator privileges to install the Windows Service.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="mb-5" id="download">
+        <h2 class="h3 mb-4"><i class="bi bi-download text-primary me-2"></i>Download the Installer</h2>
+        
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h3 class="h5 mb-0"><i class="bi bi-cloud-download me-2"></i>MCBDS API Service Installer</h3>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">The MCBDS API Service Installer is available in the root directory of the MCBDSHost repository.</p>
+                
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="h6 mb-2">File Information</h4>
+                        <ul class="small">
+                            <li><strong>Filename:</strong> <code>MCBDS.API.Service.Installer.exe</code></li>
+                            <li><strong>Version:</strong> 1.0.1</li>
+                            <li><strong>Platform:</strong> Windows 64-bit</li>
+                            <li><strong>Size:</strong> ~50MB (including .NET runtime)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases" target="_blank" rel="noopener" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-cloud-download me-2"></i>Download
+                        </a>
+                        <small class="text-muted d-block text-center mt-2">From GitHub Releases</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-4 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Security Note:</strong> The installer is signed and verified. Always download from official releases on GitHub.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Steps -->
+    <section class="mb-5" id="installation">
+        <h2 class="h3 mb-4"><i class="bi bi-hammer text-primary me-2"></i>Installation Steps</h2>
+
+        <!-- Step 1 -->
+        <div class="card shadow-sm mb-4 border-left border-primary">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><span class="badge bg-primary me-2">1</span>Run the Installer</h3>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li><strong>Download</strong> <code>MCBDS.API.Service.Installer.exe</code> from the GitHub releases page</li>
+                    <li><strong>Right-click</strong> the installer file</li>
+                    <li><strong>Select</strong> "Run as administrator" (required)</li>
+                    <li>Click <strong>Yes</strong> when prompted by User Account Control (UAC)</li>
+                </ol>
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Administrator rights are required to install the Windows Service.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="card shadow-sm mb-4 border-left border-primary">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><span class="badge bg-primary me-2">2</span>Configure Storage Paths</h3>
+            </div>
+            <div class="card-body">
+                <p>The installer will ask you to specify three directory paths:</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Path Type</th>
+                                <th>Purpose</th>
+                                <th>Default Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Binaries Location</strong></td>
+                                <td>Where the Minecraft Bedrock server executable is stored</td>
+                                <td><code>C:\Program Files\MCBDS API Service\Binaries</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Log Directory</strong></td>
+                                <td>Where API and server logs are saved</td>
+                                <td><code>C:\Program Files\MCBDS API Service\logs</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Backups Location</strong></td>
+                                <td>Where automatic world backups are stored</td>
+                                <td><code>C:\Program Files\MCBDS API Service\backups</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Note:</strong> You can customize these paths to use different drives (e.g., a separate D:\ drive for backups). The installer will create these directories if they don't exist.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="card shadow-sm mb-4 border-left border-primary">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><span class="badge bg-primary me-2">3</span>Service Configuration</h3>
+            </div>
+            <div class="card-body">
+                <p>Configure the service settings:</p>
+                
+                <div class="mb-3">
+                    <h5 class="h6">HTTP Port</h5>
+                    <p class="mb-2">The port the API will listen on (default: 8080)</p>
+                    <code>Example: 8080</code>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="h6">Backup Frequency</h5>
+                    <p class="mb-2">How often to backup the server (in minutes, default: 30)</p>
+                    <code>Example: 30</code>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="h6">Maximum Backups to Keep</h5>
+                    <p class="mb-2">How many backup versions to retain (default: 30)</p>
+                    <code>Example: 30</code>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="startMenu" checked>
+                    <label class="form-check-label" for="startMenu">
+                        <strong>Create Start Menu Shortcuts</strong> - Recommended for easy access
+                    </label>
+                </div>
+
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    Default settings are suitable for most installations. You can change these later via configuration files.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="card shadow-sm mb-4 border-left border-primary">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><span class="badge bg-primary me-2">4</span>Download Bedrock Server</h3>
+            </div>
+            <div class="card-body">
+                <p>The installer will guide you through downloading the Minecraft Bedrock Dedicated Server:</p>
+                
+                <ol>
+                    <li><strong>Click</strong> "Download Bedrock Server" button to open the official download page</li>
+                    <li><strong>Download</strong> the latest Bedrock Server for your platform (usually labeled as <code>bedrock-server-*.zip</code>)</li>
+                    <li><strong>Extract</strong> all files to the <strong>Binaries Location</strong> configured earlier</li>
+                    <li><strong>Important:</strong> Make sure <code>bedrock_server.exe</code> is directly in the folder (not in a subfolder)</li>
+                    <li><strong>Check the box</strong> in the installer to confirm you've completed this step</li>
+                </ol>
+
+                <div class="alert alert-danger mt-3 mb-0">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    <strong>Critical:</strong> The installer will verify that <code>bedrock_server.exe</code> exists in the configured Binaries location before proceeding.
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="card shadow-sm mb-4 border-left border-primary">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0"><span class="badge bg-primary me-2">5</span>Complete Installation</h3>
+            </div>
+            <div class="card-body">
+                <p>The installer will now:</p>
+                <ul>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Extract application files</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Create configuration files (<code>appsettings.json</code>)</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Install the Windows Service</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Configure Windows Firewall rules</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Start the service automatically</li>
+                </ul>
+
+                <div class="alert alert-success mt-3 mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Once complete, the MCBDS API Service will start automatically and run in the background.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Access & Verify Section -->
+    <section class="mb-5" id="verify">
+        <h2 class="h3 mb-4"><i class="bi bi-check-square text-primary me-2"></i>Verify Installation</h2>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">Access the Management Interface</h3>
+            </div>
+            <div class="card-body">
+                <p>After installation completes, access the MCBDS Manager at:</p>
+                
+                <div class="alert alert-primary">
+                    <code>http://localhost:8080</code>
+                </div>
+
+                <p>Or on a different machine (replace with your server IP):</p>
+                
+                <div class="alert alert-primary">
+                    <code>http://&lt;your-server-ip&gt;:8080</code>
+                </div>
+
+                <p class="text-muted mb-0">From here you can manage your Minecraft server, view logs, configure backups, and more.</p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">Check Service Status</h3>
+            </div>
+            <div class="card-body">
+                <p>Verify the service is running by opening Services:</p>
+                
+                <ol>
+                    <li>Press <kbd>Win + R</kbd>, type <code>services.msc</code>, and press Enter</li>
+                    <li>Look for <strong>"MCBDS API Service"</strong></li>
+                    <li>Status should show <span class="badge bg-success">Running</span></li>
+                    <li>Startup Type should be <span class="badge bg-info">Automatic</span></li>
+                </ol>
+
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    The service will restart automatically if your system reboots.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooting Section -->
+    <section class="mb-5" id="troubleshooting">
+        <h2 class="h3 mb-4"><i class="bi bi-bug text-primary me-2"></i>Troubleshooting</h2>
+
+        <!-- Issue 1 -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <button class="btn btn-link text-start w-100" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                        <i class="bi bi-question-circle me-2"></i>Port 8080 is already in use
+                    </button>
+                </h5>
+            </div>
+            <div class="collapse" id="issue1">
+                <div class="card-body">
+                    <p><strong>Solution:</strong> Change the port during installation or edit the configuration file:</p>
+                    <code>C:\Program Files\MCBDS API Service\appsettings.json</code>
+                    <p>Update the <code>"Urls"</code> line to use a different port (e.g., 8090)</p>
+                    <p>Then restart the service from Services.msc</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Issue 2 -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <button class="btn btn-link text-start w-100" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                        <i class="bi bi-question-circle me-2"></i>Service won't start or keeps crashing
+                    </button>
+                </h5>
+            </div>
+            <div class="collapse" id="issue2">
+                <div class="card-body">
+                    <p><strong>Check:</strong></p>
+                    <ol>
+                        <li>Verify <code>bedrock_server.exe</code> exists in the Binaries directory</li>
+                        <li>Check the log file at: <code>C:\Program Files\MCBDS API Service\logs\api.log</code></li>
+                        <li>Check Windows Event Viewer for .NET Runtime errors</li>
+                        <li>Ensure .NET 10 Runtime is installed (run <code>dotnet --version</code> in PowerShell)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Issue 3 -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <button class="btn btn-link text-start w-100" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                        <i class="bi bi-question-circle me-2"></i>Can't access the web interface from another computer
+                    </button>
+                </h5>
+            </div>
+            <div class="collapse" id="issue3">
+                <div class="card-body">
+                    <p><strong>Check:</strong></p>
+                    <ol>
+                        <li>Verify your server's IP address</li>
+                        <li>Check Windows Firewall allows port 8080 (installer does this automatically)</li>
+                        <li>Try accessing from the same machine first: <code>http://localhost:8080</code></li>
+                        <li>Ensure both computers are on the same network</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Next Steps Section -->
+    <section class="mb-5" id="next-steps">
+        <h2 class="h3 mb-4"><i class="bi bi-arrow-right-circle text-primary me-2"></i>Next Steps</h2>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="bi bi-book text-primary display-4 mb-3 d-block"></i>
+                        <h5 class="card-title">Read the Docs</h5>
+                        <p class="card-text">Learn about all features and configuration options</p>
+                        <a href="/docs" class="btn btn-sm btn-outline-primary">View Documentation</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="bi bi-gear text-primary display-4 mb-3 d-block"></i>
+                        <h5 class="card-title">Configure Server</h5>
+                        <p class="card-text">Set up your Minecraft server settings and world</p>
+                        <a href="http://localhost:8080" target="_blank" class="btn btn-sm btn-outline-primary">Open MCBDS</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="bi bi-chat-dots text-primary display-4 mb-3 d-block"></i>
+                        <h5 class="card-title">Get Support</h5>
+                        <p class="card-text">Need help? Contact us for assistance</p>
+                        <a href="/contact" class="btn btn-sm btn-outline-primary">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison with Docker Section -->
+    <section class="mb-5" id="comparison">
+        <h2 class="h3 mb-4"><i class="bi bi-diagram-3 text-primary me-2"></i>Quick Comparison</h2>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Feature</th>
+                        <th class="table-success"><i class="bi bi-check-circle text-success me-2"></i>Windows Installer</th>
+                        <th>Docker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Setup Time</strong></td>
+                        <td class="table-success"><span class="badge bg-success">5-10 minutes</span></td>
+                        <td><span class="badge bg-info">15-20 minutes</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Complexity</strong></td>
+                        <td class="table-success"><span class="badge bg-success">Very Simple</span> - Just click</td>
+                        <td><span class="badge bg-warning">Moderate</span> - Requires CLI knowledge</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Requirements</strong></td>
+                        <td class="table-success">Windows only</td>
+                        <td>Requires Docker installation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auto-Start</strong></td>
+                        <td class="table-success"><i class="bi bi-check-circle text-success"></i> Yes (Windows Service)</td>
+                        <td><i class="bi bi-check-circle text-success"></i> Yes (with docker-compose)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td class="table-success">Native - Minimal overhead</td>
+                        <td>Container overhead</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best Use Case</strong></td>
+                        <td class="table-success">Windows Servers & Home Servers</td>
+                        <td>Linux, Cloud, Enterprise</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Support Level</strong></td>
+                        <td class="table-success"><span class="badge bg-success">Primary</span></td>
+                        <td><span class="badge bg-secondary">Community</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-success mt-4 mb-0">
+            <i class="bi bi-star-fill me-2"></i>
+            <strong>Why Choose the Windows Installer?</strong> It's purpose-built for Windows environments. No Docker knowledge needed, faster startup, and officially supported with regular updates.
+        </div>
+    </section>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+}

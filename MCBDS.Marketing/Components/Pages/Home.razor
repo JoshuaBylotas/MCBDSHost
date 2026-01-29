@@ -24,6 +24,17 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
+                <!-- Release Badge -->
+                <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-party-popper me-2"></i>
+                    <strong>Latest Release:</strong> 
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/tag/API-v1" target="_blank" rel="noopener" class="alert-link">
+                        API v1.0.1 Now Available
+                    </a>
+                    – Windows installer with automatic backups and web dashboard
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
                 <h1 class="display-3 fw-bold mb-4">
                     Manage Your Minecraft Bedrock Server
                     <span class="text-primary">Like a Pro</span>
@@ -33,11 +44,11 @@
                     Monitor, control, and automate your server with an intuitive interface.
                 </p>
                 <div class="hero-buttons">
-                    <a href="/features" class="btn btn-primary btn-lg me-3">
-                        <i class="bi bi-rocket-takeoff me-2"></i>Explore Features
+                    <a href="/installer" class="btn btn-primary btn-lg me-3">
+                        <i class="bi bi-download me-2"></i>Download Windows Installer
                     </a>
-                    <a href="/get-started" class="btn btn-outline-primary btn-lg">
-                        <i class="bi bi-download me-2"></i>Get Started
+                    <a href="/features" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-rocket-takeoff me-2"></i>Explore Features
                     </a>
                 </div>
             </div>
@@ -253,3 +264,136 @@
         </p>
     </div>
 </section>
+
+<!-- Coming Soon Section -->
+<section class="coming-soon py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">🚀 Coming Soon</h2>
+            <p class="lead text-muted">Expanding the MCBDS ecosystem with native applications</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Windows Desktop App -->
+            <div class="col-md-6">
+                <div class="coming-soon-card h-100 p-5 border-2 border-primary rounded">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-window display-4 text-primary mb-3 d-block"></i>
+                        <h3 class="h4 mb-2">Windows Desktop App</h3>
+                        <span class="badge bg-primary">Q1 2025</span>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Native Windows desktop application with system tray integration, real-time notifications, 
+                        and offline support. Manage your server without opening a web browser.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>System Tray Integration</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Desktop Notifications</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Offline Support</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>One-Click Access</li>
+                    </ul>
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-2"></i>Notify me when available
+                        <a href="/contact" class="alert-link">Get Notified</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Android Play Store App -->
+            <div class="col-md-6">
+                <div class="coming-soon-card h-100 p-5 border-2 border-success rounded">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-android2 display-4 text-success mb-3 d-block"></i>
+                        <h3 class="h4 mb-2">Android Play Store</h3>
+                        <span class="badge bg-success">Q2 2025</span>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Full-featured Android app on Google Play Store for managing your Minecraft server on the go. 
+                        Native UI optimized for mobile with push notifications and home screen widgets.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Google Play Store Distribution</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Push Notifications</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Home Screen Widgets</li>
+                        <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Offline Command Queue</li>
+                    </ul>
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle me-2"></i>Pre-register on Google Play
+                        <a href="https://play.google.com" target="_blank" rel="noopener" class="alert-link">Coming Soon</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Coming Soon Features -->
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-12">
+                <h3 class="h5 fw-bold mb-4">Other Planned Features</h3>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-shield-check text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">HTTPS Support</h5>
+                        <small class="text-muted">Full HTTPS and SSL/TLS certificate support</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-cloud-check text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">Cloud Backups</h5>
+                        <small class="text-muted">Automatic backup to AWS S3, Google Cloud Storage, or Azure Blob</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-graph-up text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">Advanced Analytics</h5>
+                        <small class="text-muted">Performance metrics and player statistics tracking</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-people-fill text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">Multi-Server Management</h5>
+                        <small class="text-muted">Manage multiple servers from one dashboard</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-plug text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">Plugin System</h5>
+                        <small class="text-muted">Community plugins and extensions support</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="d-flex">
+                    <i class="bi bi-discord text-info me-3"></i>
+                    <div>
+                        <h5 class="h6">Discord Integration</h5>
+                        <small class="text-muted">Discord bot for server notifications and remote management</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center mt-5 pt-4 border-top">
+            <h3 class="h5 fw-bold mb-3">Want to be notified about new releases?</h3>
+            <a href="/contact" class="btn btn-primary btn-lg">
+                <i class="bi bi-bell me-2"></i>Subscribe to Updates
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack -->

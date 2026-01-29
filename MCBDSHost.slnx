@@ -9,10 +9,12 @@
   <Project Path="MCBDS.ClientUI/MCBDS.ClientUI/MCBDS.ClientUI.csproj">
     <Deploy />
   </Project>
+  <Project Path="MCBDS.Installer/MCBDS.Installer.csproj" />
   <Project Path="MCBDS.Marketing/MCBDS.Marketing.csproj" />
   <Project Path="MCBDS.PublicUI/MCBDS.PublicUI.csproj">
     <Deploy />
   </Project>
+  <Project Path="MCBDS.WindowsService/MCBDS.WindowsService.csproj" />
   <Project Path="MCBDSHost.AppHost/MCBDSHost.AppHost.csproj" />
   <Project Path="MCBDSHost.ServiceDefaults/MCBDSHost.ServiceDefaults.csproj" />
 </Solution>

@@ -1,21 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>b08c2c36-019a-44fe-b7b7-2dbc8e038cea</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-  </PropertyGroup>
+<PropertyGroup>
+  <TargetFramework>net10.0</TargetFramework>
+  <Nullable>enable</Nullable>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <UserSecretsId>b08c2c36-019a-44fe-b7b7-2dbc8e038cea</UserSecretsId>
+  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  <!-- Disable default content items so we can control appsettings.json -->
+  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+  <!-- Allow this executable to be referenced by other executables without validation -->
+  <ShouldBeValidatedAsExecutableReference>false</ShouldBeValidatedAsExecutableReference>
+</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-  </ItemGroup>
+<ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MCBDSHost.ServiceDefaults\MCBDSHost.ServiceDefaults.csproj" />
-  </ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\MCBDSHost.ServiceDefaults\MCBDSHost.ServiceDefaults.csproj" />
+</ItemGroup>
+
+<!-- Explicitly include appsettings.json but don't publish it -->
+<ItemGroup>
+  <Content Include="appsettings.json" CopyToPublishDirectory="Never" />
+</ItemGroup>
 
   <Target Name="CopyBinariesOnBuild" AfterTargets="Build">
     <ItemGroup>
