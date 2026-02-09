@@ -21,15 +21,34 @@
             <i class="bi bi-archive-fill"></i>
             <span>Backup</span>
         </div>
-        <div class="bottom-nav-item @GetActiveClass("/diagnostics")" @onclick="@(() => NavigateTo("/diagnostics"))">
-            <i class="bi bi-bug-fill"></i>
-            <span>Diagnostics</span>
+        <div class="bottom-nav-item @(showServerMenu ? "active" : "")" @onclick="ToggleServerMenu">
+            <i class="bi bi-hdd-network-fill"></i>
+            <span>Servers</span>
         </div>
     </div>
+
+    @if (showServerMenu)
+    {
+        <div class="android-overlay" @onclick="CloseMenus"></div>
+        <div class="android-server-modal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h5>Server Selection</h5>
+                    <button class="close-btn" @onclick="CloseMenus">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ServerSwitcher />
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
     private string currentPath = "/";
+    private bool showServerMenu = false;
 
     protected override void OnInitialized()
     {
@@ -40,12 +59,23 @@
     private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
         currentPath = Navigation.ToBaseRelativePath(e.Location);
+        showServerMenu = false; // Close menu on navigation
         StateHasChanged();
     }
 
     private void NavigateTo(string url)
     {
         Navigation.NavigateTo(url);
+    }
+
+    private void ToggleServerMenu()
+    {
+        showServerMenu = !showServerMenu;
+    }
+
+    private void CloseMenus()
+    {
+        showServerMenu = false;
     }
 
     private string GetActiveClass(string path)

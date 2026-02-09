@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MCBDS.ClientUI.Shared.Models;
 
 /// <summary>
@@ -8,26 +10,31 @@ public class AllowlistUser
     /// <summary>
     /// The player's gamertag (Xbox Live username)
     /// </summary>
+    [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// The player's Xbox User ID (XUID) - unique identifier
     /// </summary>
+    [JsonPropertyName("xuid")]
     public string Xuid { get; set; } = string.Empty;
 
     /// <summary>
     /// Whether this user can join even when the server is at max capacity
     /// </summary>
+    [JsonPropertyName("ignoresPlayerLimit")]
     public bool IgnoresPlayerLimit { get; set; } = false;
 
     /// <summary>
     /// Optional notes about this user (not part of allowlist.json, for UI only)
     /// </summary>
+    [JsonIgnore]
     public string? Notes { get; set; }
 
     /// <summary>
     /// When this user was added (not part of allowlist.json, for UI only)
     /// </summary>
+    [JsonIgnore]
     public DateTime AddedDate { get; set; } = DateTime.UtcNow;
 }
 
@@ -71,6 +78,11 @@ public class ApiCapabilities
     /// Whether the server API supports Xbox Live lookups
     /// </summary>
     public bool SupportsXboxLookup { get; set; } = false;
+
+    /// <summary>
+    /// Whether the server API supports pack management (v1.1+)
+    /// </summary>
+    public bool SupportsPackManagement { get; set; } = false;
 
     /// <summary>
     /// List of available features

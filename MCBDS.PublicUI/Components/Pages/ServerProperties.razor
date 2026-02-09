@@ -38,14 +38,37 @@
     {
         <div class="alert alert-warning" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>Allowlist Management Unavailable</strong><br/>
+            <strong>Updated Unavailable</strong><br/>
             This feature requires API version 1.1 or higher. Current version: <strong>@apiCapabilities.Version</strong><br/>
-            <small>Please update your MCBDS API server to access allowlist management.</small>
+            <small>Please update your MCBDS API server to access additional features.</small>
         </div>
     }
 }
 
+<!-- Pack Management Section -->
+@if (apiCapabilities != null && apiCapabilities.SupportsPackManagement)
+{
+    <div class="card mb-4 border-success">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-1">
+                        <i class="bi bi-box-seam me-2 text-success"></i>Resource & Behavior Packs
+                    </h5>
+                    <p class="card-text text-muted mb-0">
+                        Upload and manage world packs
+                    </p>
+                </div>
+                <button class="btn btn-success" @onclick="OpenPacksModal">
+                    <i class="bi bi-box-seam me-1"></i>Manage Packs
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 <AllowlistModal @bind-Show="showAllowlistModal" />
+<PacksModal @bind-Show="showPacksModal" />
 
 @if (isLoading)
 {
@@ -226,6 +249,9 @@ private HashSet<string> expandedCategories = new() { "Server", "Gameplay", "Worl
 private ApiCapabilities? apiCapabilities;
 private bool showAllowlistModal = false;
 
+// Pack management
+private bool showPacksModal = false;
+
 protected override async Task OnInitializedAsync()
 {
     // Check API capabilities for feature detection
@@ -237,6 +263,11 @@ protected override async Task OnInitializedAsync()
 private void OpenAllowlistModal()
 {
     showAllowlistModal = true;
+}
+
+private void OpenPacksModal()
+{
+    showPacksModal = true;
 }
 
     private async Task LoadProperties()

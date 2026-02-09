@@ -27,12 +27,14 @@ public class VersionController : ControllerBase
             SupportsAllowlist = true,
             SupportsServerProperties = true,
             SupportsXboxLookup = false, // We use fallback method
+            SupportsPackManagement = true, // API v1.1 feature
             SupportedFeatures = new List<string>
             {
                 "allowlist-management",
                 "server-properties-toggle",
                 "backup-management",
-                "command-execution"
+                "command-execution",
+                "pack-management"
             }
         };
 

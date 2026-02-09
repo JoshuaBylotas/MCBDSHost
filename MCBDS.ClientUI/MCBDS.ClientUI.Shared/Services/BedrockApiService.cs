@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using MCBDS.ClientUI.Shared.Models;
 
 namespace MCBDS.ClientUI.Shared.Services;
 
@@ -514,6 +515,263 @@ public class BedrockApiService
             return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "toggle allowlist"), GetErrorType(ex));
         }
     }
+
+    // ===========================
+    // Pack Management (API v1.1+)
+    // ===========================
+
+    /// <summary>
+    /// Upload and install a pack (.zip or .mcpack file)
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<Models.PackInfo>> UploadPackAsync(Stream fileStream, string fileName, Models.PackType type)
+    {
+        try
+        {
+            // Check API version first
+            var capabilities = await GetCapabilitiesAsync();
+            if (!capabilities.SupportsPackManagement)
+            {
+                return ApiResult<Models.PackInfo>.Fail(
+                    "Pack management is not supported by this server version. Please upgrade to API v1.1+", 
+                    ApiErrorType.NotFound);
+            }
+
+            var url = BuildUrl("/api/packs/upload");
+            
+            using var content = new MultipartFormDataContent();
+            using var streamContent = new StreamContent(fileStream);
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            content.Add(streamContent, "file", fileName);
+            content.Add(new StringContent(type.ToString()), "type");
+
+            var response = await _httpClient.PostAsync(url, content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<Models.PackInfo>();
+                return result != null 
+                    ? ApiResult<Models.PackInfo>.Ok(result) 
+                    : ApiResult<Models.PackInfo>.Fail("No data returned from server", ApiErrorType.ServerError);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<Models.PackInfo>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<Models.PackInfo>.Fail("Pack management not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<Models.PackInfo>.Fail(GetFriendlyErrorMessage(ex, "upload pack"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Get all installed packs
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<Models.PacksResponse>> GetPacksAsync()
+    {
+        try
+        {
+            // Check API version first
+            var capabilities = await GetCapabilitiesAsync();
+            if (!capabilities.SupportsPackManagement)
+            {
+                return ApiResult<Models.PacksResponse>.Fail(
+                    "Pack management is not supported by this server version. Please upgrade to API v1.1+", 
+                    ApiErrorType.NotFound);
+            }
+
+            var url = BuildUrl("/api/packs");
+            var result = await _httpClient.GetFromJsonAsync<Models.PacksResponse>(url);
+            return result != null 
+                ? ApiResult<Models.PacksResponse>.Ok(result) 
+                : ApiResult<Models.PacksResponse>.Fail("No data returned from server", ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<Models.PacksResponse>.Fail("Pack management not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<Models.PacksResponse>.Fail(GetFriendlyErrorMessage(ex, "get packs"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Delete a pack
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<string>> DeletePackAsync(string packUuid, Models.PackType type)
+    {
+        try
+        {
+            var capabilities = await GetCapabilitiesAsync();
+            if (!capabilities.SupportsPackManagement)
+            {
+                return ApiResult<string>.Fail(
+                    "Pack management is not supported by this server version. Please upgrade to API v1.1+", 
+                    ApiErrorType.NotFound);
+            }
+
+            var url = BuildUrl($"/api/packs/{packUuid}?type={type}");
+            var response = await _httpClient.DeleteAsync(url);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Pack management not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "delete pack"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Enable a pack in the world
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<string>> EnablePackAsync(string packUuid, Models.PackType type)
+    {
+        try
+        {
+            var capabilities = await GetCapabilitiesAsync();
+            if (!capabilities.SupportsPackManagement)
+            {
+                return ApiResult<string>.Fail(
+                    "Pack management is not supported by this server version. Please upgrade to API v1.1+", 
+                    ApiErrorType.NotFound);
+            }
+
+            var url = BuildUrl($"/api/packs/{packUuid}/enable?type={type}");
+            var response = await _httpClient.PostAsync(url, null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Pack management not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "enable pack"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Disable a pack in the world
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<string>> DisablePackAsync(string packUuid, Models.PackType type)
+    {
+        try
+        {
+            var capabilities = await GetCapabilitiesAsync();
+            if (!capabilities.SupportsPackManagement)
+            {
+                return ApiResult<string>.Fail(
+                    "Pack management is not supported by this server version. Please upgrade to API v1.1+", 
+                    ApiErrorType.NotFound);
+            }
+
+            var url = BuildUrl($"/api/packs/{packUuid}/disable?type={type}");
+            var response = await _httpClient.PostAsync(url, null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Pack management not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "disable pack"), GetErrorType(ex));
+        }
+    }
+
+    // ===========================
+    // Xbox Live Lookup (API v1.1+)
+    // ===========================
+
+    /// <summary>
+    /// Lookup Xbox Live XUID by gamertag via backend API
+    /// Requires API v1.1+
+    /// </summary>
+    public async Task<ApiResult<XboxLiveProfile>> LookupXboxGamertagAsync(string gamertag)
+    {
+        try
+        {
+            var url = BuildUrl($"/api/xboxlive/lookup/{Uri.EscapeDataString(gamertag)}");
+            var response = await _httpClient.GetAsync(url);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<XboxLiveLookupResponse>();
+                if (result != null)
+                {
+                    return ApiResult<XboxLiveProfile>.Ok(new XboxLiveProfile
+                    {
+                        Gamertag = result.Gamertag ?? gamertag,
+                        Xuid = result.Xuid ?? string.Empty,
+                        IsValid = result.IsValid,
+                        ErrorMessage = null
+                    });
+                }
+            }
+
+            // Check for specific error responses
+            var errorContent = await response.Content.ReadAsStringAsync();
+            return ApiResult<XboxLiveProfile>.Fail(
+                errorContent.Contains("not configured") 
+                    ? "Xbox Live API not configured on server. Please enter XUID manually." 
+                    : "Gamertag not found. Please enter XUID manually.",
+                ApiErrorType.NotFound);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<XboxLiveProfile>.Fail("Gamertag not found on Xbox Live", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<XboxLiveProfile>.Fail(GetFriendlyErrorMessage(ex, "lookup Xbox gamertag"), GetErrorType(ex));
+        }
+    }
+}
+
+/// <summary>
+/// Response from Xbox Live lookup API
+/// </summary>
+public class XboxLiveLookupResponse
+{
+    public string? Gamertag { get; set; }
+    public string? Xuid { get; set; }
+    public bool IsValid { get; set; }
 }
 
 public class BackupConfigResponse

@@ -1,0 +1,497 @@
+@using MCBDS.ClientUI.Shared.Models
+@using MCBDS.ClientUI.Shared.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject BedrockApiService ApiService
+
+@if (Show)
+{
+    <div class="modal-backdrop" @onclick="Cancel"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam me-2"></i>Manage Packs
+                </h5>
+                <button type="button" class="btn-close" @onclick="Cancel"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        @errorMessage
+                        <button type="button" class="btn-close" @onclick="@(() => errorMessage = null)"></button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>
+                        @successMessage
+                        <button type="button" class="btn-close" @onclick="@(() => successMessage = null)"></button>
+                    </div>
+                }
+
+                <!-- Upload Pack Section -->
+                <div class="upload-section card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <i class="bi bi-upload me-2"></i>Upload Pack
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Pack Type</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="packType" id="resourceRadio" 
+                                       checked="@(uploadPackType == PackType.ResourcePack)"
+                                       @onchange="@(() => uploadPackType = PackType.ResourcePack)"
+                                       disabled="@isProcessing" />
+                                <label class="btn btn-outline-primary" for="resourceRadio">
+                                    <i class="bi bi-palette me-1"></i>Resource Pack
+                                </label>
+
+                                <input type="radio" class="btn-check" name="packType" id="behaviorRadio" 
+                                       checked="@(uploadPackType == PackType.BehaviorPack)"
+                                       @onchange="@(() => uploadPackType = PackType.BehaviorPack)"
+                                       disabled="@isProcessing" />
+                                <label class="btn btn-outline-primary" for="behaviorRadio">
+                                    <i class="bi bi-gear me-1"></i>Behavior Pack
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fileInput" class="form-label">Select File</label>
+                            <InputFile id="fileInput" 
+                                      OnChange="OnFileSelected" 
+                                      class="form-control" 
+                                      accept=".zip,.mcpack"
+                                      disabled="@isProcessing" />
+                            <small class="text-muted">Supports .zip and .mcpack files (max 100MB)</small>
+                        </div>
+
+                        @if (selectedFile != null)
+                        {
+                            <div class="selected-file alert alert-info mb-3">
+                                <i class="bi bi-file-earmark-zip me-2"></i>
+                                <strong>@selectedFile.Name</strong>
+                                <span class="text-muted ms-2">(@FormatFileSize(selectedFile.Size))</span>
+                            </div>
+                        }
+
+                        <button class="btn btn-primary w-100" 
+                                @onclick="UploadPack" 
+                                disabled="@(isProcessing || selectedFile == null)">
+                            @if (isUploading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                <text>Uploading...</text>
+                            }
+                            else
+                            {
+                                <i class="bi bi-upload me-1"></i>
+                                <text>Upload Pack</text>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resource Packs List -->
+                <div class="packs-section mb-4">
+                    <h6 class="mb-3">
+                        <i class="bi bi-palette me-2"></i>Resource Packs (@resourcePacks.Count)
+                    </h6>
+
+                    @if (resourcePacks.Any())
+                    {
+                        <div class="packs-list">
+                            @foreach (var pack in resourcePacks)
+                            {
+                                <div class="pack-item card mb-2">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="pack-name">
+                                                    <i class="bi bi-box-seam me-2 text-primary"></i>
+                                                    <strong>@pack.Name</strong>
+                                                    @if (pack.IsEnabled)
+                                                    {
+                                                        <span class="badge bg-success ms-2">Enabled</span>
+                                                    }
+                                                </div>
+                                                <div class="pack-description text-muted small">
+                                                    @pack.Description
+                                                </div>
+                                                <div class="pack-meta text-muted small mt-1">
+                                                    Version: @pack.Version | UUID: @pack.Uuid.Substring(0, 8)...
+                                                </div>
+                                            </div>
+                                            <div class="pack-actions">
+                                                @if (pack.IsEnabled)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-warning me-1" 
+                                                            @onclick="@(() => DisablePack(pack))"
+                                                            disabled="@isProcessing"
+                                                            title="Disable pack">
+                                                        <i class="bi bi-toggle-on"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success me-1" 
+                                                            @onclick="@(() => EnablePack(pack))"
+                                                            disabled="@isProcessing"
+                                                            title="Enable pack">
+                                                        <i class="bi bi-toggle-off"></i>
+                                                    </button>
+                                                }
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        @onclick="@(() => DeletePack(pack))"
+                                                        disabled="@isProcessing"
+                                                        title="Delete pack">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-inbox"></i>
+                            <p class="mb-0 small">No resource packs installed</p>
+                        </div>
+                    }
+                </div>
+
+                <!-- Behavior Packs List -->
+                <div class="packs-section">
+                    <h6 class="mb-3">
+                        <i class="bi bi-gear me-2"></i>Behavior Packs (@behaviorPacks.Count)
+                    </h6>
+
+                    @if (behaviorPacks.Any())
+                    {
+                        <div class="packs-list">
+                            @foreach (var pack in behaviorPacks)
+                            {
+                                <div class="pack-item card mb-2">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="pack-name">
+                                                    <i class="bi bi-box-seam me-2 text-success"></i>
+                                                    <strong>@pack.Name</strong>
+                                                    @if (pack.IsEnabled)
+                                                    {
+                                                        <span class="badge bg-success ms-2">Enabled</span>
+                                                    }
+                                                </div>
+                                                <div class="pack-description text-muted small">
+                                                    @pack.Description
+                                                </div>
+                                                <div class="pack-meta text-muted small mt-1">
+                                                    Version: @pack.Version | UUID: @pack.Uuid.Substring(0, 8)...
+                                                </div>
+                                            </div>
+                                            <div class="pack-actions">
+                                                @if (pack.IsEnabled)
+                                                {
+                                                    <button class="btn btn-sm btn-outline-warning me-1" 
+                                                            @onclick="@(() => DisablePack(pack))"
+                                                            disabled="@isProcessing"
+                                                            title="Disable pack">
+                                                        <i class="bi bi-toggle-on"></i>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-success me-1" 
+                                                            @onclick="@(() => EnablePack(pack))"
+                                                            disabled="@isProcessing"
+                                                            title="Enable pack">
+                                                        <i class="bi bi-toggle-off"></i>
+                                                    </button>
+                                                }
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        @onclick="@(() => DeletePack(pack))"
+                                                        disabled="@isProcessing"
+                                                        title="Delete pack">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-inbox"></i>
+                            <p class="mb-0 small">No behavior packs installed</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@isProcessing">
+                    <i class="bi bi-x-circle me-1"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    private List<PackInfo> resourcePacks = new();
+    private List<PackInfo> behaviorPacks = new();
+    private PackType uploadPackType = PackType.ResourcePack;
+    private IBrowserFile? selectedFile;
+    private bool isProcessing = false;
+    private bool isUploading = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Show)
+        {
+            await LoadPacksAsync();
+        }
+    }
+
+    private async Task LoadPacksAsync()
+    {
+        try
+        {
+            errorMessage = null;
+            var result = await ApiService.GetPacksAsync();
+
+            if (result.Success && result.Data != null)
+            {
+                resourcePacks = result.Data.ResourcePacks;
+                behaviorPacks = result.Data.BehaviorPacks;
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to load packs";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading packs: {ex.Message}";
+        }
+    }
+
+    private void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        errorMessage = null;
+        successMessage = null;
+    }
+
+    private async Task UploadPack()
+    {
+        if (selectedFile == null)
+            return;
+
+        isUploading = true;
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            // Validate file size (100MB max)
+            const long maxFileSize = 100 * 1024 * 1024;
+            if (selectedFile.Size > maxFileSize)
+            {
+                errorMessage = "File is too large. Maximum size is 100MB.";
+                return;
+            }
+
+            // Validate file extension
+            var ext = Path.GetExtension(selectedFile.Name).ToLowerInvariant();
+            if (ext != ".zip" && ext != ".mcpack")
+            {
+                errorMessage = "Invalid file type. Only .zip and .mcpack files are supported.";
+                return;
+            }
+
+            // Upload the pack
+            using var stream = selectedFile.OpenReadStream(maxFileSize);
+            var result = await ApiService.UploadPackAsync(stream, selectedFile.Name, uploadPackType);
+
+            if (result.Success && result.Data != null)
+            {
+                successMessage = $"Pack '{result.Data.Name}' uploaded successfully!";
+                selectedFile = null;
+                
+                // Reload packs list
+                await LoadPacksAsync();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to upload pack";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error uploading pack: {ex.Message}";
+        }
+        finally
+        {
+            isUploading = false;
+            isProcessing = false;
+        }
+    }
+
+    private async Task EnablePack(PackInfo pack)
+    {
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await ApiService.EnablePackAsync(pack.Uuid, pack.Type);
+
+            if (result.Success)
+            {
+                successMessage = $"Enabled '{pack.Name}'";
+                await LoadPacksAsync();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to enable pack";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error enabling pack: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private async Task DisablePack(PackInfo pack)
+    {
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await ApiService.DisablePackAsync(pack.Uuid, pack.Type);
+
+            if (result.Success)
+            {
+                successMessage = $"Disabled '{pack.Name}'";
+                await LoadPacksAsync();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to disable pack";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error disabling pack: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private async Task DeletePack(PackInfo pack)
+    {
+        // Simple confirmation via boolean flag
+        if (!await ConfirmDelete(pack.Name))
+            return;
+
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await ApiService.DeletePackAsync(pack.Uuid, pack.Type);
+
+            if (result.Success)
+            {
+                successMessage = $"Deleted '{pack.Name}'";
+                await LoadPacksAsync();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to delete pack";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting pack: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private Task<bool> ConfirmDelete(string packName)
+    {
+        // Simple confirmation - in production you might want a proper modal
+        return Task.FromResult(true); // TODO: Add proper confirmation dialog
+    }
+
+    private async Task Cancel()
+    {
+        if (!isProcessing)
+        {
+            await CloseModal();
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        Show = false;
+        await ShowChanged.InvokeAsync(false);
+        
+        // Reset state
+        selectedFile = null;
+        uploadPackType = PackType.ResourcePack;
+        errorMessage = null;
+        successMessage = null;
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}

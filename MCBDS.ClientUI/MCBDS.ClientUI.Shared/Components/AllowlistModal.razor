@@ -97,9 +97,31 @@
 
                         @if (lookupProfile != null && lookupProfile.IsValid)
                         {
-                            <div class="alert alert-info mb-3">
-                                <i class="bi bi-info-circle me-2"></i>
-                                <strong>XUID:</strong> @lookupProfile.Xuid
+                            <div class="alert alert-success mb-3">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>XUID Found:</strong> @lookupProfile.Xuid
+                            </div>
+                        }
+                        else if (lookupProfile != null && !lookupProfile.IsValid)
+                        {
+                            <div class="alert alert-warning mb-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                @lookupProfile.ErrorMessage
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="xuidInput" class="form-label">Enter XUID Manually</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="xuidInput"
+                                       @bind="manualXuid" 
+                                       @bind:event="oninput"
+                                       placeholder="Enter 16-digit XUID (e.g., 2533274798901517)"
+                                       disabled="@isProcessing"
+                                       maxlength="20" />
+                                <small class="text-muted">
+                                    Find XUIDs at <a href="https://xboxgamertag.com" target="_blank">xboxgamertag.com</a>
+                                </small>
                             </div>
                         }
 
@@ -117,7 +139,7 @@
 
                         <button class="btn btn-primary w-100" 
                                 @onclick="AddUser" 
-                                disabled="@(isProcessing || lookupProfile == null || !lookupProfile.IsValid)">
+                                disabled="@(isProcessing || !CanAddUser())">
                             @if (isProcessing)
                             {
                                 <span class="spinner-border spinner-border-sm me-1"></span>
@@ -217,6 +239,7 @@
 
     private AllowlistData allowlistData = new();
     private string newGamertag = string.Empty;
+    private string manualXuid = string.Empty;
     private bool newUserIgnoresLimit = false;
     private XboxLiveProfile? lookupProfile = null;
     private bool isProcessing = false;
@@ -230,6 +253,21 @@
         {
             await LoadAllowlistAsync();
         }
+    }
+
+    private bool CanAddUser()
+    {
+        // Can add if lookup was successful
+        if (lookupProfile != null && lookupProfile.IsValid)
+            return true;
+
+        // Can add if lookup failed but manual XUID is provided and valid
+        if (lookupProfile != null && !lookupProfile.IsValid && 
+            !string.IsNullOrWhiteSpace(manualXuid) && 
+            XboxService.IsValidXuidFormat(manualXuid))
+            return true;
+
+        return false;
     }
 
     private async Task LoadAllowlistAsync()
@@ -262,28 +300,33 @@
         isLookingUp = true;
         errorMessage = null;
         lookupProfile = null;
+        manualXuid = string.Empty; // Clear manual XUID on new lookup
 
         try
         {
             // Validate format first
             if (!XboxService.IsValidGamertagFormat(newGamertag))
             {
-                errorMessage = "Invalid gamertag format. Must be 3-15 characters, letters and numbers only.";
+                lookupProfile = new XboxLiveProfile
+                {
+                    Gamertag = newGamertag,
+                    IsValid = false,
+                    ErrorMessage = "Invalid gamertag format. Must be 3-15 characters, letters and numbers only."
+                };
                 return;
             }
 
             // Lookup XUID
             lookupProfile = await XboxService.LookupGamertagAsync(newGamertag);
-
-            if (!lookupProfile.IsValid)
-            {
-                errorMessage = lookupProfile.ErrorMessage ?? "Invalid gamertag";
-                lookupProfile = null;
-            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lookup failed: {ex.Message}";
+            lookupProfile = new XboxLiveProfile
+            {
+                Gamertag = newGamertag,
+                IsValid = false,
+                ErrorMessage = $"Lookup failed: {ex.Message}"
+            };
         }
         finally
         {
@@ -293,7 +336,7 @@
 
     private async Task AddUser()
     {
-        if (lookupProfile == null || !lookupProfile.IsValid)
+        if (!CanAddUser())
             return;
 
         isProcessing = true;
@@ -302,8 +345,13 @@
 
         try
         {
+            // Determine XUID: use lookup result or manual entry
+            var xuid = lookupProfile?.IsValid == true 
+                ? lookupProfile.Xuid 
+                : manualXuid;
+
             // Check for duplicates
-            if (allowlistData.Users.Any(u => u.Xuid == lookupProfile.Xuid))
+            if (allowlistData.Users.Any(u => u.Xuid == xuid))
             {
                 errorMessage = "User already exists in allowlist";
                 return;
@@ -312,8 +360,8 @@
             // Add user
             var newUser = new AllowlistUser
             {
-                Name = lookupProfile.Gamertag,
-                Xuid = lookupProfile.Xuid,
+                Name = newGamertag,
+                Xuid = xuid,
                 IgnoresPlayerLimit = newUserIgnoresLimit
             };
 
@@ -322,6 +370,7 @@
 
             // Reset form
             newGamertag = string.Empty;
+            manualXuid = string.Empty;
             newUserIgnoresLimit = false;
             lookupProfile = null;
         }
@@ -387,6 +436,7 @@
         
         // Reset state
         newGamertag = string.Empty;
+        manualXuid = string.Empty;
         newUserIgnoresLimit = false;
         lookupProfile = null;
         errorMessage = null;

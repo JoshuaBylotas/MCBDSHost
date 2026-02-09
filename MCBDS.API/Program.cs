@@ -14,6 +14,9 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Register HttpClientFactory for external API calls (Xbox Live, etc.)
+builder.Services.AddHttpClient();
+
 // Configure CORS to allow web clients to connect
 builder.Services.AddCors(options =>
 {
@@ -43,6 +46,9 @@ builder.Services.AddCors(options =>
 
 // Configure backup settings with change tracking
 builder.Services.Configure<BackupConfiguration>(builder.Configuration.GetSection("Backup"));
+
+// Register services
+builder.Services.AddScoped<MCBDS.API.Services.PackManagementService>();
 
 // Register RunnerHostedService as singleton
 builder.Services.AddSingleton<MCBDS.API.Background.RunnerHostedService>();

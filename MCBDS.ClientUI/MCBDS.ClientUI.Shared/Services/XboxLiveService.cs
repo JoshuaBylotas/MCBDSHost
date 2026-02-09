@@ -1,33 +1,76 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using MCBDS.ClientUI.Shared.Models;
 
 namespace MCBDS.ClientUI.Shared.Services;
 
 /// <summary>
-/// Service for Xbox Live API interactions (gamertag lookups)
+/// Service for Xbox Live XUID lookups via backend API
 /// </summary>
 public class XboxLiveService
 {
-    private readonly HttpClient _httpClient;
-    private const string XboxApiBaseUrl = "https://xbl.io/api/v2";
+    private readonly BedrockApiService _apiService;
+    private readonly bool _enableCaching;
+    private readonly TimeSpan _cacheExpiration;
 
-    public XboxLiveService(HttpClient httpClient)
+    // In-memory cache for XUID lookups
+    private readonly Dictionary<string, CachedXuidLookup> _cache = new(StringComparer.OrdinalIgnoreCase);
+
+    // Known gamertag -> XUID mappings (instant fallback)
+    private static readonly Dictionary<string, string> KnownXuids = new(StringComparer.OrdinalIgnoreCase)
     {
-        _httpClient = httpClient;
+        { "jibylotas", "2533274798901517" }
+        // Add more known mappings as instant fallback
+    };
+
+    public XboxLiveService(BedrockApiService apiService)
+    {
+        _apiService = apiService;
+        _enableCaching = true;
+        _cacheExpiration = TimeSpan.FromHours(24);
     }
 
     /// <summary>
-    /// Lookup a user's XUID by their gamertag
-    /// Note: This requires an API key from xbl.io or similar service
-    /// For now, we'll use a fallback method that generates a pseudo-XUID
+    /// Lookup a user's XUID by their gamertag via backend API
     /// </summary>
     public async Task<XboxLiveProfile> LookupGamertagAsync(string gamertag)
     {
         try
         {
-            // TODO: Implement actual Xbox Live API lookup when API key is available
-            // For now, use fallback method
-            return await FallbackLookupAsync(gamertag);
+            // Check cache first
+            if (_enableCaching && _cache.TryGetValue(gamertag, out var cached))
+            {
+                if (DateTime.UtcNow - cached.Timestamp < _cacheExpiration)
+                {
+                    return cached.Profile;
+                }
+                _cache.Remove(gamertag);
+            }
+
+            // Check known mappings (instant response)
+            if (KnownXuids.TryGetValue(gamertag, out var knownXuid))
+            {
+                var profile = new XboxLiveProfile
+                {
+                    Gamertag = gamertag,
+                    Xuid = knownXuid,
+                    IsValid = true,
+                    ErrorMessage = null
+                };
+                CacheProfile(gamertag, profile);
+                return profile;
+            }
+
+            // Call backend API for Xbox Live lookup
+            var result = await LookupFromBackendApiAsync(gamertag);
+            
+            // Cache successful lookups
+            if (result.IsValid && _enableCaching)
+            {
+                CacheProfile(gamertag, result);
+            }
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -41,44 +84,54 @@ public class XboxLiveService
     }
 
     /// <summary>
-    /// Fallback method: Generate a deterministic XUID-like identifier
-    /// This is NOT a real XUID, but allows the feature to work without Xbox API access
+    /// Call backend API to lookup gamertag (keeps API key secure server-side)
     /// </summary>
-    private Task<XboxLiveProfile> FallbackLookupAsync(string gamertag)
+    private async Task<XboxLiveProfile> LookupFromBackendApiAsync(string gamertag)
     {
-        // Validate gamertag format
-        if (string.IsNullOrWhiteSpace(gamertag))
+        try
         {
-            return Task.FromResult(new XboxLiveProfile
+            var result = await _apiService.LookupXboxGamertagAsync(gamertag);
+            
+            if (result.Success && result.Data != null)
+            {
+                return result.Data;
+            }
+
+            // API returned error - show manual entry
+            return new XboxLiveProfile
+            {
+                Gamertag = gamertag,
+                Xuid = string.Empty,
+                IsValid = false,
+                ErrorMessage = result.ErrorMessage ?? "XUID lookup failed. Please enter manually."
+            };
+        }
+        catch (Exception ex)
+        {
+            return new XboxLiveProfile
             {
                 Gamertag = gamertag,
                 IsValid = false,
-                ErrorMessage = "Gamertag cannot be empty"
-            });
+                ErrorMessage = $"Network error: {ex.Message}"
+            };
         }
+    }
 
-        if (gamertag.Length < 3 || gamertag.Length > 15)
+    private void CacheProfile(string gamertag, XboxLiveProfile profile)
+    {
+        _cache[gamertag] = new CachedXuidLookup
         {
-            return Task.FromResult(new XboxLiveProfile
-            {
-                Gamertag = gamertag,
-                IsValid = false,
-                ErrorMessage = "Gamertag must be 3-15 characters"
-            });
-        }
+            Profile = profile,
+            Timestamp = DateTime.UtcNow
+        };
+    }
 
-        // Generate a deterministic "XUID" based on gamertag
-        // This ensures the same gamertag always gets the same ID
-        var hash = gamertag.ToLower().GetHashCode();
-        var pseudoXuid = Math.Abs((long)hash * 2535405130520144L % 9999999999999999L).ToString();
-
-        return Task.FromResult(new XboxLiveProfile
-        {
-            Gamertag = gamertag,
-            Xuid = pseudoXuid,
-            IsValid = true,
-            ErrorMessage = null
-        });
+    /// <summary>
+    /// Clear the XUID cache
+    /// </summary>
+    public void ClearCache()
+    {
+        _cache.Clear();
     }
 
     /// <summary>
@@ -117,4 +170,37 @@ public class XboxLiveService
         // XUIDs are typically 16 digit numbers
         return xuid.Length >= 15 && xuid.All(char.IsDigit);
     }
+}
+
+/// <summary>
+/// Cached XUID lookup result
+/// </summary>
+internal class CachedXuidLookup
+{
+    public XboxLiveProfile Profile { get; set; } = new();
+    public DateTime Timestamp { get; set; }
+}
+
+/// <summary>
+/// OpenXBL API response structure
+/// </summary>
+internal class OpenXblResponse
+{
+    [JsonPropertyName("people")]
+    public List<OpenXblPerson>? People { get; set; }
+}
+
+/// <summary>
+/// Person object from OpenXBL API
+/// </summary>
+internal class OpenXblPerson
+{
+    [JsonPropertyName("gamertag")]
+    public string? Gamertag { get; set; }
+
+    [JsonPropertyName("xuid")]
+    public string? Xuid { get; set; }
+
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
 }

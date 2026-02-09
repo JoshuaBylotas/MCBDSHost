@@ -124,9 +124,9 @@ public static class MauiProgram
         {
             try
             {
-                var httpClient = sp.GetRequiredService<HttpClient>();
+                var apiService = sp.GetRequiredService<BedrockApiService>();
                 CrashLogger.LogInfo("Creating XboxLiveService");
-                return new XboxLiveService(httpClient);
+                return new XboxLiveService(apiService);
             }
             catch (Exception ex)
             {
