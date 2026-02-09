@@ -338,6 +338,182 @@ public class BedrockApiService
             return ApiResult<bool>.Fail(GetFriendlyErrorMessage(ex, "connect to server"), GetErrorType(ex));
         }
     }
+
+    // ===========================
+    // API Capabilities (Backward Compatibility)
+    // ===========================
+
+    /// <summary>
+    /// Get API capabilities for feature detection (backward compatibility)
+    /// </summary>
+    public async Task<Models.ApiCapabilities> GetCapabilitiesAsync()
+    {
+        try
+        {
+            var url = BuildUrl("/api/version");
+            var result = await _httpClient.GetFromJsonAsync<Models.ApiCapabilities>(url);
+            return result ?? new Models.ApiCapabilities 
+            { 
+                Version = "1.0", 
+                SupportsAllowlist = false,
+                SupportsServerProperties = false
+            };
+        }
+        catch
+        {
+            // Fallback for older servers that don't have /api/version endpoint
+            return new Models.ApiCapabilities 
+            { 
+                Version = "1.0", 
+                SupportsAllowlist = false,
+                SupportsServerProperties = false,
+                SupportedFeatures = new List<string>()
+            };
+        }
+    }
+
+    // ===========================
+    // Allowlist Management
+    // ===========================
+
+    /// <summary>
+    /// Get the current allowlist from the server
+    /// </summary>
+    public async Task<ApiResult<Models.AllowlistData>> GetAllowlistAsync()
+    {
+        try
+        {
+            var url = BuildUrl("/api/allowlist");
+            var result = await _httpClient.GetFromJsonAsync<Models.AllowlistData>(url);
+            return result != null 
+                ? ApiResult<Models.AllowlistData>.Ok(result) 
+                : ApiResult<Models.AllowlistData>.Fail("No data returned from server", ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<Models.AllowlistData>.Fail("Allowlist feature not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<Models.AllowlistData>.Fail(GetFriendlyErrorMessage(ex, "get allowlist"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Update the entire allowlist on the server
+    /// </summary>
+    public async Task<ApiResult<string>> UpdateAllowlistAsync(Models.AllowlistData allowlistData)
+    {
+        try
+        {
+            var url = BuildUrl("/api/allowlist");
+            var response = await _httpClient.PostAsJsonAsync(url, allowlistData);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Allowlist feature not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "update allowlist"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Add a single user to the allowlist
+    /// </summary>
+    public async Task<ApiResult<string>> AddAllowlistUserAsync(Models.AddAllowlistUserRequest request)
+    {
+        try
+        {
+            var url = BuildUrl("/api/allowlist/user");
+            var response = await _httpClient.PostAsJsonAsync(url, request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Allowlist feature not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "add user to allowlist"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Remove a user from the allowlist by XUID
+    /// </summary>
+    public async Task<ApiResult<string>> RemoveAllowlistUserAsync(string xuid)
+    {
+        try
+        {
+            var url = BuildUrl($"/api/allowlist/user/{xuid}");
+            var response = await _httpClient.DeleteAsync(url);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Allowlist feature not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "remove user from allowlist"), GetErrorType(ex));
+        }
+    }
+
+    /// <summary>
+    /// Toggle the allowlist feature in server.properties
+    /// </summary>
+    public async Task<ApiResult<string>> ToggleAllowlistAsync(bool enabled)
+    {
+        try
+        {
+            var url = BuildUrl("/api/allowlist/toggle");
+            var response = await _httpClient.PostAsJsonAsync(url, new { enabled });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return ApiResult<string>.Ok(result);
+            }
+
+            var error = await response.Content.ReadAsStringAsync();
+            return ApiResult<string>.Fail(error, ApiErrorType.ServerError);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return ApiResult<string>.Fail("Allowlist toggle not supported by this server version", ApiErrorType.NotFound);
+        }
+        catch (Exception ex)
+        {
+            return ApiResult<string>.Fail(GetFriendlyErrorMessage(ex, "toggle allowlist"), GetErrorType(ex));
+        }
+    }
 }
 
 public class BackupConfigResponse

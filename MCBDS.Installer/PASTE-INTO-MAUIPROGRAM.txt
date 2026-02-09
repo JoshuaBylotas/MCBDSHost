@@ -1,0 +1,36 @@
+// ============================================================
+// COPY THIS ENTIRE BLOCK AND PASTE IT IN MauiProgram.cs
+// Replace lines 104-107 with this code
+// ============================================================
+
+			});
+			
+			// Register CommandHistoryService with MAUI AppDataDirectory
+			builder.Services.AddSingleton<CommandHistoryService>(sp => 
+			{
+				try
+				{
+					var appDataDir = FileSystem.Current.AppDataDirectory;
+					CrashLogger.LogInfo($"Creating CommandHistoryService with directory: {appDataDir}");
+					return new CommandHistoryService(appDataDir);
+				}
+				catch (Exception ex)
+				{
+					CrashLogger.LogError("Failed to create CommandHistoryService", ex);
+					throw;
+				}
+			});
+			
+			// Register platform service
+			builder.Services.AddSingleton<IFormFactor, MauiFormFactorService>();
+			builder.Services.AddSingleton<MauiFormFactorService>();
+
+// ============================================================
+// INSTRUCTIONS:
+// 1. In MauiProgram.cs, find line 104: "});"
+// 2. Select from line 104 to line 107 (through "builder.Services.AddSingleton<MauiFormFactorService>();")
+// 3. Delete those lines
+// 4. Paste the code block above (lines between the ===== markers)
+// 5. Save the file
+// 6. Rebuild the solution
+// ============================================================

@@ -325,6 +325,205 @@
     border-left-color: #ffc107;
 }
 
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Command History Styles */
+.command-history-section {
+    margin-bottom: 1.5rem;
+}
+
+.command-history-section .card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.command-history-section .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    border: none;
+}
+
+.command-history-section .card-header h5 {
+    color: white;
+}
+
+.command-history-section .card-header .btn {
+    color: white;
+    border-color: white;
+}
+
+.command-history-section .card-header .btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.history-list {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 0.25rem;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+    background: #adb5bd;
+}
+
+.history-entry {
+    padding: 0.875rem;
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.history-entry:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.history-entry.success {
+    border-left: 4px solid #28a745;
+}
+
+.history-entry.failed {
+    border-left: 4px solid #dc3545;
+}
+
+.history-entry .command-text {
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #0066cc;
+    background-color: #f8f9fa;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    transition: background-color 0.2s ease;
+}
+
+.history-entry .command-text:hover {
+    background-color: #e7f3ff;
+    text-decoration: underline;
+}
+
+.history-entry:last-child {
+    border-bottom: none;
+}
+
+.history-entry .badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+.history-entry small {
+    white-space: nowrap;
+}
+
+/* Stats styling */
+.command-history-section .alert {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.command-history-section .alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.command-history-section .alert-secondary {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+/* Most used commands badges */
+.command-history-section .badge.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 1rem;
+}
+
+.command-history-section .badge.bg-primary .badge {
+    background-color: white !important;
+    color: #667eea;
+    margin-left: 0.35rem;
+}
+
+/* Empty state */
+.history-list .text-center {
+    padding: 3rem 1rem;
+}
+
+.history-list .display-4 {
+    opacity: 0.3;
+}
+
+/* Search input in history */
+.command-history-section input[type="text"] {
+    border: 2px solid #e9ecef;
+    transition: border-color 0.2s ease;
+}
+
+.command-history-section input[type="text"]:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .history-entry {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .history-entry .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+
+    .history-entry small {
+        white-space: normal;
+    }
+
+    .command-history-section .card-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start !important;
+    }
+
+    .command-history-section .card-header > div {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+}
+    border-left-color: #dc3545;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
 .alert-info {
     border-left-color: #17a2b8;
 }

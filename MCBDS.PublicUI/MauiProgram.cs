@@ -101,13 +101,45 @@ public static class MauiProgram
 					CrashLogger.LogError("Failed to create BackupSettingsService", ex);
 					throw;
 				}
-			});
-			
-			// Register platform service
-			builder.Services.AddSingleton<IFormFactor, MauiFormFactorService>();
-			builder.Services.AddSingleton<MauiFormFactorService>();
+        });
 
-			builder.Services.AddMauiBlazorWebView();
+        // Register CommandHistoryService with MAUI AppDataDirectory
+        builder.Services.AddSingleton<CommandHistoryService>(sp =>
+        {
+            try
+            {
+                var appDataDir = FileSystem.Current.AppDataDirectory;
+                CrashLogger.LogInfo($"Creating CommandHistoryService with directory: {appDataDir}");
+                return new CommandHistoryService(appDataDir);
+            }
+            catch (Exception ex)
+            {
+                CrashLogger.LogError("Failed to create CommandHistoryService", ex);
+                throw;
+            }
+        });
+
+        // Register XboxLiveService for allowlist management
+        builder.Services.AddSingleton<XboxLiveService>(sp =>
+        {
+            try
+            {
+                var httpClient = sp.GetRequiredService<HttpClient>();
+                CrashLogger.LogInfo("Creating XboxLiveService");
+                return new XboxLiveService(httpClient);
+            }
+            catch (Exception ex)
+            {
+                CrashLogger.LogError("Failed to create XboxLiveService", ex);
+                throw;
+            }
+        });
+
+        // Register platform service
+        builder.Services.AddSingleton<IFormFactor, MauiFormFactorService>();
+            builder.Services.AddSingleton<MauiFormFactorService>();
+
+            builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
 			builder.Services.AddBlazorWebViewDeveloperTools();

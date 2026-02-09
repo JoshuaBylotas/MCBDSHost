@@ -1,0 +1,395 @@
+@using MCBDS.ClientUI.Shared.Models
+@using MCBDS.ClientUI.Shared.Services
+@inject BedrockApiService ApiService
+@inject XboxLiveService XboxService
+
+@if (Show)
+{
+    <div class="modal-backdrop" @onclick="Cancel"></div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-shield-check me-2"></i>Manage Allowlist
+                </h5>
+                <button type="button" class="btn-close" @onclick="Cancel"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        @errorMessage
+                        <button type="button" class="btn-close" @onclick="@(() => errorMessage = null)"></button>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(successMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>
+                        @successMessage
+                        <button type="button" class="btn-close" @onclick="@(() => successMessage = null)"></button>
+                    </div>
+                }
+
+                <!-- Allowlist Status -->
+                <div class="allowlist-status mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Allowlist Status:</strong>
+                            <span class="badge @(allowlistData.IsEnabled ? "bg-success" : "bg-secondary") ms-2">
+                                @(allowlistData.IsEnabled ? "Enabled" : "Disabled")
+                            </span>
+                        </div>
+                        <div class="text-muted small">
+                            @allowlistData.Users.Count user(s)
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        @if (allowlistData.Users.Count > 0)
+                        {
+                            <text>Allowlist is automatically enabled when users are added.</text>
+                        }
+                        else
+                        {
+                            <text>Add users to enable the allowlist feature.</text>
+                        }
+                    </small>
+                </div>
+
+                <!-- Add User Form -->
+                <div class="add-user-section card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <i class="bi bi-person-plus me-2"></i>Add User
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="gamertagInput" class="form-label">Gamertag</label>
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="gamertagInput"
+                                       @bind="newGamertag" 
+                                       @bind:event="oninput"
+                                       placeholder="Enter gamertag (e.g., Player123)"
+                                       disabled="@isProcessing"
+                                       maxlength="15" />
+                                <button class="btn btn-outline-secondary" 
+                                        @onclick="LookupGamertag" 
+                                        disabled="@(isProcessing || string.IsNullOrWhiteSpace(newGamertag))">
+                                    @if (isLookingUp)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-1"></span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-search me-1"></i>
+                                    }
+                                    Lookup
+                                </button>
+                            </div>
+                            <small class="text-muted">3-15 characters, letters and numbers only</small>
+                        </div>
+
+                        @if (lookupProfile != null && lookupProfile.IsValid)
+                        {
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>XUID:</strong> @lookupProfile.Xuid
+                            </div>
+                        }
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="ignoresLimitCheck"
+                                   @bind="newUserIgnoresLimit" 
+                                   disabled="@isProcessing" />
+                            <label class="form-check-label" for="ignoresLimitCheck">
+                                Ignores Player Limit
+                                <small class="text-muted d-block">Allow this user to join even when server is full</small>
+                            </label>
+                        </div>
+
+                        <button class="btn btn-primary w-100" 
+                                @onclick="AddUser" 
+                                disabled="@(isProcessing || lookupProfile == null || !lookupProfile.IsValid)">
+                            @if (isProcessing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-plus-circle me-1"></i>
+                            }
+                            Add to Allowlist
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Users List -->
+                <div class="users-list-section">
+                    <h6 class="mb-3">
+                        <i class="bi bi-people me-2"></i>Current Users (@allowlistData.Users.Count)
+                    </h6>
+
+                    @if (allowlistData.Users.Any())
+                    {
+                        <div class="users-list">
+                            @foreach (var user in allowlistData.Users)
+                            {
+                                <div class="user-item card mb-2">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="user-name">
+                                                    <i class="bi bi-person-fill me-2 text-primary"></i>
+                                                    <strong>@user.Name</strong>
+                                                </div>
+                                                <div class="user-xuid text-muted small">
+                                                    XUID: @user.Xuid
+                                                </div>
+                                                @if (user.IgnoresPlayerLimit)
+                                                {
+                                                    <div class="mt-1">
+                                                        <span class="badge bg-info">
+                                                            <i class="bi bi-star me-1"></i>Ignores Player Limit
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        @onclick="@(() => RemoveUser(user))"
+                                                        disabled="@isProcessing"
+                                                        title="Remove user">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-inbox display-4 d-block mb-2"></i>
+                            <p>No users in allowlist</p>
+                            <small>Add users above to get started</small>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="Cancel" disabled="@isProcessing">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" @onclick="SaveChanges" disabled="@isProcessing">
+                    @if (isProcessing)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-save me-1"></i>
+                    }
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    private AllowlistData allowlistData = new();
+    private string newGamertag = string.Empty;
+    private bool newUserIgnoresLimit = false;
+    private XboxLiveProfile? lookupProfile = null;
+    private bool isProcessing = false;
+    private bool isLookingUp = false;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Show)
+        {
+            await LoadAllowlistAsync();
+        }
+    }
+
+    private async Task LoadAllowlistAsync()
+    {
+        try
+        {
+            errorMessage = null;
+            var result = await ApiService.GetAllowlistAsync();
+
+            if (result.Success && result.Data != null)
+            {
+                allowlistData = result.Data;
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to load allowlist";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading allowlist: {ex.Message}";
+        }
+    }
+
+    private async Task LookupGamertag()
+    {
+        if (string.IsNullOrWhiteSpace(newGamertag))
+            return;
+
+        isLookingUp = true;
+        errorMessage = null;
+        lookupProfile = null;
+
+        try
+        {
+            // Validate format first
+            if (!XboxService.IsValidGamertagFormat(newGamertag))
+            {
+                errorMessage = "Invalid gamertag format. Must be 3-15 characters, letters and numbers only.";
+                return;
+            }
+
+            // Lookup XUID
+            lookupProfile = await XboxService.LookupGamertagAsync(newGamertag);
+
+            if (!lookupProfile.IsValid)
+            {
+                errorMessage = lookupProfile.ErrorMessage ?? "Invalid gamertag";
+                lookupProfile = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lookup failed: {ex.Message}";
+        }
+        finally
+        {
+            isLookingUp = false;
+        }
+    }
+
+    private async Task AddUser()
+    {
+        if (lookupProfile == null || !lookupProfile.IsValid)
+            return;
+
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            // Check for duplicates
+            if (allowlistData.Users.Any(u => u.Xuid == lookupProfile.Xuid))
+            {
+                errorMessage = "User already exists in allowlist";
+                return;
+            }
+
+            // Add user
+            var newUser = new AllowlistUser
+            {
+                Name = lookupProfile.Gamertag,
+                Xuid = lookupProfile.Xuid,
+                IgnoresPlayerLimit = newUserIgnoresLimit
+            };
+
+            allowlistData.Users.Add(newUser);
+            successMessage = $"Added {newUser.Name} to allowlist";
+
+            // Reset form
+            newGamertag = string.Empty;
+            newUserIgnoresLimit = false;
+            lookupProfile = null;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error adding user: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private void RemoveUser(AllowlistUser user)
+    {
+        allowlistData.Users.Remove(user);
+        successMessage = $"Removed {user.Name} from allowlist";
+    }
+
+    private async Task SaveChanges()
+    {
+        isProcessing = true;
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var result = await ApiService.UpdateAllowlistAsync(allowlistData);
+
+            if (result.Success)
+            {
+                successMessage = "Allowlist saved successfully!";
+                await Task.Delay(1500); // Show success message briefly
+                await CloseModal();
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Failed to save allowlist";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving allowlist: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+        }
+    }
+
+    private async Task Cancel()
+    {
+        if (!isProcessing)
+        {
+            await CloseModal();
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        Show = false;
+        await ShowChanged.InvokeAsync(false);
+        
+        // Reset state
+        newGamertag = string.Empty;
+        newUserIgnoresLimit = false;
+        lookupProfile = null;
+        errorMessage = null;
+        successMessage = null;
+    }
+}

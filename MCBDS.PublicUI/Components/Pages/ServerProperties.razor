@@ -1,12 +1,51 @@
 @page "/server-properties"
 @using MCBDS.ClientUI.Shared.Services
+@using MCBDS.ClientUI.Shared.Models
+@using MCBDS.ClientUI.Shared.Components
 @inject BedrockApiService ApiService
+@inject XboxLiveService XboxService
 
 <PageTitle>Server Properties</PageTitle>
 
 <h1><i class="bi bi-gear me-2"></i>Server Properties</h1>
 
 <p>View the current Minecraft Bedrock server configuration.</p>
+
+<!-- Allowlist Management Section -->
+@if (apiCapabilities != null)
+{
+    @if (apiCapabilities.SupportsAllowlist)
+    {
+        <div class="card mb-4 border-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-1">
+                            <i class="bi bi-shield-check me-2 text-primary"></i>Player Allowlist
+                        </h5>
+                        <p class="card-text text-muted mb-0">
+                            Manage which players can join your server
+                        </p>
+                    </div>
+                    <button class="btn btn-primary" @onclick="OpenAllowlistModal">
+                        <i class="bi bi-people me-1"></i>Manage Allowlist
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Allowlist Management Unavailable</strong><br/>
+            This feature requires API version 1.1 or higher. Current version: <strong>@apiCapabilities.Version</strong><br/>
+            <small>Please update your MCBDS API server to access allowlist management.</small>
+        </div>
+    }
+}
+
+<AllowlistModal @bind-Show="showAllowlistModal" />
 
 @if (isLoading)
 {
@@ -177,16 +216,28 @@ else if (serverProperties != null)
 }
 
 @code {
-    private ServerPropertiesResponse? serverProperties;
-    private bool isLoading = true;
-    private string? errorMessage;
-    private ApiErrorType errorType = ApiErrorType.None;
-    private HashSet<string> expandedCategories = new() { "Server", "Gameplay", "World" };
+private ServerPropertiesResponse? serverProperties;
+private bool isLoading = true;
+private string? errorMessage;
+private ApiErrorType errorType = ApiErrorType.None;
+private HashSet<string> expandedCategories = new() { "Server", "Gameplay", "World" };
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadProperties();
-    }
+// Allowlist management
+private ApiCapabilities? apiCapabilities;
+private bool showAllowlistModal = false;
+
+protected override async Task OnInitializedAsync()
+{
+    // Check API capabilities for feature detection
+    apiCapabilities = await ApiService.GetCapabilitiesAsync();
+        
+    await LoadProperties();
+}
+
+private void OpenAllowlistModal()
+{
+    showAllowlistModal = true;
+}
 
     private async Task LoadProperties()
     {
