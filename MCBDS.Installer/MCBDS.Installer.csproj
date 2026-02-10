@@ -9,11 +9,21 @@
     <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
+    <NoWarn>$(NoWarn);CS5001</NoWarn>
   </PropertyGroup>
+
+  <!-- Exclude example/helper files from compilation -->
+  <ItemGroup>
+    <Compile Remove="ADD-TO-MAUIPROGRAM.cs" />
+  </ItemGroup>
 
   <!-- Include all NSIS and documentation files -->
   <ItemGroup>
+    <!-- Helper/Example Files (not compiled) -->
+    <None Include="ADD-TO-MAUIPROGRAM.cs" />
+    <None Include="PASTE-INTO-MAUIPROGRAM.txt" />
+    
     <!-- Installer Scripts -->
     <None Include="build-installer.ps1" CopyToOutputDirectory="PreserveNewest" />
     
@@ -53,6 +63,12 @@
     <None Include="ARCHITECTURE.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="FILE-INVENTORY.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="COMMANDS-REFERENCE.md" CopyToOutputDirectory="PreserveNewest" />
+    
+    <!-- Feature Implementation Documentation -->
+    <None Include="PACK-MANAGEMENT-FIXES.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="ANDROID-SERVER-SELECTION-FIX.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="XUID-LOOKUP-FIX.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="XBOX-LIVE-API-SETUP.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Custom Build Target -->
