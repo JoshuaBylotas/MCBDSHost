@@ -1,0 +1,371 @@
+@page "/compatibility"
+
+<PageTitle>Version Compatibility Guide - MCBDS Manager</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="MCBDS Manager version compatibility guide. Understand backward and forward compatibility between API server versions and UI clients." />
+</HeadContent>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h1 class="display-4 mb-4">
+                <i class="bi bi-arrow-left-right me-3"></i>Version Compatibility
+            </h1>
+            <p class="lead mb-5">
+                MCBDS Manager is designed with backward and forward compatibility. 
+                Here's how different versions work together.
+            </p>
+
+            <!-- Compatibility Matrix -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-table me-2"></i>Compatibility Matrix</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>API Server Version</th>
+                                <th>UI Client Version</th>
+                                <th>Status</th>
+                                <th>Available Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-success">
+                                <td><strong>v1.1</strong></td>
+                                <td><strong>v1.1</strong></td>
+                                <td><span class="badge bg-success">? Full Support</span></td>
+                                <td>
+                                    ? Pack Management<br>
+                                    ? Player Allowlist<br>
+                                    ? All v1.0 features
+                                </td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><strong>v1.1</strong></td>
+                                <td>v1.0</td>
+                                <td><span class="badge bg-warning">? Limited</span></td>
+                                <td>
+                                    ? Pack Management (not available)<br>
+                                    ? Player Allowlist (not available)<br>
+                                    ? All v1.0 features work normally
+                                </td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td>v1.0</td>
+                                <td><strong>v1.1</strong></td>
+                                <td><span class="badge bg-warning">? Limited</span></td>
+                                <td>
+                                    ? Pack Management (UI hidden)<br>
+                                    ? Player Allowlist (UI hidden)<br>
+                                    ? All v1.0 features work normally
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>v1.0</td>
+                                <td>v1.0</td>
+                                <td><span class="badge bg-info">? Compatible</span></td>
+                                <td>
+                                    ? Real-time monitoring<br>
+                                    ? Command console<br>
+                                    ? Backup management<br>
+                                    ? Server properties
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Scenarios -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-diagram-3 me-2"></i>Common Scenarios</h2>
+
+                <!-- Scenario 1 -->
+                <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Scenario 1: Full Upgrade (Recommended)</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Configuration:</strong> API v1.1 + UI v1.1</p>
+                        <p><strong>Result:</strong> All features available</p>
+                        <div class="alert alert-success mb-0">
+                            <strong>Steps:</strong>
+                            <ol class="mb-0">
+                                <li>Install API v1.1 Windows Service</li>
+                                <li>Update UI clients to v1.1 (web/mobile)</li>
+                                <li>Enjoy pack management and allowlist features!</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scenario 2 -->
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Scenario 2: Server Upgraded, Old UI</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Configuration:</strong> API v1.1 + UI v1.0</p>
+                        <p><strong>Result:</strong> Old features work, new features not accessible</p>
+                        <div class="alert alert-info">
+                            <strong>What happens:</strong>
+                            <ul>
+                                <li>? Dashboard, commands, backups work normally</li>
+                                <li>? Pack management button not visible in UI</li>
+                                <li>? Allowlist management not available</li>
+                                <li>Server has the capabilities, but UI can't access them</li>
+                            </ul>
+                        </div>
+                        <div class="alert alert-warning mb-0">
+                            <strong>Recommendation:</strong> Update your UI clients to v1.1 to access new features
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scenario 3 -->
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Scenario 3: New UI, Old Server</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Configuration:</strong> API v1.0 + UI v1.1</p>
+                        <p><strong>Result:</strong> New features gracefully disabled</p>
+                        <div class="alert alert-info">
+                            <strong>What happens:</strong>
+                            <ul>
+                                <li>? Dashboard, commands, backups work normally</li>
+                                <li>? Pack management button hidden automatically</li>
+                                <li>? Allowlist shows "feature unavailable" message</li>
+                                <li>UI detects server capabilities via <code>/api/version</code></li>
+                            </ul>
+                        </div>
+                        <div class="alert alert-warning mb-0">
+                            <strong>Recommendation:</strong> Upgrade your API server to v1.1 to unlock new features
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature Detection -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-cpu me-2"></i>How Feature Detection Works</h2>
+                <p>
+                    The v1.1 UI client automatically detects server capabilities by calling the 
+                    <code>/api/version</code> endpoint on startup.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>API v1.0 Response:</h5>
+                        <pre><code>{
+  "version": "1.0",
+  "supportsAllowlist": false,
+  "supportsPackManagement": false,
+  "supportedFeatures": [
+    "server-monitoring",
+    "command-execution",
+    "backup-management"
+  ]
+}</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>API v1.1 Response:</h5>
+                        <pre><code>{
+  "version": "1.1",
+  "supportsAllowlist": true,
+  "supportsPackManagement": true,
+  "supportedFeatures": [
+    "server-monitoring",
+    "command-execution",
+    "backup-management",
+    "allowlist-management",
+    "pack-management"
+  ]
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    <strong>Smart UI:</strong> The v1.1 UI client reads these flags and automatically 
+                    hides or shows features based on what the server supports. No manual configuration needed!
+                </div>
+            </section>
+
+            <!-- Upgrade Paths -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-arrow-up-circle me-2"></i>Upgrade Paths</h2>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">From v1.0 to v1.1 (Server)</h5>
+                            </div>
+                            <div class="card-body">
+                                <ol>
+                                    <li>Download v1.1 installer</li>
+                                    <li>Run installer (settings preserved)</li>
+                                    <li>Service automatically restarts</li>
+                                    <li>No downtime required</li>
+                                </ol>
+                                <div class="alert alert-success mb-0">
+                                    <small><i class="bi bi-check-circle me-1"></i>Your configuration, backups, and world data are preserved!</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">From v1.0 to v1.1 (UI)</h5>
+                            </div>
+                            <div class="card-body">
+                                <strong>Web UI:</strong>
+                                <ol>
+                                    <li>Clear browser cache</li>
+                                    <li>Refresh page (Ctrl+F5)</li>
+                                    <li>New features appear</li>
+                                </ol>
+                                
+                                <strong>Mobile App:</strong>
+                                <ol>
+                                    <li>Update from app store</li>
+                                    <li>Or sideload v1.1 APK</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Breaking Changes -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-exclamation-octagon me-2"></i>Breaking Changes</h2>
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle me-2"></i>Good News: No Breaking Changes!</h5>
+                    <p class="mb-0">
+                        v1.1 is fully backward compatible with v1.0. All existing APIs, endpoints, 
+                        and features continue to work exactly as before. New features are purely additive.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Future Compatibility -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-calendar-event me-2"></i>Future Compatibility</h2>
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-exclamation-triangle me-2"></i>v1.2 Docker Deprecation</h5>
+                    <p>
+                        The Docker-based deployment will be deprecated in v1.2 (Q2 2025). 
+                        Only the Windows Service installer will be supported going forward.
+                    </p>
+                    <p class="mb-0">
+                        <strong>Action Required:</strong> If you're using Docker, plan to migrate to 
+                        the Windows Service installer before v1.2 release.
+                        <a href="/installer" class="alert-link">Migration guide available here</a>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Testing Compatibility -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-flask me-2"></i>Testing Compatibility</h2>
+                <p>To verify your current setup compatibility:</p>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Check API Version:</h5>
+                        <code>curl http://localhost:8080/api/version</code>
+                        
+                        <h5 class="mt-4">Check in UI:</h5>
+                        <ol>
+                            <li>Open MCBDS Manager</li>
+                            <li>Go to Server Properties page</li>
+                            <li>Look for "Pack Management" and "Allowlist" buttons</li>
+                            <li>If visible with blue/green cards: <span class="badge bg-success">v1.1</span></li>
+                            <li>If not visible: <span class="badge bg-warning">v1.0</span></li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section>
+                <h2 class="mb-4"><i class="bi bi-question-circle me-2"></i>FAQ</h2>
+                
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Can I downgrade from v1.1 to v1.0?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <strong>Not recommended.</strong> While the core features will work, any data created 
+                                with v1.1 features (packs, allowlist) won't be accessible. If you must downgrade, 
+                                backup your configuration first.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Do I need to update all UI clients at once?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <strong>No.</strong> You can have mixed versions. v1.0 UI clients will continue 
+                                working with v1.1 servers, they just won't see new features. Update clients 
+                                at your convenience.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Will my custom configurations be lost when upgrading?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse">
+                            <div class="accordion-body">
+                                <strong>No.</strong> The v1.1 installer includes smart configuration merging. 
+                                Your custom settings (port, paths, Xbox API key, etc.) are automatically 
+                                preserved and merged with new defaults. A backup is created as 
+                                <code>appsettings.backup.json</code> for safety.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    code {
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+
+    pre code {
+        display: block;
+        padding: 1rem;
+        background: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+    }
+</style>

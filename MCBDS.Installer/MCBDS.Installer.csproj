@@ -26,6 +26,7 @@
     
     <!-- Installer Scripts -->
     <None Include="build-installer.ps1" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="merge-appsettings.ps1" CopyToOutputDirectory="PreserveNewest" />
     
     <!-- Documentation Files -->
     <None Include="00-START-HERE.md" CopyToOutputDirectory="PreserveNewest" />
@@ -69,6 +70,7 @@
     <None Include="ANDROID-SERVER-SELECTION-FIX.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="XUID-LOOKUP-FIX.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="XBOX-LIVE-API-SETUP.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="CONFIG-MERGE-UPGRADE.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Custom Build Target -->

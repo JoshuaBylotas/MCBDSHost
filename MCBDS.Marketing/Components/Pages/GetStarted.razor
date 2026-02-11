@@ -1,815 +1,303 @@
 @page "/get-started"
-@inject StructuredDataService StructuredDataService
 
-<PageTitle>Get Started - MCBDS Manager Installation & Setup Guide</PageTitle>
+<PageTitle>Get Started - MCBDS Manager Installation Guide</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="Complete installation guide for MCBDS Manager. Deploy on Windows Server, Linux, or home servers in minutes. Download, configure, and start managing your Minecraft Bedrock server." />
-    <meta name="keywords" content="mcbds manager installation, minecraft server setup, docker deployment, windows server minecraft, linux minecraft server, bedrock server installation" />
+    <meta name="description" content="Quick start guide for MCBDS Manager. Download the Windows Service installer and get your Minecraft Bedrock server running in minutes." />
+    <meta name="keywords" content="mcbds manager installation, minecraft server setup, windows service installer, bedrock server installation" />
     <link rel="canonical" href="https://www.mc-bds.com/get-started" />
-    
-    <!-- Structured Data for How-To Guide -->
-    <script type="application/ld+json">
-        @((MarkupString)StructuredDataService.GetHowToData(
-            "Install MCBDS Manager",
-            "Complete guide to install and configure MCBDS Manager for Minecraft Bedrock Server management",
-            new List<string> {
-                "Install Git on your system",
-                "Install Docker or Docker Desktop on your system",
-                "Clone the MCBDS Manager repository from GitHub",
-                "Download Minecraft Bedrock Dedicated Server from official website",
-                "Configure firewall rules for required ports",
-                "Start services using docker-compose",
-                "Access the web interface at http://localhost:5000"
-            }
-        ))
-    </script>
 </HeadContent>
 
 <div class="container py-5">
     <div class="text-center mb-5">
         <h1 class="display-4 fw-bold">Get Started with MCBDS Manager</h1>
-        <p class="lead text-muted">Choose your installation method below</p>
+        <p class="lead text-muted">Professional Windows Service Installer - Running in minutes</p>
     </div>
 
-    <!-- Installation Methods Quick Links -->
+    <!-- Hero Installation Card -->
     <section class="mb-5">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card shadow-lg border-success h-100">
-                    <div class="card-header bg-success text-white">
-                        <h3 class="h5 mb-0"><i class="bi bi-lightning-charge-fill me-2"></i>Windows Installer (Recommended)</h3>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-success">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <i class="bi bi-lightning-charge-fill display-4 d-block mb-3"></i>
+                        <h2 class="h3 mb-2">Windows Service Installer</h2>
+                        <p class="mb-0">The fastest and easiest way to run MCBDS Manager</p>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text"><strong>Fastest Setup</strong> - Get MCBDS running in 5-10 minutes</p>
-                        <ul class="small mb-3">
-                            <li><i class="bi bi-check-circle text-success me-2"></i>One-click installation</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i>Automatic Windows Service setup</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i>No technical knowledge required</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i>Auto-restart on system reboot</li>
+                    <div class="card-body p-5">
+                        <div class="row mb-4">
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="bg-light rounded p-3">
+                                    <h3 class="h4 fw-bold text-success">5-10 min</h3>
+                                    <p class="text-muted small mb-0">Total Setup Time</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="bg-light rounded p-3">
+                                    <h3 class="h4 fw-bold text-success">1-Click</h3>
+                                    <p class="text-muted small mb-0">Installation</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center mb-3">
+                                <div class="bg-light rounded p-3">
+                                    <h3 class="h4 fw-bold text-success">8080</h3>
+                                    <p class="text-muted small mb-0">Default Port</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="h5 mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>What You Get:</h4>
+                        <ul class="mb-4">
+                            <li><i class="bi bi-check2 text-success me-2"></i>Automatic Windows Service setup</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i>Pack management & player allowlist</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i>Automated backups with configurable frequency</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i>Web-based management dashboard</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i>Auto-restart on system reboot</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i>Firewall configuration included</li>
                         </ul>
-                        <a href="/installer" class="btn btn-success w-100">
-                            <i class="bi bi-download me-2"></i>Windows Installer Guide
-                        </a>
+
+                        <div class="text-center">
+                            <a href="/installer" class="btn btn-success btn-lg">
+                                <i class="bi bi-download me-2"></i>Download Installer & View Full Guide
+                            </a>
+                        </div>
                     </div>
                     <div class="card-footer bg-light text-center">
-                        <small class="text-muted">Best for: Windows Servers & Home Servers</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card shadow h-100">
-                    <div class="card-header bg-light">
-                        <h3 class="h5 mb-0"><i class="bi bi-docker me-2"></i>Docker Deployment</h3>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><strong>Advanced Setup</strong> - For cloud & multi-platform deployments</p>
-                        <ul class="small mb-3">
-                            <li><i class="bi bi-check-circle text-muted me-2"></i>Cross-platform support</li>
-                            <li><i class="bi bi-check-circle text-muted me-2"></i>Container orchestration</li>
-                            <li><i class="bi bi-check-circle text-muted me-2"></i>Kubernetes ready</li>
-                            <li><i class="bi bi-check-circle text-muted me-2"></i>Complex multi-service setups</li>
-                        </ul>
-                        <a href="#docker-section" class="btn btn-outline-secondary w-100">
-                            <i class="bi bi-book me-2"></i>Docker Setup Guide
-                        </a>
-                    </div>
-                    <div class="card-footer bg-light text-center">
-                        <small class="text-muted">Best for: Linux, Cloud, Enterprise</small>
+                        <small class="text-muted">
+                            <i class="bi bi-windows me-1"></i>
+                            Windows 10/11 | Server 2019+ | Free & Open Source
+                        </small>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Quick Stats -->
+    <!-- Quick Installation Preview -->
     <section class="mb-5">
-        <div class="row text-center">
-            <div class="col-md-3 mb-3">
-                <div class="p-4 bg-light rounded">
-                    <h3 class="h4 fw-bold text-success">5-10 min</h3>
-                    <p class="text-muted small">Installer Setup Time</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="p-4 bg-light rounded">
-                    <h3 class="h4 fw-bold">1 Click</h3>
-                    <p class="text-muted small">Windows Service Install</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="p-4 bg-light rounded">
-                    <h3 class="h4 fw-bold">8080</h3>
-                    <p class="text-muted small">Default API Port</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="p-4 bg-light rounded">
-                    <h3 class="h4 fw-bold">?</h3>
-                    <p class="text-muted small">Community Support</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h2 class="h3 text-center mb-4">
+                    <i class="bi bi-list-ol text-primary me-2"></i>Installation Overview
+                </h2>
+                <p class="text-center text-muted mb-5">
+                    Three simple steps to get your Minecraft server running
+                </p>
 
-    <!-- Quick Access Alert -->
-    <div class="alert alert-info alert-dismissible fade show mb-5" role="alert">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>New to MCBDS?</strong> Start with the <a href="/installer" class="alert-link">Windows Installer</a> — it's the easiest and fastest way to get your Minecraft server running.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <!-- Requirements Section -->
-    <section class="mb-5" id="requirements">
-        <h2 class="h3 mb-4"><i class="bi bi-tools text-primary me-2"></i>Prerequisites & Requirements</h2>
-        
-        <!-- System Requirements -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-light">
-                <h3 class="h5 mb-0"><i class="bi bi-pc-display text-primary me-2"></i>System Requirements</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold">Minimum Requirements</h4>
-                        <ul>
-                            <li>4GB RAM</li>
-                            <li>2 CPU cores</li>
-                            <li>10GB free disk space</li>
-                            <li>Git version control</li>
-                            <li>Docker or Docker Desktop</li>
-                            <li>Internet connection</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold">Recommended Requirements</h4>
-                        <ul>
-                            <li>8GB+ RAM</li>
-                            <li>4+ CPU cores</li>
-                            <li>20GB+ free disk space</li>
-                            <li>SSD for better performance</li>
-                            <li>Stable internet connection</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Install Git -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-light">
-                <h3 class="h5 mb-0"><i class="bi bi-git text-danger me-2"></i>Step 1: Install Git</h3>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Git is required to clone the MCBDS Manager repository from GitHub.</p>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold text-primary"><i class="bi bi-windows me-2"></i>Windows Installation</h4>
-                        
-                        <p class="small text-muted">Using winget (recommended):</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Run in PowerShell as Administrator
-winget install -e --id Git.Git
-
-# Verify installation
-git --version</code></pre>
-
-                        <p class="small text-muted">Alternative - Manual download:</p>
-                        <ol class="small">
-                            <li>Visit <a href="https://git-scm.com/download/win" target="_blank" rel="noopener">https://git-scm.com/download/win</a></li>
-                            <li>Download the installer for your system (64-bit recommended)</li>
-                            <li>Run the installer and follow the setup wizard</li>
-                            <li>Accept default options (recommended for beginners)</li>
-                            <li>Restart PowerShell/Command Prompt after installation</li>
-                        </ol>
-
-                        <div class="alert alert-warning small mt-3">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>Configure PATH (if needed):</strong> If Git is installed but not recognized, add it to your PATH:
-                            <pre class="bg-dark text-light p-2 rounded mt-2 mb-2"><code># Run in PowerShell
-$gitCmd = "C:\Program Files\Git\cmd"
-$gitBin = "C:\Program Files\Git\bin"
-
-# Add to current session PATH if missing
-$paths = $env:Path.Split(';') | Where-Object { $_ -ne '' }
-if ($paths -notcontains $gitCmd) { 
-    $env:Path = $env:Path + ";" + $gitCmd 
-}
-if ($paths -notcontains $gitBin) { 
-    $env:Path = $env:Path + ";" + $gitBin 
-}
-
-# Test Git
-git --version</code></pre>
-                            <small class="text-muted d-block mt-2">
-                                <strong>Note:</strong> This adds Git to PATH for the current PowerShell session only. 
-                                To make it permanent, restart PowerShell or add to System Environment Variables.
-                            </small>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <span class="display-4 text-primary">1</span>
+                                </div>
+                                <h3 class="h5 mb-3">Download Bedrock Server</h3>
+                                <p class="text-muted small">
+                                    Get the official Minecraft Bedrock Dedicated Server from Minecraft.net
+                                </p>
+                                <a href="https://www.minecraft.net/en-us/download/server/bedrock" 
+                                   target="_blank" 
+                                   rel="noopener" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>Get Bedrock Server
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold text-danger"><i class="bi bi-ubuntu me-2"></i>Linux Installation</h4>
-                        
-                        <p class="small text-muted">Ubuntu/Debian:</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>sudo apt update
-sudo apt install git -y
-
-# Verify installation
-git --version</code></pre>
-
-                        <p class="small text-muted">Red Hat/CentOS/Fedora:</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>sudo yum install git -y
-# or
-sudo dnf install git -y
-
-# Verify installation
-git --version</code></pre>
-
-                        <p class="small text-muted">Arch Linux:</p>
-                        <pre class="bg-dark text-light p-3 rounded"><code>sudo pacman -S git
-
-# Verify installation
-git --version</code></pre>
-                    </div>
-                </div>
-
-                <div class="alert alert-info mt-3">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>First-time Git Setup:</strong> After installation, configure your identity:
-                    <pre class="bg-dark text-light p-2 rounded mt-2 mb-0"><code>git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"</code></pre>
-                </div>
-            </div>
-        </div>
-
-        <!-- Install Docker -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-light">
-                <h3 class="h5 mb-0"><i class="bi bi-box-seam text-info me-2"></i>Step 2: Install Docker</h3>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">Docker is required to run MCBDS Manager in containers for easy deployment and management.</p>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold text-primary"><i class="bi bi-windows me-2"></i>Windows Installation</h4>
-                        
-                        <p class="small text-muted">Windows Server / Windows 10/11 Pro:</p>
-                        
-                        <div class="alert alert-warning small">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>Prerequisites:</strong> Windows 10/11 Pro, Enterprise, or Education with Hyper-V support, or Windows Server 2019/2022/2025
-                        </div>
-
-                        <p class="small fw-bold">Option 1: Using winget (recommended):</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Run in PowerShell as Administrator
-winget install -e --id Docker.DockerDesktop
-
-# Restart your computer after installation</code></pre>
-
-                        <p class="small fw-bold">Option 2: Manual installation:</p>
-                        <ol class="small">
-                            <li>Enable Hyper-V and Containers features:
-                                <pre class="bg-dark text-light p-2 rounded my-2"><code>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
-Enable-WindowsOptionalFeature -Online -FeatureName Containers -All
-Restart-Computer</code></pre>
-                            </li>
-                            <li>Download Docker Desktop from <a href="https://www.docker.com/products/docker-desktop" target="_blank" rel="noopener">docker.com</a></li>
-                            <li>Run the installer and follow the setup wizard</li>
-                            <li>Restart your computer</li>
-                            <li>Launch Docker Desktop from the Start menu</li>
-                        </ol>
-
-                        <p class="small fw-bold">Verify installation:</p>
-                        <pre class="bg-dark text-light p-3 rounded"><code>docker --version
-docker compose version</code></pre>
-                        
-                        <div class="alert alert-info small mt-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            <strong>Important - Windows Containers Mode:</strong> After installing Docker Desktop, make sure it's set to use Windows containers (not Linux containers).
-                            <ul class="small mb-0 mt-2">
-                                <li>Right-click the Docker Desktop icon in system tray</li>
-                                <li>If you see "Switch to Windows containers...", click it</li>
-                                <li>If you see "Switch to Linux containers...", you're already in Windows mode ?</li>
-                            </ul>
-                            <p class="small mb-0 mt-2"><strong>Note:</strong> MCBDS Manager requires Windows containers to run bedrock_server.exe</p>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <span class="display-4 text-success">2</span>
+                                </div>
+                                <h3 class="h5 mb-3">Run Installer</h3>
+                                <p class="text-muted small">
+                                    Download and run the MCBDS Manager installer as Administrator
+                                </p>
+                                <a href="/installer" class="btn btn-sm btn-success">
+                                    <i class="bi bi-download me-1"></i>Download Installer
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <h4 class="h6 fw-bold text-danger"><i class="bi bi-ubuntu me-2"></i>Linux Installation</h4>
-                        
-                        <p class="small text-muted">Using Docker's official installation script (recommended):</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Download and run the Docker installation script
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Add your user to the docker group
-sudo usermod -aG docker $USER
-
-# Log out and back in for group changes to take effect
-# Or run: newgrp docker
-
-# Verify installation
-docker --version
-docker compose version</code></pre>
-
-                        <p class="small fw-bold">Manual installation (Ubuntu/Debian):</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code># Update package index
-sudo apt update
-
-# Install prerequisites
-sudo apt install ca-certificates curl gnupg lsb-release -y
-
-# Add Docker's official GPG key
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-# Set up repository
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Install Docker Engine
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# Start Docker service
-sudo systemctl enable docker
-sudo systemctl start docker</code></pre>
-
-                        <p class="small fw-bold">For other distributions:</p>
-                        <ul class="small">
-                            <li><a href="https://docs.docker.com/engine/install/centos/" target="_blank" rel="noopener">CentOS/RHEL</a></li>
-                            <li><a href="https://docs.docker.com/engine/install/fedora/" target="_blank" rel="noopener">Fedora</a></li>
-                            <li><a href="https://docs.docker.com/engine/install/debian/" target="_blank" rel="noopener">Debian</a></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="alert alert-success mt-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <strong>Test Docker Installation:</strong> Run this command to verify Docker is working:
-                    <pre class="bg-dark text-light p-2 rounded mt-2 mb-0"><code>docker run hello-world</code></pre>
-                    <small class="d-block mt-2 text-muted">If you see "Hello from Docker!", your installation is successful!</small>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Quick Start Options -->
-    <section class="mb-5">
-        <h2 class="h3 mb-4"><i class="bi bi-lightning-charge text-warning me-2"></i>Choose Your Platform</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-primary">
-                    <div class="card-body">
-                        <i class="bi bi-hdd-rack display-3 text-primary mb-3"></i>
-                        <h3 class="h4">Windows Server</h3>
-                        <p class="text-muted">
-                            Recommended for dedicated servers and production environments
-                        </p>
-                        <a href="#windows" class="btn btn-primary">View Guide</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-danger">
-                    <div class="card-body">
-                        <i class="bi bi-ubuntu display-3 text-danger mb-3"></i>
-                        <h3 class="h4">Linux</h3>
-                        <p class="text-muted">
-                            For Ubuntu, Debian, and other Linux distributions
-                        </p>
-                        <a href="#linux" class="btn btn-outline-danger">View Guide</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-success">
-                    <div class="card-body">
-                        <i class="bi bi-house display-3 text-success mb-3"></i>
-                        <h3 class="h4">Home Server</h3>
-                        <p class="text-muted">
-                            Perfect for Windows 10/11 Pro home setups
-                        </p>
-                        <a href="#home" class="btn btn-outline-success">View Guide</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Download Section -->
-    <section class="mb-5" id="download">
-        <div class="card shadow-sm border-primary">
-            <div class="card-header bg-primary text-white">
-                <h2 class="h4 mb-0"><i class="bi bi-github me-2"></i>Step 3: Get MCBDS Manager</h2>
-            </div>
-            <div class="card-body">
-                <p class="lead">Clone the repository from GitHub</p>
-                
-                <div class="alert alert-info mb-4">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Prerequisites Completed:</strong> Make sure you've installed Git and Docker from the steps above before proceeding.
-                </div>
-
-                <div class="card border-primary mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-git text-primary me-2"></i>Clone Repository</h5>
-                        <p class="text-muted">Get the complete source code and deployment files</p>
-                        <pre class="bg-dark text-light p-3 rounded mb-3"><code>git clone https://github.com/JoshuaBylotas/MCBDSHost.git
-cd MCBDSHost</code></pre>
-                        <a href="https://github.com/JoshuaBylotas/MCBDSHost" class="btn btn-primary" target="_blank" rel="noopener">
-                            <i class="bi bi-github me-2"></i>View on GitHub
-                        </a>
-                    </div>
-                </div>
-
-                <div class="alert alert-warning">
-                    <i class="bi bi-box-seam me-2"></i>
-                    <strong>Note:</strong> You must download the Minecraft Bedrock Dedicated Server separately from the official Minecraft website (see instructions below).
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Windows Server Guide -->
-    <section class="mb-5" id="windows">
-        <h2 class="h3 mb-4"><i class="bi bi-windows text-primary me-2"></i>Windows Server Deployment</h2>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <p class="lead">Complete deployment guide for Windows Server 2019/2022/2025</p>
-                
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Prerequisites:</strong> Ensure you have completed Git and Docker installation from the <a href="#requirements">Requirements section</a> above.
-                </div>
-
-                <h4 class="h5 mt-4">Step 1: Clone MCBDS Manager Repository</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository to your desired location
-git clone https://github.com/JoshuaBylotas/MCBDSHost.git
-cd MCBDSHost
-
-# Verify files exist
-Get-ChildItem</code></pre>
-
-                <div class="alert alert-success mt-3">
-                    <i class="bi bi-lightbulb-fill me-2"></i>
-                    <strong>Advanced: Configure Custom Drive Locations</strong>
-                    <p class="mb-2 mt-2">Want to store Minecraft server files on a different drive (e.g., D:\, E:\)? Use our interactive configuration script!</p>
-                    
-                    <button class="btn btn-sm btn-outline-success mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#customDriveInstructions">
-                        <i class="bi bi-chevron-down me-1"></i>Show Instructions
-                    </button>
-                    
-                    <div class="collapse" id="customDriveInstructions">
-                        <hr class="my-3">
-                        <p class="small"><strong>Option 1: Interactive Script (Recommended)</strong></p>
-                        <pre class="bg-dark text-light p-2 rounded small"><code># Run the configuration script
-.\Configure-MCBDSVolumes.ps1
-
-# The script will prompt you for:
-# - Bedrock Server location (e.g., D:\MinecraftServer\bedrock)
-# - Backup storage location (e.g., E:\Backups\minecraft)
-# - Configuration files location (e.g., C:\MCBDSManager\config)
-
-# It will automatically:
-# - Create the directories
-# - Update docker-compose.windows.yml with your paths
-# - Backup the original configuration</code></pre>
-
-                        <p class="small mt-3"><strong>Option 2: Manual Configuration</strong></p>
-                        <p class="small text-muted">Edit <code>docker-compose.windows.yml</code> and update the volume paths:</p>
-                        <pre class="bg-dark text-light p-2 rounded small"><code># Find these lines in docker-compose.windows.yml
-volumes:
-  - C:\MCBDSManager\bedrock-server:/bedrock
-  - C:\MCBDSManager\backups:/app/backups
-  - C:\MCBDSManager\config:/app/config
-
-# Change to your desired paths, for example:
-volumes:
-  - D:\Minecraft\bedrock-server:/bedrock
-  - E:\Backups\minecraft:/app/backups
-  - D:\Minecraft\config:/app/config</code></pre>
-
-                        <p class="small mt-3"><strong>Example Configuration:</strong></p>
-                        <pre class="bg-dark text-light p-2 rounded small"><code># Using D: drive for game files and E: drive for backups
-$bedrockPath = "D:\Minecraft\bedrock-server"
-$backupPath = "E:\Backups\minecraft"
-$configPath = "D:\Minecraft\config"
-
-# Create directories
-New-Item -Path $bedrockPath -ItemType Directory -Force
-New-Item -Path $backupPath -ItemType Directory -Force
-New-Item -Path $configPath -ItemType Directory -Force
-
-# Download Configure-MCBDSVolumes.ps1 from repository
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/JoshuaBylotas/MCBDSHost/master/Configure-MCBDSVolumes.ps1" -OutFile "Configure-MCBDSVolumes.ps1"
-
-# Run the script
-.\Configure-MCBDSVolumes.ps1</code></pre>
-
-                        <div class="alert alert-warning small mt-3 mb-0">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>Important:</strong> Make sure the drives you choose:
-                            <ul class="small mb-0 mt-1">
-                                <li>Have enough free space (20GB+ recommended)</li>
-                                <li>Are accessible when Docker starts</li>
-                                <li>Are not removable drives (USB drives may disconnect)</li>
-                            </ul>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 80px; height: 80px;">
+                                    <span class="display-4 text-info">3</span>
+                                </div>
+                                <h3 class="h5 mb-3">Start Managing</h3>
+                                <p class="text-muted small">
+                                    Access the web dashboard at http://localhost:8080 and start managing
+                                </p>
+                                <button class="btn btn-sm btn-outline-info" disabled>
+                                    <i class="bi bi-check-circle me-1"></i>All Set!
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <h4 class="h5 mt-4">Step 2: Download Minecraft Bedrock Server</h4>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>Important:</strong> You must download the Minecraft Bedrock Dedicated Server separately from the official Minecraft website.
-                </div>
-                <ol>
-                    <li>Visit <a href="https://www.minecraft.net/en-us/download/server/bedrock" target="_blank" rel="noopener">https://www.minecraft.net/en-us/download/server/bedrock</a></li>
-                    <li>Scroll down to "Minecraft Dedicated Server Software"</li>
-                    <li>Click "Download" for your platform (Windows or Ubuntu)</li>
-                    <li>Accept the EULA and download the ZIP file</li>
-                </ol>
-                
-                <pre class="bg-dark text-light p-3 rounded"><code># Create bedrock-server directory in your MCBDSHost folder
-New-Item -Path ".\bedrock-server" -ItemType Directory -Force
-Set-Location ".\bedrock-server"
-
-# Extract the downloaded Minecraft Bedrock Server ZIP
-# (bedrock-server-X.XX.XX.XX.zip from Minecraft website)
-Expand-Archive -Path "$env:USERPROFILE\Downloads\bedrock-server-*.zip" -DestinationPath . -Force
-
-# Verify bedrock_server.exe exists
-if (Test-Path "bedrock_server.exe") {
-    Write-Host "? Bedrock Server installed successfully!" -ForegroundColor Green
-}
-
-# Return to MCBDSHost directory
-Set-Location ".."
-
-# If you configured custom paths, use your custom path instead:
-# Set-Location "D:\Minecraft\bedrock-server"  # Example</code></pre>
-
-                <h4 class="h5 mt-4">Step 3: Configure Firewall</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Create firewall rules
-New-NetFirewallRule -DisplayName "MCBDS Manager Web UI" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "MCBDS Manager API" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Minecraft IPv4" -Direction Inbound -LocalPort 19132 -Protocol UDP -Action Allow
-New-NetFirewallRule -DisplayName "Minecraft IPv6" -Direction Inbound -LocalPort 19133 -Protocol UDP -Action Allow</code></pre>
-
-                <h4 class="h5 mt-4">Step 4: Start Services</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Make sure you're in the MCBDSHost directory
-cd MCBDSHost
-
-# Build and start containers
-docker compose -f docker-compose.windows.yml build
-docker compose -f docker-compose.windows.yml up -d
-
-# View logs
-docker compose -f docker-compose.windows.yml logs -f</code></pre>
-
-                <div class="alert alert-success mt-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <strong>Success!</strong> Access your server at <code>http://localhost:5000</code>
-                </div>
-
-                <div class="card bg-light border-0 mt-4">
+    <!-- System Requirements -->
+    <section class="mb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="h3 mb-4 text-center">
+                    <i class="bi bi-pc-display text-primary me-2"></i>System Requirements
+                </h2>
+                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-info-circle text-info me-2"></i>Volume Configuration Benefits</h5>
-                        <ul class="mb-0 small">
-                            <li><strong>Separate drives:</strong> Keep large game files and backups on dedicated storage</li>
-                            <li><strong>Performance:</strong> Use SSDs for game files, HDDs for backups</li>
-                            <li><strong>Organization:</strong> Keep different data types on different drives</li>
-                            <li><strong>Backup strategy:</strong> Easier to backup specific drives</li>
-                            <li><strong>Space management:</strong> Utilize multiple drives efficiently</li>
-                        </ul>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="h6 fw-bold mb-3">
+                                    <i class="bi bi-windows text-primary me-2"></i>Operating System
+                                </h4>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Windows 10 (1809+)</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Windows 11</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>Windows Server 2019+</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="h6 fw-bold mb-3">
+                                    <i class="bi bi-cpu text-primary me-2"></i>Hardware
+                                </h4>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>2+ CPU cores (4+ recommended)</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>4GB+ RAM (8GB+ recommended)</li>
+                                    <li><i class="bi bi-check-circle text-success me-2"></i>2GB+ free disk space</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Linux Guide -->
-    <section class="mb-5" id="linux">
-        <h2 class="h3 mb-4"><i class="bi bi-ubuntu text-danger me-2"></i>Linux Deployment</h2>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <p class="lead">Deploy on Ubuntu, Debian, or compatible distributions</p>
-                
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Prerequisites:</strong> Ensure you have completed Git and Docker installation from the <a href="#requirements">Requirements section</a> above.
-                </div>
-
-                <h4 class="h5 mt-4">Step 1: Clone MCBDS Manager Repository</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code># Clone repository
-git clone https://github.com/JoshuaBylotas/MCBDSHost.git
-cd MCBDSHost
-
-# Copy deployment files
-sudo mkdir -p /opt/mcbds-manager
-sudo cp docker-compose.linux.yml /opt/mcbds-manager/
-cd /opt/mcbds-manager
-
-# Verify files
-ls -la</code></pre>
-
-                <h4 class="h5 mt-4">Step 2: Download Minecraft Bedrock Server</h4>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>Important:</strong> Download from the official Minecraft website.
-                </div>
-                <ol>
-                    <li>Visit <a href="https://www.minecraft.net/en-us/download/server/bedrock" target="_blank" rel="noopener">https://www.minecraft.net/en-us/download/server/bedrock</a></li>
-                    <li>Download the Ubuntu (Linux) version</li>
-                    <li>Accept the EULA</li>
-                </ol>
-                
-                <pre class="bg-dark text-light p-3 rounded"><code>mkdir -p /opt/mcbds-manager/bedrock-server
-cd /opt/mcbds-manager/bedrock-server
-
-# Extract the downloaded Minecraft Bedrock Server
-unzip ~/Downloads/bedrock-server-*.zip
-
-# Make server executable
-chmod +x bedrock_server
-
-# Verify installation
-ls -la bedrock_server</code></pre>
-
-                <h4 class="h5 mt-4">Step 3: Configure Firewall</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>sudo ufw allow 5000/tcp comment 'MCBDS Manager Web UI'
-sudo ufw allow 8080/tcp comment 'MCBDS Manager API'
-sudo ufw allow 19132/udp comment 'Minecraft IPv4'
-sudo ufw allow 19133/udp comment 'Minecraft IPv6'</code></pre>
-
-                <h4 class="h5 mt-4">Step 4: Start Services</h4>
-                <pre class="bg-dark text-light p-3 rounded"><code>cd /opt/mcbds-manager
-docker compose -f docker-compose.linux.yml build
-docker compose -f docker-compose.linux.yml up -d
-
-# View logs
-docker compose -f docker-compose.linux.yml logs -f</code></pre>
-
-                <div class="alert alert-success mt-3">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <strong>Success!</strong> Access your server at <code>http://localhost:5000</code>
+    <!-- What's Included -->
+    <section class="mb-5 bg-light rounded p-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h2 class="h3 text-center mb-4">
+                    <i class="bi bi-box-seam text-success me-2"></i>What's Included
+                </h2>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-speedometer2 text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Real-Time Monitoring</h4>
+                                <p class="text-muted small mb-0">Live server stats, player count, CPU, memory usage</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-terminal text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Command Console</h4>
+                                <p class="text-muted small mb-0">IntelliSense-powered with autocomplete</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-clock-history text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Automated Backups</h4>
+                                <p class="text-muted small mb-0">Scheduled backups with configurable retention</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-box-seam text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Pack Management</h4>
+                                <p class="text-muted small mb-0">Upload and manage resource/behavior packs</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-shield-check text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Player Allowlist</h4>
+                                <p class="text-muted small mb-0">Xbox Live XUID lookup & whitelist management</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-gear text-primary fs-3 me-3"></i>
+                            <div>
+                                <h4 class="h6 fw-bold">Server Configuration</h4>
+                                <p class="text-muted small mb-0">Edit server.properties from web interface</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Home Server Guide -->
-    <section class="mb-5" id="home">
-        <h2 class="h3 mb-4"><i class="bi bi-house text-success me-2"></i>Home Server Setup</h2>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <p class="lead">Run on Windows 10/11 Pro or Home with WSL2</p>
-                
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Same as Windows Server:</strong> Follow the Windows Server guide above. 
-                    The steps are identical for Windows 10/11 Pro with Docker Desktop.
-                </div>
-
-                <h4 class="h5 mt-4">Additional Tips for Home Servers</h4>
-                <ul>
-                    <li><strong>Port Forwarding:</strong> Configure your router to forward ports 19132 (UDP) for external access</li>
-                    <li><strong>Dynamic DNS:</strong> Use a service like No-IP or DuckDNS if you don't have a static IP</li>
-                    <li><strong>Firewall:</strong> Ensure Windows Firewall allows the required ports</li>
-                    <li><strong>Backups:</strong> Schedule automated backups during off-peak hours</li>
-                    <li><strong>Resources:</strong> Monitor CPU/RAM usage to avoid impacting other applications</li>
-                </ul>
-
-                <h4 class="h5 mt-4">Port Forwarding Guide</h4>
-                <ol>
-                    <li>Access your router's admin panel (usually 192.168.1.1 or 192.168.0.1)</li>
-                    <li>Find "Port Forwarding" or "Virtual Server" settings</li>
-                    <li>Create rules for:
-                        <ul>
-                            <li>Web UI: TCP port 5000 (optional, for remote management)</li>
-                            <li>Minecraft: UDP port 19132 (required for players)</li>
-                        </ul>
-                    </li>
-                    <li>Point to your server's local IP address</li>
-                    <li>Save and restart router if needed</li>
-                </ol>
-            </div>
-        </div>
-    </section>
-
-    <!-- Access Information -->
-    <section class="mb-5">
-        <h2 class="h3 mb-4"><i class="bi bi-link-45deg text-info me-2"></i>Accessing Your Server</h2>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>Local URL</th>
-                                <th>Remote URL</th>
-                                <th>Port</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Web UI</strong></td>
-                                <td><code>http://localhost:5000</code></td>
-                                <td><code>http://YOUR-IP:5000</code></td>
-                                <td>5000</td>
-                            </tr>
-                            <tr>
-                                <td><strong>API</strong></td>
-                                <td><code>http://localhost:8080</code></td>
-                                <td><code>http://YOUR-IP:8080</code></td>
-                                <td>8080</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Minecraft (IPv4)</strong></td>
-                                <td><code>localhost:19132</code></td>
-                                <td><code>YOUR-IP:19132</code></td>
-                                <td>19132 (UDP)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Minecraft (IPv6)</strong></td>
-                                <td><code>localhost:19133</code></td>
-                                <td><code>YOUR-IP:19133</code></td>
-                                <td>19133 (UDP)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Important Notes -->
-    <section class="mb-5">
-        <div class="card border-warning">
-            <div class="card-header bg-warning">
-                <h3 class="h5 mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Important Notes</h3>
-            </div>
-            <div class="card-body">
-                <ul class="mb-0">
-                    <li><strong>EULA:</strong> By downloading and using Minecraft Bedrock Server, you agree to the <a href="https://www.minecraft.net/en-us/eula" target="_blank">Minecraft EULA</a></li>
-                    <li><strong>Updates:</strong> Check the Minecraft website regularly for Bedrock Server updates</li>
-                    <li><strong>Licensing:</strong> MCBDS Manager is open source (MIT), but Minecraft Bedrock Server has its own license</li>
-                    <li><strong>Support:</strong> For Minecraft server issues, refer to official Minecraft documentation</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- Next Steps -->
-    <section class="mb-5 bg-light rounded p-4">
-        <h2 class="h3 mb-4"><i class="bi bi-signpost text-primary me-2"></i>Next Steps</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <h4 class="h6 fw-bold">After Installation</h4>
-                <ol>
-                    <li>Access the Web UI at <code>http://localhost:5000</code></li>
-                    <li>Configure your server properties</li>
-                    <li>Set up automated backups</li>
-                    <li>Add server to favorites in Minecraft</li>
-                    <li>Invite friends to join!</li>
-                </ol>
-            </div>
-            <div class="col-md-6">
-                <h4 class="h6 fw-bold">Useful Commands</h4>
-                <ul>
-                    <li><code>docker compose logs -f</code> - View logs</li>
-                    <li><code>docker compose restart</code> - Restart services</li>
-                    <li><code>docker compose down</code> - Stop services</li>
-                    <li><code>docker compose ps</code> - Check status</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- Support -->
+    <!-- CTA Section -->
     <section class="text-center py-5">
-        <h2 class="h3 mb-4">Need Help?</h2>
-        <p class="lead mb-4">Check the documentation for assistance</p>
+        <h2 class="h3 mb-4">Ready to Get Started?</h2>
+        <p class="lead text-muted mb-4">
+            Download the installer and have your Minecraft server running in minutes
+        </p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="/get-started#requirements" class="btn btn-outline-primary">
-                <i class="bi bi-tools me-2"></i>Requirements
+            <a href="/installer" class="btn btn-primary btn-lg">
+                <i class="bi bi-download me-2"></i>Download v1.1 Installer
             </a>
-            <a href="/features" class="btn btn-outline-success">
-                <i class="bi bi-star me-2"></i>View Features
+            <a href="/features" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-star me-2"></i>View All Features
             </a>
-            <a href="https://www.minecraft.net/en-us/eula" class="btn btn-outline-secondary" target="_blank">
-                <i class="bi bi-book me-2"></i>Minecraft EULA
-            </a>
+        </div>
+        <p class="text-muted mt-4 mb-0">
+            <small>
+                <i class="bi bi-shield-check me-1"></i>
+                Free & Open Source • No subscription required
+            </small>
+        </p>
+    </section>
+
+    <!-- Support Links -->
+    <section class="bg-light rounded p-4 mb-5">
+        <div class="row text-center">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <i class="bi bi-book text-primary fs-2 mb-2 d-block"></i>
+                <h4 class="h6 fw-bold">Installation Guide</h4>
+                <p class="text-muted small mb-2">Step-by-step instructions with screenshots</p>
+                <a href="/installer" class="btn btn-sm btn-outline-primary">View Guide</a>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <i class="bi bi-arrow-left-right text-primary fs-2 mb-2 d-block"></i>
+                <h4 class="h6 fw-bold">Compatibility</h4>
+                <p class="text-muted small mb-2">Version compatibility information</p>
+                <a href="/compatibility" class="btn btn-sm btn-outline-primary">Learn More</a>
+            </div>
+            <div class="col-md-4">
+                <i class="bi bi-github text-primary fs-2 mb-2 d-block"></i>
+                <h4 class="h6 fw-bold">Need Help?</h4>
+                <p class="text-muted small mb-2">Community support & bug reports</p>
+                <a href="https://github.com/JoshuaBylotas/MCBDSHost/issues" 
+                   target="_blank" 
+                   rel="noopener"
+                   class="btn btn-sm btn-outline-primary">
+                    Get Support
+                </a>
+            </div>
         </div>
     </section>
 </div>

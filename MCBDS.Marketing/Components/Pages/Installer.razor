@@ -1,0 +1,433 @@
+@page "/installer"
+@inject NavigationManager Navigation
+
+<PageTitle>Download MCBDS Manager v1.1 - Windows Service Installer</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Download MCBDS Manager v1.1 Windows Service Installer. Easy setup with pack management, player allowlist, and automated backups for your Minecraft Bedrock server." />
+</HeadContent>
+
+<!-- Hero Section -->
+<section class="installer-hero py-5 bg-gradient">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <span class="badge bg-primary mb-3">Latest Release v1.1</span>
+                <h1 class="display-4 fw-bold text-white mb-4">
+                    Download MCBDS Manager
+                </h1>
+                <p class="lead text-white mb-4">
+                    Professional Windows Service installer with pack management, player allowlist, and automated backups.
+                </p>
+                <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1/MCBDS.API.Service.Installer.exe" 
+                   class="btn btn-light btn-lg">
+                    <i class="bi bi-download me-2"></i>Download Installer (v1.1)
+                </a>
+                <p class="text-white-50 mt-3">
+                    <small>Windows 10/11 | Server 2019+ | ~50MB | Free & Open Source</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What's New in v1.1 -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="alert alert-primary border-primary" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-star-fill me-2"></i>What's New in v1.1
+                    </h4>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><i class="bi bi-box-seam text-primary me-2"></i>Pack Management</h5>
+                            <ul>
+                                <li>Upload resource packs (.zip or .mcpack)</li>
+                                <li>Upload behavior packs (.zip or .mcpack)</li>
+                                <li>Enable/disable packs with one click</li>
+                                <li>Automatic manifest parsing</li>
+                                <li>Pack validation and installation</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="bi bi-shield-check text-primary me-2"></i>Player Allowlist</h5>
+                            <ul>
+                                <li>Manage allowed players (whitelist)</li>
+                                <li>Xbox Live XUID lookup integration</li>
+                                <li>Manual XUID entry option</li>
+                                <li>Player limit exceptions for VIPs</li>
+                                <li>Automatic allowlist.json sync</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>Backward Compatible:</strong> Old UI clients (v1.0) will work with v1.1 servers, but new features won't be available. 
+                        New UI clients (v1.1) will work with old servers (v1.0), but pack management and allowlist features will be disabled gracefully.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Installation Steps -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <h2 class="text-center mb-5">
+                    <i class="bi bi-gear me-2"></i>Installation Guide
+                </h2>
+
+                <!-- Step 1 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Download Minecraft Bedrock Server</h3>
+                        <p>Get the official Minecraft Bedrock Dedicated Server from Microsoft:</p>
+                        <a href="https://www.minecraft.net/en-us/download/server/bedrock" 
+                           target="_blank" 
+                           rel="noopener" 
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>Download Bedrock Server
+                        </a>
+                        <p class="text-muted mt-3">
+                            <small>Extract all files to a folder (e.g., <code>C:\Binaries\bedrock_server</code>). 
+                            The <code>bedrock_server.exe</code> must be directly in this folder.</small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Download MCBDS Installer</h3>
+                        <p>Download the Windows Service installer:</p>
+                        <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1/MCBDS.API.Service.Installer.exe" 
+                           class="btn btn-primary">
+                            <i class="bi bi-download me-2"></i>MCBDS.API.Service.Installer.exe
+                        </a>
+                        <p class="text-muted mt-3">
+                            <small><i class="bi bi-shield-check me-1"></i>Digital signature verified • Safe to run</small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Run Installer as Administrator</h3>
+                        <p>Right-click the installer and select <strong>"Run as Administrator"</strong></p>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Administrator privileges are required to install the Windows Service and configure the firewall.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Configure Installation</h3>
+                        <p>The installer will guide you through configuration:</p>
+                        <ul>
+                            <li><strong>Bedrock Server Location:</strong> Point to where you extracted bedrock_server.exe</li>
+                            <li><strong>HTTP Port:</strong> Default 8080 (for API access)</li>
+                            <li><strong>Backup Settings:</strong> Frequency and retention</li>
+                            <li><strong>Log Directory:</strong> Where to store logs</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Upgrading from v1.0?</strong> Your existing settings will be preserved automatically!
+                            The installer creates backups and merges configurations.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Access the Dashboard</h3>
+                        <p>Once installed, the service starts automatically. Access the web dashboard:</p>
+                        <a href="http://localhost:8080" target="_blank" class="btn btn-success">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>Open Dashboard
+                        </a>
+                        <p class="text-muted mt-3">
+                            <small>Default URL: <code>http://localhost:8080</code> (or your configured port)</small>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="installation-step mb-4">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Configure Xbox Live API (Optional)</h3>
+                        <p>For player allowlist with automatic XUID lookup, configure Xbox Live API:</p>
+                        <ol>
+                            <li>Get a free API key from <a href="https://xbl.io" target="_blank" rel="noopener">OpenXBL (xbl.io)</a></li>
+                            <li>Edit <code>C:\Program Files\MCBDS API Service\appsettings.json</code></li>
+                            <li>Add your API key to the <code>XboxLive</code> section</li>
+                            <li>Restart the service: <code>net stop MCBDSAPIService && net start MCBDSAPIService</code></li>
+                        </ol>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Without an API key, you can still add players manually by entering their XUID.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- System Requirements -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="text-center mb-4">System Requirements</h2>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-windows text-primary me-2"></i>Operating System
+                                </h5>
+                                <ul class="mb-0">
+                                    <li>Windows 10 (1809+)</li>
+                                    <li>Windows 11</li>
+                                    <li>Windows Server 2019+</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-cpu text-primary me-2"></i>Hardware
+                                </h5>
+                                <ul class="mb-0">
+                                    <li>2+ CPU cores</li>
+                                    <li>4GB+ RAM</li>
+                                    <li>2GB+ disk space</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Docker Deprecation Notice -->
+<section class="py-5 bg-warning bg-opacity-10">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="alert alert-warning border-warning" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Docker Version Deprecation Notice
+                    </h4>
+                    <hr>
+                    <p>
+                        The Docker-based deployment will be <strong>deprecated in v1.2</strong> (scheduled for Q2 2025).
+                        We strongly recommend migrating to the Windows Service installer for the following benefits:
+                    </p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-check-circle me-2"></i>Advantages of Windows Service:</h5>
+                            <ul>
+                                <li>Better performance (native execution)</li>
+                                <li>Automatic Windows updates integration</li>
+                                <li>Easier configuration management</li>
+                                <li>Native Windows Service management</li>
+                                <li>Configuration preservation on upgrades</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-arrow-right-circle me-2"></i>Migration Path:</h5>
+                            <ol>
+                                <li>Backup your Bedrock server world data</li>
+                                <li>Note your current configuration settings</li>
+                                <li>Stop the Docker container</li>
+                                <li>Install Windows Service (this installer)</li>
+                                <li>Point to your existing Bedrock server files</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <hr>
+                    <p class="mb-0">
+                        <strong>Timeline:</strong> Docker support ends with v1.2 release. All new features will only be available in the Windows Service version.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Troubleshooting -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <h2 class="text-center mb-4">Troubleshooting</h2>
+                <div class="accordion" id="troubleshootingAccordion">
+                    <!-- Issue 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue1">
+                                <i class="bi bi-question-circle me-2"></i>Service won't start
+                            </button>
+                        </h2>
+                        <div id="issue1" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                            <div class="accordion-body">
+                                <strong>Check:</strong>
+                                <ul>
+                                    <li>Bedrock server path is correct in <code>appsettings.json</code></li>
+                                    <li><code>bedrock_server.exe</code> exists at the configured path</li>
+                                    <li>Port 8080 is not already in use</li>
+                                    <li>Windows Event Viewer for error details</li>
+                                </ul>
+                                <strong>Solution:</strong>
+                                <pre><code>net stop MCBDSAPIService
+# Edit C:\Program Files\MCBDS API Service\appsettings.json
+net start MCBDSAPIService</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issue 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue2">
+                                <i class="bi bi-question-circle me-2"></i>Pack management not showing
+                            </button>
+                        </h2>
+                        <div id="issue2" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                            <div class="accordion-body">
+                                <strong>Cause:</strong> Old server version (v1.0) or UI client (v1.0)
+                                <br><br>
+                                <strong>Solution:</strong>
+                                <ul>
+                                    <li>Ensure API server is v1.1 (check <code>http://localhost:8080/api/version</code>)</li>
+                                    <li>Update UI client to v1.1</li>
+                                    <li>Verify <code>SupportsPackManagement: true</code> in version response</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issue 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue3">
+                                <i class="bi bi-question-circle me-2"></i>Xbox Live XUID lookup fails
+                            </button>
+                        </h2>
+                        <div id="issue3" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                            <div class="accordion-body">
+                                <strong>Cause:</strong> No Xbox Live API key configured or invalid key
+                                <br><br>
+                                <strong>Solution:</strong>
+                                <ol>
+                                    <li>Get API key from <a href="https://xbl.io" target="_blank">OpenXBL</a></li>
+                                    <li>Edit <code>appsettings.json</code> and add to <code>XboxLive</code> section:
+                                        <pre><code>"XboxLive": {
+  "ApiKey": "your-key-here"
+}</code></pre>
+                                    </li>
+                                    <li>Restart service</li>
+                                </ol>
+                                <strong>Alternative:</strong> Enter XUIDs manually (find at <a href="https://xboxgamertag.com" target="_blank">xboxgamertag.com</a>)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Support Section -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="mb-4">Need Help?</h2>
+        <p class="lead mb-4">Get support from our community or report issues</p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="https://github.com/JoshuaBylotas/MCBDSHost/issues" 
+               target="_blank" 
+               rel="noopener" 
+               class="btn btn-outline-primary">
+                <i class="bi bi-github me-2"></i>Report an Issue
+            </a>
+            <a href="https://github.com/JoshuaBylotas/MCBDSHost/discussions" 
+               target="_blank" 
+               rel="noopener" 
+               class="btn btn-outline-primary">
+                <i class="bi bi-chat-dots me-2"></i>Community Discussions
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .installer-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .installation-step {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+
+    .step-number {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .step-content {
+        flex: 1;
+    }
+
+    .step-content h3 {
+        margin-bottom: 1rem;
+    }
+
+    code {
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+
+    pre code {
+        display: block;
+        padding: 1rem;
+        background: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+</style>

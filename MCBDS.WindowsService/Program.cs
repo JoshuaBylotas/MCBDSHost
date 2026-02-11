@@ -175,6 +175,12 @@ public class Program
         // Configure backup settings
         builder.Services.Configure<BackupConfiguration>(builder.Configuration.GetSection("Backup"));
 
+        // Register HttpClientFactory for external API calls (Xbox Live, etc.)
+        builder.Services.AddHttpClient();
+
+        // Register PackManagementService
+        builder.Services.AddScoped<MCBDS.API.Services.PackManagementService>();
+
         // Register RunnerHostedService
         builder.Services.AddSingleton<RunnerHostedService>();
         builder.Services.AddHostedService(provider => provider.GetRequiredService<RunnerHostedService>());

@@ -1,5 +1,7 @@
 using MCBDS.Marketing.Components;
 using MCBDS.Marketing.Services;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,36 @@ builder.Services.AddRazorComponents();
 builder.Services.AddScoped<DocumentationService>();
 builder.Services.AddScoped<StructuredDataService>();
 
+// Add Response Compression for better performance
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "image/svg+xml",
+        "application/json",
+        "application/javascript",
+        "text/css",
+        "text/html",
+        "text/plain",
+        "text/xml"
+    });
+});
+
+// Configure Brotli compression (highest quality)
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Optimal;
+});
+
+// Configure Gzip compression (fallback)
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Optimal;
+});
+
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -21,6 +53,9 @@ if (builder.Environment.IsProduction() && RuntimeInformation.IsOSPlatform(OSPlat
 }
 
 var app = builder.Build();
+
+// Enable Response Compression (must be early in pipeline)
+app.UseResponseCompression();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -63,8 +98,17 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Serve static files
-app.UseStaticFiles();
+// Serve static files with aggressive caching for performance
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Cache static assets for 1 year (versioned by Blazor)
+        const int durationInSeconds = 60 * 60 * 24 * 365;
+        ctx.Context.Response.Headers.Append(
+            "Cache-Control", $"public,max-age={durationInSeconds},immutable");
+    }
+});
 
 app.UseAntiforgery();
 

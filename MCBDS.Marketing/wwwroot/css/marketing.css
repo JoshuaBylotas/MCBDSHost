@@ -55,6 +55,8 @@ body {
     letter-spacing: -1px;
     position: relative;
     z-index: 1;
+    /* Prevent layout shift */
+    min-height: 4.2em;
 }
 
 .hero-section .text-primary {

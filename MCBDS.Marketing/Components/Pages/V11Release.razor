@@ -1,0 +1,309 @@
+@page "/v1-1-release"
+
+<PageTitle>MCBDS Manager v1.1 Released - Pack Management & Allowlist</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="MCBDS Manager v1.1 is now available with pack management, player allowlist, Xbox Live integration, and more. Download now!" />
+</HeadContent>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <span class="badge bg-primary mb-3" style="font-size: 1.2rem;">Release Announcement</span>
+                <h1 class="display-3 fw-bold mb-3">MCBDS Manager v1.1</h1>
+                <p class="lead text-muted">
+                    Pack Management, Player Allowlist, and More
+                </p>
+                <p class="text-muted">
+                    <i class="bi bi-calendar3 me-2"></i>Released: January 2025
+                    <span class="mx-3">•</span>
+                    <i class="bi bi-github me-2"></i>
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/tag/API-v1.1" target="_blank">View on GitHub</a>
+                </p>
+            </div>
+
+            <!-- Download CTA -->
+            <div class="alert alert-primary text-center mb-5">
+                <h4><i class="bi bi-download me-2"></i>Download Now</h4>
+                <a href="/installer" class="btn btn-primary btn-lg mt-2">
+                    Get MCBDS Manager v1.1
+                </a>
+            </div>
+
+            <!-- What's New -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-star-fill text-warning me-2"></i>What's New</h2>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-primary">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">
+                                    <i class="bi bi-box-seam text-primary me-2"></i>
+                                    Resource & Behavior Pack Management
+                                </h3>
+                                <ul class="mb-0">
+                                    <li>Upload packs directly from web interface</li>
+                                    <li>Support for .zip and .mcpack formats</li>
+                                    <li>Enable/disable packs with one click</li>
+                                    <li>Automatic manifest.json parsing</li>
+                                    <li>Pack validation before installation</li>
+                                    <li>Visual pack management dashboard</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100 border-success">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">
+                                    <i class="bi bi-shield-check text-success me-2"></i>
+                                    Player Allowlist (Whitelist) System
+                                </h3>
+                                <ul class="mb-0">
+                                    <li>Manage allowed players via web UI</li>
+                                    <li>Xbox Live XUID automatic lookup</li>
+                                    <li>Manual XUID entry option</li>
+                                    <li>VIP player limit exceptions</li>
+                                    <li>Bulk import/export capabilities</li>
+                                    <li>Automatic allowlist.json sync</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100 border-info">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">
+                                    <i class="bi bi-person-badge text-info me-2"></i>
+                                    Xbox Live Integration
+                                </h3>
+                                <ul class="mb-0">
+                                    <li>XUID lookup via OpenXBL API</li>
+                                    <li>24-hour result caching</li>
+                                    <li>Fallback to manual entry</li>
+                                    <li>Known gamertag mappings</li>
+                                    <li>API key configuration</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="h5 card-title">
+                                    <i class="bi bi-gear me-2"></i>
+                                    Additional Improvements
+                                </h3>
+                                <ul class="mb-0">
+                                    <li>Smart configuration merging on upgrades</li>
+                                    <li>Improved error handling</li>
+                                    <li>Enhanced API documentation</li>
+                                    <li>Performance optimizations</li>
+                                    <li>Bug fixes and stability improvements</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compatibility -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-arrow-left-right me-2"></i>Backward Compatibility</h2>
+                <div class="alert alert-success">
+                    <h5><i class="bi bi-check-circle me-2"></i>Fully Compatible!</h5>
+                    <p>v1.1 maintains full backward compatibility with v1.0:</p>
+                    <ul class="mb-0">
+                        <li><strong>Old UI + New Server:</strong> Works perfectly, new features not visible in UI</li>
+                        <li><strong>New UI + Old Server:</strong> Works perfectly, new features gracefully hidden</li>
+                        <li><strong>No Breaking Changes:</strong> All existing APIs and features continue working</li>
+                        <li><strong>Settings Preserved:</strong> Upgrade without reconfiguration</li>
+                    </ul>
+                </div>
+                <p class="text-center mt-3">
+                    <a href="/compatibility" class="btn btn-outline-primary">
+                        <i class="bi bi-book me-2"></i>Read Full Compatibility Guide
+                    </a>
+                </p>
+            </section>
+
+            <!-- Migration -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Important: Docker Deprecation</h2>
+                <div class="alert alert-warning">
+                    <h5 class="mb-3">Docker Version Will Be Deprecated in v1.2</h5>
+                    <p>
+                        We're consolidating on the Windows Service installer for better performance, 
+                        easier updates, and native Windows integration.
+                    </p>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Timeline:</strong>
+                            <ul>
+                                <li><strong>Now (v1.1):</strong> Docker still supported</li>
+                                <li><strong>Q2 2025 (v1.2):</strong> Docker removed</li>
+                                <li><strong>Action:</strong> Migrate to Windows Service</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Why Switch?</strong>
+                            <ul>
+                                <li>? Better performance (native execution)</li>
+                                <li>? Automatic Windows updates</li>
+                                <li>? Easier configuration</li>
+                                <li>? Native service management</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="/installer#docker-migration" class="btn btn-warning">
+                            <i class="bi bi-arrow-right-circle me-2"></i>View Migration Guide
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Technical Details -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-code-slash me-2"></i>Technical Details</h2>
+                
+                <h4>API Changes:</h4>
+                <ul>
+                    <li><code>GET /api/version</code> - Now returns <code>supportsPackManagement</code> and <code>supportsAllowlist</code></li>
+                    <li><code>GET /api/packs</code> - NEW: List installed packs</li>
+                    <li><code>POST /api/packs/upload</code> - NEW: Upload pack files</li>
+                    <li><code>POST /api/packs/enable</code> - NEW: Enable pack for world</li>
+                    <li><code>POST /api/packs/disable</code> - NEW: Disable pack</li>
+                    <li><code>GET /api/allowlist</code> - NEW: Get allowlist data</li>
+                    <li><code>POST /api/allowlist/add</code> - NEW: Add player</li>
+                    <li><code>DELETE /api/allowlist/remove</code> - NEW: Remove player</li>
+                    <li><code>GET /api/xboxlive/lookup/{gamertag}</code> - NEW: XUID lookup</li>
+                </ul>
+
+                <h4 class="mt-4">Configuration Changes:</h4>
+                <pre><code>// New in appsettings.json
+{
+  "XboxLive": {
+    "ApiKey": "your-openxbl-api-key",
+    "ApiBaseUrl": "https://xbl.io/api/v2",
+    "EnableCaching": true,
+    "CacheExpirationMinutes": 1440
+  }
+}</code></pre>
+
+                <h4 class="mt-4">System Requirements:</h4>
+                <ul>
+                    <li>Windows 10 (1809+), Windows 11, or Windows Server 2019+</li>
+                    <li>.NET 10.0 Runtime (included in installer)</li>
+                    <li>2GB+ RAM, 2+ CPU cores</li>
+                    <li>Administrator privileges for installation</li>
+                </ul>
+            </section>
+
+            <!-- Installation -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-download me-2"></i>Installation</h2>
+                
+                <h4>Fresh Install:</h4>
+                <ol>
+                    <li>Download the installer</li>
+                    <li>Run as Administrator</li>
+                    <li>Follow configuration wizard</li>
+                    <li>Point to your Bedrock server</li>
+                    <li>Access dashboard at <code>http://localhost:8080</code></li>
+                </ol>
+
+                <h4 class="mt-4">Upgrading from v1.0:</h4>
+                <ol>
+                    <li>Download v1.1 installer</li>
+                    <li>Run installer (no uninstall needed)</li>
+                    <li>Your settings are automatically preserved</li>
+                    <li>Service restarts with new features</li>
+                    <li>Done! No reconfiguration required</li>
+                </ol>
+
+                <div class="text-center mt-4">
+                    <a href="/installer" class="btn btn-primary btn-lg">
+                        <i class="bi bi-book me-2"></i>Full Installation Guide
+                    </a>
+                </div>
+            </section>
+
+            <!-- Known Issues -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-bug me-2"></i>Known Issues</h2>
+                <ul>
+                    <li><strong>Pack Upload Size:</strong> Limited to 100MB per file (configurable in IIS)</li>
+                    <li><strong>Xbox Live Lookup:</strong> Requires free API key from OpenXBL (xbl.io)</li>
+                    <li><strong>Windows Only:</strong> Linux/Docker support ending in v1.2</li>
+                </ul>
+                <p>
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/issues" target="_blank">
+                        Report issues on GitHub ?
+                    </a>
+                </p>
+            </section>
+
+            <!-- Credits -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-people me-2"></i>Credits & Thanks</h2>
+                <p>Special thanks to:</p>
+                <ul>
+                    <li><strong>OpenXBL (xbl.io)</strong> - Xbox Live XUID lookup API</li>
+                    <li><strong>Contributors</strong> - Bug reports and feature requests</li>
+                    <li><strong>Community</strong> - Testing and feedback</li>
+                </ul>
+            </section>
+
+            <!-- What's Next -->
+            <section class="mb-5">
+                <h2 class="mb-4"><i class="bi bi-calendar-event me-2"></i>What's Next?</h2>
+                <p>Planned for future releases:</p>
+                <ul>
+                    <li><strong>v1.2 (Q2 2025):</strong> Docker removal, additional pack features, iOS app</li>
+                    <li><strong>v2.0 (TBD):</strong> Multi-server management, user authentication, scheduled commands</li>
+                </ul>
+                <p>
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/discussions" target="_blank">
+                        Join the discussion about future features ?
+                    </a>
+                </p>
+            </section>
+
+            <!-- Download CTA -->
+            <div class="text-center py-5 bg-light rounded">
+                <h3 class="mb-4">Ready to Upgrade?</h3>
+                <a href="/installer" class="btn btn-primary btn-lg">
+                    <i class="bi bi-download me-2"></i>Download MCBDS Manager v1.1
+                </a>
+                <p class="text-muted mt-3 mb-0">
+                    Free & Open Source • Windows 10/11 • ~50MB
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    code {
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+
+    pre code {
+        display: block;
+        padding: 1rem;
+        background: #2d2d2d;
+        color: #f8f8f2;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+</style>

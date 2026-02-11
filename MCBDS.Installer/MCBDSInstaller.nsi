@@ -19,10 +19,10 @@ InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MCBDS
 
 RequestExecutionLevel admin
 
-VIProductVersion "1.0.1.0"
+VIProductVersion "1.0.2.0"
 VIAddVersionKey "ProductName" "MCBDS API Service"
-VIAddVersionKey "FileVersion" "1.0.1.0"
-VIAddVersionKey "ProductVersion" "1.0.1.0"
+VIAddVersionKey "FileVersion" "1.0.2.0"
+VIAddVersionKey "ProductVersion" "1.0.2.0"
 VIAddVersionKey "CompanyName" "MCBDS"
 VIAddVersionKey "FileDescription" "Minecraft Bedrock Dedicated Server API and Management Service"
 VIAddVersionKey "LegalCopyright" "Copyright MCBDS"
@@ -248,10 +248,10 @@ FunctionEnd
 ; Installer Section
 ;=============================================================================
 Section "Install MCBDS API Service"
-  SetOutPath "$INSTDIR"
-  SetRegView 64  ; Use native 64-bit registry view
+SetOutPath "$INSTDIR"
+SetRegView 64  ; Use native 64-bit registry view
 
-  ; Normalize defaults
+; Normalize defaults
   ${If} $BinariesPath == ""
     StrCpy $BinariesPath "$INSTDIR\Binaries"
   ${EndIf}
@@ -292,142 +292,40 @@ Section "Install MCBDS API Service"
 
   DetailPrint "Creating configuration files..."
 
-  ; Convert backslashes to forward slashes manually (Windows accepts both)
-  StrCpy $0 $BedrockExePath
-  StrCpy $BedrockExePath_JSON ""
-  StrLen $1 $0
-  StrCpy $2 0
-  convertLoop1:
-    IntCmp $2 $1 convertDone1
-    StrCpy $3 $0 1 $2
-    StrCmp $3 "\" 0 +3
-      StrCpy $BedrockExePath_JSON "$BedrockExePath_JSON/"
-      Goto convertNext1
-    StrCpy $BedrockExePath_JSON "$BedrockExePath_JSON$3"
-    convertNext1:
-    IntOp $2 $2 + 1
-    Goto convertLoop1
-  convertDone1:
-
-  StrCpy $0 $LogFilePath
-  StrCpy $LogFilePath_JSON ""
-  StrLen $1 $0
-  StrCpy $2 0
-  convertLoop2:
-    IntCmp $2 $1 convertDone2
-    StrCpy $3 $0 1 $2
-    StrCmp $3 "\" 0 +3
-      StrCpy $LogFilePath_JSON "$LogFilePath_JSON/"
-      Goto convertNext2
-    StrCpy $LogFilePath_JSON "$LogFilePath_JSON$3"
-    convertNext2:
-    IntOp $2 $2 + 1
-    Goto convertLoop2
-  convertDone2:
-
-  StrCpy $0 $BackupsPath
-  StrCpy $BackupsPath_JSON ""
-  StrLen $1 $0
-  StrCpy $2 0
-  convertLoop3:
-    IntCmp $2 $1 convertDone3
-    StrCpy $3 $0 1 $2
-    StrCmp $3 "\" 0 +3
-      StrCpy $BackupsPath_JSON "$BackupsPath_JSON/"
-      Goto convertNext3
-    StrCpy $BackupsPath_JSON "$BackupsPath_JSON$3"
-    convertNext3:
-    IntOp $2 $2 + 1
-    Goto convertLoop3
-  convertDone3:
-
-  ; ------------------- appsettings.user.json -------------------
-  FileOpen $7 "$INSTDIR\appsettings.user.json" w
-  FileWrite $7 "{$\r$\n"
-  FileWrite $7 '  "Logging": {$\r$\n'
-  FileWrite $7 '    "LogLevel": {$\r$\n'
-  FileWrite $7 '      "Default": "Information",$\r$\n'
-  FileWrite $7 '      "Microsoft.AspNetCore": "Warning"$\r$\n'
-  FileWrite $7 '    }$\r$\n'
-  FileWrite $7 '  },$\r$\n'
-  FileWrite $7 '  "AllowedHosts": "*",$\r$\n'
+  ; Use PowerShell to intelligently merge existing config with new defaults
+  DetailPrint "Merging configuration settings (preserving user customizations)..."
   
-  StrCpy $4 '  "Urls": "http://0.0.0.0:'
-  StrCpy $4 '$4$ServicePort",$\r$\n'
-  FileWrite $7 $4
+  ; Copy merge script to temp location
+  SetOutPath "$TEMP"
+  File "merge-appsettings.ps1"
   
-  FileWrite $7 '  "Runner": {$\r$\n'
+  ; Execute PowerShell merge script
+  nsExec::ExecToLog 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$TEMP\merge-appsettings.ps1" -InstallDir "$INSTDIR" -BedrockExePath "$BedrockExePath" -LogFilePath "$LogFilePath" -BackupsPath "$BackupsPath" -ServicePort $ServicePort -BackupFrequency $BackupFrequency -MaxBackups $MaxBackups'
   
-  StrCpy $4 '    "ExePath": "'
-  StrCpy $4 '$4$BedrockExePath_JSON",$\r$\n'
-  FileWrite $7 $4
+  Pop $0
+  ${If} $0 != 0
+    DetailPrint "Warning: PowerShell merge failed (exit code: $0)"
+    DetailPrint "Creating default configuration instead..."
+    
+    ; Fallback: Create basic config manually
+    FileOpen $7 "$INSTDIR\appsettings.json" w
+    FileWrite $7 "{$\r$\n"
+    FileWrite $7 '  "Logging": {$\r$\n'
+    FileWrite $7 '    "LogLevel": {$\r$\n'
+    FileWrite $7 '      "Default": "Information",$\r$\n'
+    FileWrite $7 '      "Microsoft.AspNetCore": "Warning"$\r$\n'
+    FileWrite $7 '    }$\r$\n'
+    FileWrite $7 '  },$\r$\n'
+    FileWrite $7 '  "AllowedHosts": "*",$\r$\n'
+    FileWrite $7 '  "Urls": "http://0.0.0.0:$ServicePort"$\r$\n'
+    FileWrite $7 "}$\r$\n"
+    FileClose $7
+  ${Else}
+    DetailPrint "Configuration merged successfully!"
+  ${EndIf}
   
-  StrCpy $4 '    "LogFilePath": "'
-  StrCpy $4 '$4$LogFilePath_JSON"$\r$\n'
-  FileWrite $7 $4
-  
-  FileWrite $7 '  },$\r$\n'
-  FileWrite $7 '  "Backup": {$\r$\n'
-  
-  StrCpy $4 '    "FrequencyMinutes": '
-  StrCpy $4 '$4$BackupFrequency,$\r$\n'
-  FileWrite $7 $4
-  
-  StrCpy $4 '    "BackupDirectory": "'
-  StrCpy $4 '$4$BackupsPath_JSON",$\r$\n'
-  FileWrite $7 $4
-  
-  StrCpy $4 '    "MaxBackupsToKeep": '
-  StrCpy $4 '$4$MaxBackups$\r$\n'
-  FileWrite $7 $4
-  
-  FileWrite $7 '  }$\r$\n'
-  FileWrite $7 "}$\r$\n"
-  FileClose $7
-
-  ; ------------------------ appsettings.json -------------------
-  FileOpen $7 "$INSTDIR\appsettings.json" w
-  FileWrite $7 "{$\r$\n"
-  FileWrite $7 '  "Logging": {$\r$\n'
-  FileWrite $7 '    "LogLevel": {$\r$\n'
-  FileWrite $7 '      "Default": "Information",$\r$\n'
-  FileWrite $7 '      "Microsoft.AspNetCore": "Warning"$\r$\n'
-  FileWrite $7 '    }$\r$\n'
-  FileWrite $7 '  },$\r$\n'
-  FileWrite $7 '  "AllowedHosts": "*",$\r$\n'
-  
-  StrCpy $4 '  "Urls": "http://0.0.0.0:'
-  StrCpy $4 '$4$ServicePort",$\r$\n'
-  FileWrite $7 $4
-  
-  FileWrite $7 '  "Runner": {$\r$\n'
-  
-  StrCpy $4 '    "ExePath": "'
-  StrCpy $4 '$4$BedrockExePath_JSON",$\r$\n'
-  FileWrite $7 $4
-  
-  StrCpy $4 '    "LogFilePath": "'
-  StrCpy $4 '$4$LogFilePath_JSON"$\r$\n'
-  FileWrite $7 $4
-  
-  FileWrite $7 '  },$\r$\n'
-  FileWrite $7 '  "Backup": {$\r$\n'
-  
-  StrCpy $4 '    "FrequencyMinutes": '
-  StrCpy $4 '$4$BackupFrequency,$\r$\n'
-  FileWrite $7 $4
-  
-  StrCpy $4 '    "BackupDirectory": "'
-  StrCpy $4 '$4$BackupsPath_JSON",$\r$\n'
-  FileWrite $7 $4
-  
-  StrCpy $4 '    "MaxBackupsToKeep": '
-  StrCpy $4 '$4$MaxBackups$\r$\n'
-  FileWrite $7 $4
-  
-  FileWrite $7 '  }$\r$\n'
-  FileWrite $7 "}$\r$\n"
-  FileClose $7
+  ; Clean up temp merge script
+  Delete "$TEMP\merge-appsettings.ps1"
 
   ; Uninstall registry
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MCBDS API Service" "DisplayName" "MCBDS API Service"
