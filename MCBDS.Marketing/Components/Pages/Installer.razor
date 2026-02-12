@@ -1,73 +1,112 @@
 @page "/installer"
 @inject NavigationManager Navigation
 
-<PageTitle>Download MCBDS Manager v1.1 - Windows Service Installer</PageTitle>
+<PageTitle>Download MCBDS Manager v1.1.51 - Complete Windows Installation</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="Download MCBDS Manager v1.1 Windows Service Installer. Easy setup with pack management, player allowlist, and automated backups for your Minecraft Bedrock server." />
+    <meta name="description" content="Download MCBDS Manager v1.1.51 Windows Installer with Manager UI, HTTPS support, Xbox Live integration, pack management, and automated backups for your Minecraft Bedrock server." />
+    <meta name="keywords" content="mcbds manager download, windows installer, manager ui, minecraft server software, bedrock server management" />
 </HeadContent>
 
 <!-- Hero Section -->
-<section class="installer-hero py-5 bg-gradient">
+<section class="installer-hero py-5 bg-primary">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8 mx-auto text-center">
-                <span class="badge bg-primary mb-3">Latest Release v1.1</span>
+                <span class="badge bg-light text-primary mb-3 fs-6">Latest Release v1.1.51</span>
                 <h1 class="display-4 fw-bold text-white mb-4">
                     Download MCBDS Manager
                 </h1>
                 <p class="lead text-white mb-4">
-                    Professional Windows Service installer with pack management, player allowlist, and automated backups.
+                    Complete Windows installation with Manager UI, Service, and Web Dashboard. Professional installer with automated HTTPS and Xbox Live setup.
                 </p>
-                <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1/MCBDS.API.Service.Installer.exe" 
-                   class="btn btn-light btn-lg">
-                    <i class="bi bi-download me-2"></i>Download Installer (v1.1)
+                <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1.51/MCBDS.Manager.1.1.51.Installer.exe" 
+                   class="btn btn-light btn-lg shadow">
+                    <i class="bi bi-download me-2"></i>Download Installer (v1.1.51)
                 </a>
-                <p class="text-white-50 mt-3">
-                    <small>Windows 10/11 | Server 2019+ | ~50MB | Free & Open Source</small>
+                <p class="text-white mt-3">
+                    <small><i class="bi bi-windows me-1"></i>Windows 10/11 | Server 2019+ | ~30MB | Free & Open Source</small>
                 </p>
+                <div class="mt-3">
+                    <a href="/v1-1-51-release" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-file-text me-2"></i>Release Notes
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- What's New in v1.1 -->
+<!-- What's New in v1.1.51 -->
 <section class="py-5">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 mx-auto">
                 <div class="alert alert-primary border-primary" role="alert">
                     <h4 class="alert-heading">
-                        <i class="bi bi-star-fill me-2"></i>What's New in v1.1
+                        <i class="bi bi-star-fill me-2"></i>What's New in v1.1.51
                     </h4>
                     <hr>
                     <div class="row">
                         <div class="col-md-6">
-                            <h5><i class="bi bi-box-seam text-primary me-2"></i>Pack Management</h5>
+                            <h5><i class="bi bi-window-desktop text-primary me-2"></i>Windows Manager UI</h5>
                             <ul>
-                                <li>Upload resource packs (.zip or .mcpack)</li>
-                                <li>Upload behavior packs (.zip or .mcpack)</li>
-                                <li>Enable/disable packs with one click</li>
-                                <li>Automatic manifest parsing</li>
-                                <li>Pack validation and installation</li>
+                                <li><strong>NEW:</strong> Native desktop application (.NET MAUI)</li>
+                                <li>Manage server without browser</li>
+                                <li>All web features included</li>
+                                <li>Multi-server support</li>
+                                <li>Auto-installed with service</li>
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h5><i class="bi bi-shield-check text-primary me-2"></i>Player Allowlist</h5>
+                            <h5><i class="bi bi-shield-lock text-primary me-2"></i>HTTPS & Security</h5>
                             <ul>
-                                <li>Manage allowed players (whitelist)</li>
-                                <li>Xbox Live XUID lookup integration</li>
-                                <li>Manual XUID entry option</li>
-                                <li>Player limit exceptions for VIPs</li>
-                                <li>Automatic allowlist.json sync</li>
+                                <li>Self-signed certificate generation</li>
+                                <li>Automatic certificate trust setup</li>
+                                <li>SSL/TLS encryption</li>
+                                <li>Secure remote management</li>
+                                <li>Certificate configuration guide</li>
                             </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="bi bi-xbox text-primary me-2"></i>Xbox Live Integration</h5>
+                            <ul>
+                                <li>XUID lookup via OpenXBL API</li>
+                                <li>Installer configuration wizard</li>
+                                <li>24-hour result caching</li>
+                                <li>Known gamertag mappings</li>
+                                <li>Optional API key setup</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="bi bi-gear-fill text-primary me-2"></i>Professional Installer</h5>
+                            <ul>
+                                <li>One-click automated setup</li>
+                                <li>Interactive configuration wizard</li>
+                                <li>Firewall rules setup</li>
+                                <li>Service auto-start on boot</li>
+                                <li>Preserves settings on upgrade</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5><i class="bi bi-box-seam text-success me-2"></i>v1.1 Features (Included)</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Pack Management:</strong> Upload and manage resource/behavior packs
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Player Allowlist:</strong> Xbox Live XUID lookup and whitelist management
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <hr>
                     <p class="mb-0">
                         <i class="bi bi-info-circle me-1"></i>
-                        <strong>Backward Compatible:</strong> Old UI clients (v1.0) will work with v1.1 servers, but new features won't be available. 
-                        New UI clients (v1.1) will work with old servers (v1.0), but pack management and allowlist features will be disabled gracefully.
+                        <strong>Fully Compatible:</strong> All UI versions work with v1.1.51 servers. The Windows Manager UI is automatically installed and pre-configured.
                     </p>
                 </div>
             </div>
@@ -108,13 +147,13 @@
                     <div class="step-number">2</div>
                     <div class="step-content">
                         <h3>Download MCBDS Installer</h3>
-                        <p>Download the Windows Service installer:</p>
-                        <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1/MCBDS.API.Service.Installer.exe" 
+                        <p>Download the complete Windows installation package:</p>
+                        <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases/download/API-v1.1.51/MCBDS.Manager.1.1.51.Installer.exe" 
                            class="btn btn-primary">
-                            <i class="bi bi-download me-2"></i>MCBDS.API.Service.Installer.exe
+                            <i class="bi bi-download me-2"></i>MCBDS.Manager.1.1.51.Installer.exe
                         </a>
                         <p class="text-muted mt-3">
-                            <small><i class="bi bi-shield-check me-1"></i>Digital signature verified • Safe to run</small>
+                            <small><i class="bi bi-shield-check me-1"></i>Code-signed installer • Includes Service + Manager UI + Web Dashboard</small>
                         </p>
                     </div>
                 </div>
@@ -141,12 +180,19 @@
                         <ul>
                             <li><strong>Bedrock Server Location:</strong> Point to where you extracted bedrock_server.exe</li>
                             <li><strong>HTTP Port:</strong> Default 8080 (for API access)</li>
+                            <li><strong>HTTPS Setup:</strong> Optional - auto-generates self-signed certificate</li>
+                            <li><strong>Xbox Live API Key:</strong> Optional - enables XUID lookup</li>
                             <li><strong>Backup Settings:</strong> Frequency and retention</li>
                             <li><strong>Log Directory:</strong> Where to store logs</li>
                         </ul>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <strong>NEW in v1.1.51:</strong> The installer automatically sets up the Windows Manager UI (desktop app)
+                            and configures HTTPS with a trusted self-signed certificate.
+                        </div>
                         <div class="alert alert-warning">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>Upgrading from v1.0?</strong> Your existing settings will be preserved automatically!
+                            <strong>Upgrading from previous versions?</strong> Your existing settings will be preserved automatically!
                             The installer creates backups and merges configurations.
                         </div>
                     </div>

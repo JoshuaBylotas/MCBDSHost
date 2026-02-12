@@ -58,3 +58,7 @@ x64/
 x86/
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
+# Code signing certificates (keep these private!)
+MCBDS.Installer/CodeSigning.pfx
+MCBDS.Installer/CodeSigning.cer
+MCBDS.Installer/CodeSigning.password.txt

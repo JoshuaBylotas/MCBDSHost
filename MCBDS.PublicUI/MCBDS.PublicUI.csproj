@@ -39,14 +39,19 @@
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <AssemblyTitle>MCBDS Manager</AssemblyTitle>
         <DefaultLanguage>EN</DefaultLanguage>
-        <PackageCertificateThumbprint>B97A80AD152EF3F18075E8F6B31A219112319F2B</PackageCertificateThumbprint>
+        
+        <!-- MSIX Signing Configuration -->
+        <!-- MSBuild will use the certificate from CurrentUser\My certificate store -->
+        <!-- The certificate is created by build-installer.ps1 with subject "CN=Pinecrest Consultants" -->
+        <!-- To find thumbprint: Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Pinecrest*"} -->
         <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
         <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        
+        <!-- Other MSIX settings -->
+        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
         <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
         <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
         <GenerateTestArtifacts>True</GenerateTestArtifacts>
-        <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
         <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
         
         <!-- Fix for static web assets conflicts -->
