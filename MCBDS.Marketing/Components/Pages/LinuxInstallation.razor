@@ -1,0 +1,255 @@
+@page "/linux-installation"
+@attribute [StreamRendering]
+
+<PageTitle>Linux Installation Guide - MCBDS Manager API</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="Complete guide for installing MCBDS Manager API on Ubuntu Linux. Deploy your Minecraft Bedrock server with our comprehensive Linux installation instructions." />
+    <meta name="keywords" content="linux minecraft server, ubuntu minecraft, linux bedrock server, mcbds linux, minecraft server linux installation" />
+    <link rel="canonical" href="https://www.mc-bds.com/linux-installation" />
+</HeadContent>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold">Linux Installation Guide</h1>
+                <p class="lead text-muted">Complete guide for installing MCBDS Manager API on Ubuntu Linux</p>
+                
+                <!-- Download Button -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="/downloads/mcbds-api-linux-x64-v1.1.51.zip" class="btn btn-primary btn-lg">
+                        <i class="bi bi-download me-2"></i>Download Linux Package v1.1.51
+                    </a>
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/releases" class="btn btn-outline-secondary btn-lg" target="_blank">
+                        <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                </div>
+            </div>
+
+            <!-- Important Notice -->
+            <div class="alert alert-info">
+                <h5 class="alert-heading"><i class="bi bi-info-circle me-2"></i>API-Only Installation</h5>
+                <p class="mb-0">This is an <strong>API-only</strong> installation with no web dashboard UI included. Manage your server via:</p>
+                <ul class="mb-0 mt-2">
+                    <li>REST API calls (curl, Postman, scripts)</li>
+                    <li>MAUI mobile app (Android/iOS)</li>
+                    <li>Web UI (available separately - coming soon)</li>
+                </ul>
+            </div>
+
+            <!-- Table of Contents -->
+            <nav class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Table of Contents</h5>
+                    <ol class="mb-0">
+                        <li><a href="#prerequisites">Prerequisites</a></li>
+                        <li><a href="#system-preparation">System Preparation</a></li>
+                        <li><a href="#install-dotnet">Install .NET 10 Runtime</a></li>
+                        <li><a href="#deploy-api">Deploy MCBDS API</a></li>
+                        <li><a href="#install-bedrock">Install Minecraft Bedrock Server</a></li>
+                        <li><a href="#configure-systemd">Configure systemd Service</a></li>
+                        <li><a href="#firewall">Firewall Configuration</a></li>
+                        <li><a href="#ssl">SSL/HTTPS Setup (Optional)</a></li>
+                        <li><a href="#backup">Backup Configuration</a></li>
+                        <li><a href="#verification">Verification & Testing</a></li>
+                        <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    </ol>
+                </div>
+            </nav>
+
+            <!-- Prerequisites -->
+            <section id="prerequisites" class="mb-5">
+                <h2 class="mb-3">Prerequisites</h2>
+                
+                <h4>Supported Ubuntu Versions</h4>
+                <ul>
+                    <li><strong>Ubuntu 22.04 LTS</strong> (recommended)</li>
+                    <li>Ubuntu 24.04 LTS</li>
+                    <li>Ubuntu 20.04 LTS (minimum)</li>
+                </ul>
+
+                <h4 class="mt-4">Hardware Requirements</h4>
+                <ul>
+                    <li><strong>CPU:</strong> 2+ cores (4+ recommended for multiple players)</li>
+                    <li><strong>RAM:</strong> 4GB minimum (8GB+ recommended)</li>
+                    <li><strong>Storage:</strong> 5GB+ free space</li>
+                    <li><strong>Network:</strong> Static IP or DDNS (for external access)</li>
+                </ul>
+
+                <h4 class="mt-4">Required Ports</h4>
+                <ul>
+                    <li><strong>8080</strong> - HTTP API Endpoints</li>
+                    <li><strong>8081</strong> - HTTPS API Endpoints (optional)</li>
+                    <li><strong>19132/UDP</strong> - Minecraft Bedrock IPv4</li>
+                    <li><strong>19133/UDP</strong> - Minecraft Bedrock IPv6</li>
+                </ul>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quick-start" class="mb-5">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h3 class="card-title"><i class="bi bi-lightning-charge me-2"></i>Quick Start</h3>
+                        <p>For the complete installation guide with detailed explanations, continue reading below. Here's a high-level overview:</p>
+                        <ol>
+                            <li>Download and extract the Linux package</li>
+                            <li>Install .NET 10 ASP.NET Core Runtime</li>
+                            <li>Download Minecraft Bedrock Server</li>
+                            <li>Configure systemd service</li>
+                            <li>Start and manage via API</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Download Section -->
+            <section id="download" class="mb-5">
+                <h2 class="mb-3">Download</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <h5>MCBDS API Linux Package v1.1.51</h5>
+                        <p class="text-muted">Pre-compiled .NET 10 binaries for Ubuntu 20.04+</p>
+                        <a href="/downloads/mcbds-api-linux-x64-v1.1.51.zip" class="btn btn-primary">
+                            <i class="bi bi-download me-2"></i>Download (mcbds-api-linux-x64-v1.1.51.zip)
+                        </a>
+                        
+                        <h6 class="mt-4">Package Includes:</h6>
+                        <ul>
+                            <li>? Pre-compiled .NET 10 API binaries</li>
+                            <li>? All required dependencies and libraries</li>
+                            <li>? Default configuration files</li>
+                            <li>? REST API endpoints</li>
+                            <li>? No web dashboard UI (API-only)</li>
+                            <li>? No Minecraft Bedrock server binaries (download separately)</li>
+                        </ul>
+
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <strong>Note:</strong> You'll need to download the Minecraft Bedrock Server separately from 
+                            <a href="https://www.minecraft.net/en-us/download/server/bedrock" target="_blank">minecraft.net</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Installation Notice -->
+            <div class="alert alert-primary">
+                <h5 class="alert-heading"><i class="bi bi-book me-2"></i>Complete Installation Guide</h5>
+                <p class="mb-0">
+                    For the full step-by-step installation instructions, please refer to the 
+                    <a href="https://github.com/JoshuaBylotas/MCBDSHost/blob/main/MCBDS.Installer/LINUX-INSTALLATION-GUIDE.md" target="_blank" class="alert-link">
+                        complete Linux Installation Guide on GitHub
+                    </a>
+                </p>
+            </div>
+
+            <!-- API Endpoints Overview -->
+            <section id="api-endpoints" class="mb-5">
+                <h2 class="mb-3">API Endpoints</h2>
+                <p>Manage your server via REST API. Here are the key endpoint categories:</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-play-circle me-2"></i>Runner Management</h5>
+                                <ul class="small">
+                                    <li>GET /api/runner/status</li>
+                                    <li>POST /api/runner/start</li>
+                                    <li>POST /api/runner/stop</li>
+                                    <li>POST /api/runner/command</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-shield-check me-2"></i>Allowlist Management</h5>
+                                <ul class="small">
+                                    <li>GET /api/allowlist</li>
+                                    <li>POST /api/allowlist</li>
+                                    <li>DELETE /api/allowlist/{xuid}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-archive me-2"></i>Backup Management</h5>
+                                <ul class="small">
+                                    <li>GET /api/backup/list</li>
+                                    <li>POST /api/backup/create</li>
+                                    <li>GET /api/backup/download/{filename}</li>
+                                    <li>GET /api/backup/settings</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="bi bi-box me-2"></i>Pack Management</h5>
+                                <ul class="small">
+                                    <li>GET /api/packs/resource</li>
+                                    <li>POST /api/packs/resource</li>
+                                    <li>GET /api/packs/behavior</li>
+                                    <li>POST /api/packs/behavior</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Steps -->
+            <section id="next-steps" class="mb-5">
+                <h2 class="mb-3">After Installation</h2>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <h5>1. Configure Server Properties</h5>
+                        <p class="mb-0">Edit <code>/opt/mcbds/binaries/server.properties</code> to customize your server</p>
+                    </div>
+                    <div class="list-group-item">
+                        <h5>2. Start Managing via API</h5>
+                        <p class="mb-0">Use curl, Postman, or any HTTP client to interact with the REST API</p>
+                    </div>
+                    <div class="list-group-item">
+                        <h5>3. Connect Mobile App</h5>
+                        <p class="mb-0">Download the MAUI mobile app for native iOS/Android management</p>
+                    </div>
+                    <div class="list-group-item">
+                        <h5>4. Setup Automated Backups</h5>
+                        <p class="mb-0">Configure backup frequency and retention in <code>appsettings.json</code></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Support Section -->
+            <section id="support" class="mb-5">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h3><i class="bi bi-question-circle me-2"></i>Need Help?</h3>
+                        <p>Check out these resources:</p>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="https://github.com/JoshuaBylotas/MCBDSHost/blob/main/MCBDS.Installer/LINUX-INSTALLATION-GUIDE.md" class="btn btn-outline-primary" target="_blank">
+                                <i class="bi bi-book me-2"></i>Full Guide
+                            </a>
+                            <a href="https://github.com/JoshuaBylotas/MCBDSHost/issues" class="btn btn-outline-secondary" target="_blank">
+                                <i class="bi bi-bug me-2"></i>Report Issue
+                            </a>
+                            <a href="/get-started" class="btn btn-outline-info">
+                                <i class="bi bi-question-circle me-2"></i>Get Started
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

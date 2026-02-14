@@ -33,6 +33,14 @@
     <priority>0.9</priority>
   </url>
 
+  <!-- Linux Installation Guide Page -->
+  <url>
+    <loc>https://www.mc-bds.com/linux-installation</loc>
+    <lastmod>2025-02-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
   <!-- Release Pages -->
   <url>
     <loc>https://www.mc-bds.com/v1-1-51-release</loc>
