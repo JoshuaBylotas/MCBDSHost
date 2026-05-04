@@ -148,15 +148,22 @@ public class Program
     {
         var serviceDirectory = AppContext.BaseDirectory;
 
-        // Override configuration with Windows-specific paths
-        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+        // Insert defaults FIRST so appsettings.json can override them
+        var defaults = new Dictionary<string, string?>
         {
             ["Runner:ExePath"] = Path.Combine(serviceDirectory, "Binaries", "bedrock_server.exe"),
             ["Runner:LogFilePath"] = Path.Combine(serviceDirectory, "logs", "runner.log"),
             ["Backup:BackupDirectory"] = Path.Combine(serviceDirectory, "backups"),
             ["Backup:FrequencyMinutes"] = "30",
             ["Backup:MaxBackupsToKeep"] = "30"
-        });
+        };
+
+        // Insert at position 0 so JSON files and env vars take priority
+        builder.Configuration.Sources.Insert(0,
+            new Microsoft.Extensions.Configuration.Memory.MemoryConfigurationSource
+            {
+                InitialData = defaults
+            });
 
         // Add services
         builder.Services.AddControllers();
@@ -193,3 +200,4 @@ public class Program
         builder.Services.AddHealthChecks();
     }
 }
+
