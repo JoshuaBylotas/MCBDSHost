@@ -302,10 +302,34 @@ public class BackupHostedService : BackgroundService
             await Task.Delay(3000);
             _logger.LogInformation("Bedrock server stopped");
 
-            // Step 2: Delete existing world directory
+            // Step 2: Backup packs before deleting world directory
+            string? behaviorPacksBackup = null;
+            string? resourcePacksBackup = null;
+            
             if (Directory.Exists(worldPath))
             {
-                _logger.LogInformation("Step 2: Deleting existing world at: {WorldPath}", worldPath);
+                _logger.LogInformation("Step 2: Backing up packs before restore...");
+                
+                var behaviorPacksPath = Path.Combine(worldPath, "behavior_packs");
+                var resourcePacksPath = Path.Combine(worldPath, "resource_packs");
+                
+                // Backup behavior packs if they exist
+                if (Directory.Exists(behaviorPacksPath) && Directory.GetFileSystemEntries(behaviorPacksPath).Length > 0)
+                {
+                    behaviorPacksBackup = Path.Combine(Path.GetTempPath(), $"behavior_packs_backup_{Guid.NewGuid()}");
+                    CopyDirectory(behaviorPacksPath, behaviorPacksBackup);
+                    _logger.LogInformation("Backed up behavior_packs to temporary location: {Path}", behaviorPacksBackup);
+                }
+                
+                // Backup resource packs if they exist
+                if (Directory.Exists(resourcePacksPath) && Directory.GetFileSystemEntries(resourcePacksPath).Length > 0)
+                {
+                    resourcePacksBackup = Path.Combine(Path.GetTempPath(), $"resource_packs_backup_{Guid.NewGuid()}");
+                    CopyDirectory(resourcePacksPath, resourcePacksBackup);
+                    _logger.LogInformation("Backed up resource_packs to temporary location: {Path}", resourcePacksBackup);
+                }
+                
+                _logger.LogInformation("Deleting existing world at: {WorldPath}", worldPath);
                 Directory.Delete(worldPath, recursive: true);
                 _logger.LogInformation("Existing world deleted");
             }
@@ -353,6 +377,41 @@ public class BackupHostedService : BackgroundService
             }
 
             _logger.LogInformation("Restore completed. Restored {Restored} files, {Failed} failed", filesRestored, filesFailed);
+
+            // Step 4.5: Restore behavior and resource packs
+            if (behaviorPacksBackup != null || resourcePacksBackup != null)
+            {
+                _logger.LogInformation("Step 4.5: Restoring packs...");
+                
+                try
+                {
+                    if (behaviorPacksBackup != null && Directory.Exists(behaviorPacksBackup))
+                    {
+                        var destBehaviorPacks = Path.Combine(worldPath, "behavior_packs");
+                        CopyDirectory(behaviorPacksBackup, destBehaviorPacks);
+                        _logger.LogInformation("Restored behavior_packs from backup");
+                        
+                        // Clean up temporary backup
+                        Directory.Delete(behaviorPacksBackup, recursive: true);
+                    }
+                    
+                    if (resourcePacksBackup != null && Directory.Exists(resourcePacksBackup))
+                    {
+                        var destResourcePacks = Path.Combine(worldPath, "resource_packs");
+                        CopyDirectory(resourcePacksBackup, destResourcePacks);
+                        _logger.LogInformation("Restored resource_packs from backup");
+                        
+                        // Clean up temporary backup
+                        Directory.Delete(resourcePacksBackup, recursive: true);
+                    }
+                    
+                    _logger.LogInformation("Packs restored successfully");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error restoring packs, but continuing with restore");
+                }
+            }
 
             // Step 5: Restart the Bedrock server
             _logger.LogInformation("Step 5: Restarting Bedrock server...");
@@ -735,5 +794,30 @@ public class BackupHostedService : BackgroundService
         _logger.LogInformation("BackupHostedService stopping...");
         _loopCts?.Cancel();
         await base.StopAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Recursively copies a directory and all its contents
+    /// </summary>
+    private void CopyDirectory(string sourceDir, string destinationDir)
+    {
+        // Create the destination directory
+        Directory.CreateDirectory(destinationDir);
+
+        // Copy all files
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var fileName = Path.GetFileName(file);
+            var destFile = Path.Combine(destinationDir, fileName);
+            File.Copy(file, destFile, overwrite: true);
+        }
+
+        // Recursively copy subdirectories
+        foreach (var subDir in Directory.GetDirectories(sourceDir))
+        {
+            var dirName = Path.GetFileName(subDir);
+            var destSubDir = Path.Combine(destinationDir, dirName);
+            CopyDirectory(subDir, destSubDir);
+        }
     }
 }

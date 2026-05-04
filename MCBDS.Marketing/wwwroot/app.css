@@ -58,3 +58,41 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Code block improvements for Linux installation guide */
+pre {
+    background-color: #1e1e1e;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+pre code {
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.card.bg-dark pre {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+}
+
+.card.bg-dark code {
+    color: #e6db74;
+}
+
+/* Syntax highlighting colors */
+code .language-bash {
+    color: #e6db74;
+}
+
+code .language-json {
+    color: #98c379;
+}
+
+code .language-ini {
+    color: #61afef;
+}
